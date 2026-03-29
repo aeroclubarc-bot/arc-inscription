@@ -9,6 +9,14 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+app.get('/ppl', (req, res) => {
+  res.sendFile(path.join(__dirname, 'ppl.html'));
+});
+
+app.get('/postppl', (req, res) => {
+  res.sendFile(path.join(__dirname, 'postppl.html'));
+});
+
 app.listen(PORT, () => {
   console.log(`ARC Inscription running on port ${PORT}`);
 });
