@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Règlement Intérieur — Aéroclub A.R.C.</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0a1628;--blue:#1a3a6b;--sky:#2d6be4;--gold:#c8a84b;--cream:#f8f5f0;--white:#ffffff;--gray:#6b7280;--light:#e8e4dd;--red:#dc2626;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--navy);}
+.hero{background:var(--blue);padding:60px 24px 48px;text-align:center;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 40% 100%,rgba(200,168,75,0.15) 0%,transparent 60%);}
+.hero .eyebrow{font-size:11px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:12px;position:relative;}
+.hero h1{font-family:'Libre Baskerville',serif;font-size:clamp(28px,4vw,42px);color:white;margin-bottom:12px;position:relative;}
+.hero p{color:rgba(255,255,255,0.65);font-size:15px;position:relative;}
+.hero .meta{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-top:20px;position:relative;}
+.hero .meta span{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.8);padding:5px 14px;border-radius:20px;font-size:12px;}
+.container{max-width:820px;margin:0 auto;padding:48px 24px 80px;}
+.toc{background:white;border:1px solid var(--light);border-radius:8px;padding:24px 28px;margin-bottom:40px;}
+.toc h2{font-family:'Libre Baskerville',serif;font-size:15px;color:var(--navy);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--light);}
+.toc ul{list-style:none;display:flex;flex-direction:column;gap:8px;}
+.toc ul li a{color:var(--sky);text-decoration:none;font-size:13px;display:flex;align-items:center;gap:8px;}
+.toc ul li a:hover{color:var(--gold);}
+.toc ul li a::before{content:'§';color:var(--gold);font-size:11px;flex-shrink:0;}
+.doc-section{margin-bottom:40px;}
+.section-header{background:var(--blue);color:white;padding:12px 20px;border-radius:6px 6px 0 0;font-family:'Libre Baskerville',serif;font-size:16px;display:flex;align-items:center;gap:10px;}
+.section-header .num{background:var(--gold);color:var(--navy);width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;font-family:'DM Sans',sans-serif;flex-shrink:0;}
+.section-body{background:white;border:1px solid var(--light);border-top:none;border-radius:0 0 6px 6px;}
+.article{padding:20px 24px;border-bottom:1px solid var(--light);}
+.article:last-child{border-bottom:none;}
+.article h4{font-size:12px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px;}
+.article p,.article li{font-size:14px;line-height:1.7;color:#374151;margin-bottom:8px;}
+.article ul{padding-left:20px;margin-bottom:8px;}
+.article ul li{margin-bottom:4px;}
+.article ol{padding-left:20px;margin-bottom:8px;}
+.important-box{background:rgba(220,38,38,0.04);border-left:3px solid var(--red);padding:12px 16px;border-radius:0 4px 4px 0;margin:10px 0;font-size:13px;color:var(--navy);line-height:1.6;}
+.info-box{background:rgba(45,107,228,0.04);border-left:3px solid var(--sky);padding:12px 16px;border-radius:0 4px 4px 0;margin:10px 0;font-size:13px;color:var(--navy);line-height:1.6;}
+.gold-box{background:rgba(200,168,75,0.06);border-left:3px solid var(--gold);padding:12px 16px;border-radius:0 4px 4px 0;margin:10px 0;font-size:13px;color:var(--navy);line-height:1.6;}
+.footer-block{background:var(--navy);color:white;border-radius:8px;padding:24px 28px;margin-top:40px;text-align:center;}
+.footer-block p{color:rgba(255,255,255,0.65);font-size:13px;line-height:1.6;}
+.footer-block strong{color:var(--gold);}
+</style>
+</head>
+<body>
+<div class="hero">
+  <p class="eyebrow">Aéroclub A.R.C. — Chavenay LFPX</p>
+  <h1>Règlement Intérieur</h1>
+  <p>Aviation et Relations Culturelles — A.R.C.</p>
+  <div class="meta">
+    <span>📋 Version du 10 septembre 2023</span>
+    <span>✅ Approuvé AG du 22 octobre 2023</span>
+    <span>📍 Aérodrome de Chavenay 78450 Villepreux</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="toc">
+    <h2>Table des matières</h2>
+    <ul>
+      <li><a href="#i">I — Dispositions Générales</a></li>
+      <li><a href="#ii">II — Du Personnel</a></li>
+      <li><a href="#iii">III — Des Pilotes</a></li>
+      <li><a href="#iv">IV — Vol à Frais Partagés</a></li>
+      <li><a href="#v">V — Activités Aériennes Particulières</a></li>
+      <li><a href="#vi">VI — Procédures d'Exclusion</a></li>
+      <li><a href="#vii">VII — Départ Volontaire du Club</a></li>
+      <li><a href="#viii">VIII — Propriétaires d'Appareils Privés</a></li>
+    </ul>
+  </div>
+
+  <!-- SECTION I -->
+  <div class="doc-section" id="i">
+    <div class="section-header"><div class="num">I</div>Dispositions Générales</div>
+    <div class="section-body">
+      <div class="article">
+        <h4>Article 1-1 — Application</h4>
+        <p>Le présent règlement intérieur est applicable à tous les membres rénovateurs et actifs de l'association et leur est opposable. Il est affiché dans les locaux de l'association et mis à disposition sur simple demande.</p>
+        <div class="important-box">Les membres ne sauraient invoquer la méconnaissance de ce règlement à quelque fin que ce soit.</div>
+        <p>Les différents tarifs (hors droits d'entrée et cotisation annuelle) sont fixés par le comité directeur.</p>
+      </div>
+      <div class="article">
+        <h4>Article 1-2 — Esprit Associatif</h4>
+        <p>L'aéro-club est une association de bonnes volontés. Ses membres doivent s'attacher à y faire régner l'esprit d'équipe, la courtoisie, la bonne entente.</p>
+        <p>Chacun doit avoir à cœur d'utiliser au mieux et de ménager les équipements mis à sa disposition. Chaque membre présent sur l'aérodrome doit coopérer à l'accueil des visiteurs et au bon fonctionnement de l'activité.</p>
+      </div>
+      <div class="article">
+        <h4>Article 1-3 — Obligations Générales</h4>
+        <p>Les obligations de l'association à l'égard de ses membres sont des obligations de moyen et diligence et non des obligations de résultats.</p>
+        <p>L'association souscrit diverses polices d'assurances, notamment des polices responsabilité civile aéronef pour chacun des aéronefs exploités. Il appartient aux membres de souscrire personnellement toute assurance complémentaire qui leur paraîtrait nécessaire.</p>
+        <div class="important-box">Le pilote demeure responsable des dommages subis par l'appareil pendant le temps où celui-ci est demeuré sous sa garde.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION II -->
+  <div class="doc-section" id="ii">
+    <div class="section-header"><div class="num">II</div>Du Personnel</div>
+    <div class="section-body">
+      <div class="article">
+        <h4>Article 2-1 — Dispositions Générales</h4>
+        <p>Le personnel salarié et/ou bénévole comprend : le responsable pédagogique et les instructeurs, le responsable technique (mécanique), et le chargé d'exploitation (secrétariat). Le président fixe les horaires, traitements, indemnités et établit les contrats de travail.</p>
+      </div>
+      <div class="article">
+        <h4>Article 2-2 — Des Instructeurs</h4>
+        <p>Les instructeurs ont en charge le suivi de l'utilisation des aéronefs, l'entraînement des pilotes, et la formation. Ils agissent sous la responsabilité du responsable pédagogique.</p>
+        <p>Ils sont fondés à prendre toute mesure temporaire en relation directe avec l'utilisation des aéronefs, telle que notamment une restriction d'utilisation des aéronefs ou une interdiction de vol.</p>
+        <div class="info-box">Cependant les pilotes restent maîtres de leur décision de prendre l'air et deviennent, dès le moment où leur a été confié un appareil, seuls gardiens de celui-ci.</div>
+      </div>
+      <div class="article">
+        <h4>Article 2-3 — Du Responsable Technique</h4>
+        <p>Le responsable technique est chargé du suivi de l'état des aéronefs en conformité avec la réglementation. Il décide de la disponibilité des aéronefs ainsi que des restrictions d'utilisation.</p>
+      </div>
+      <div class="article">
+        <h4>Article 2-4 — Du Chargé d'Exploitation</h4>
+        <p>Le chargé d'exploitation (secrétariat) a en charge la gestion administrative journalière de l'association.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION III -->
+  <div class="doc-section" id="iii">
+    <div class="section-header"><div class="num">III</div>Des Pilotes</div>
+    <div class="section-body">
+      <div class="article">
+        <h4>Article 3-1 — Participants</h4>
+        <p>Seuls pourront piloter les appareils de l'association les membres actifs ou rénovateurs, à jour de leurs cotisations et dûment autorisés par un instructeur.</p>
+      </div>
+      <div class="article">
+        <h4>Article 3-2 — Entraînement des Pilotes</h4>
+        <p>Les pilotes doivent demander à subir périodiquement un vol de contrôle. Ce vol de contrôle devra dater de moins de 24 mois (12 mois si le pilote a effectué moins de dix heures depuis le dernier vol de contrôle).</p>
+        <div class="gold-box">Il est recommandé aux pilotes de faire un minimum d'un vol par bimestre et dix heures de vol par an.</div>
+        <div class="important-box">Un pilote ne pouvant pas justifier d'un vol depuis moins de <strong>soixante jours</strong> sur un appareil concerné par la variante TW (Train classique), devra effectuer un vol en compagnie d'instructeur avant de pouvoir voler seul.</div>
+        <p>Les pilotes brevetés doivent s'acquitter d'un forfait annuel double-commande correspondant à trois heures de participation double commande. Les heures non-effectuées ne seront pas re-créditées.</p>
+      </div>
+      <div class="article">
+        <h4>Article 3-3 — Réservations</h4>
+        <p>Pour effectuer une réservation, tout pilote doit être en règle avec la trésorerie de l'association.</p>
+        <p><strong>Minimum d'heure :</strong> Lorsqu'un pilote conservera un aéronef à sa disposition, il devra effectuer un minimum de deux heures de vol par jour de réservation, quel que soit le jour. Si ce minimum n'est pas atteint (hors cas de force majeure), les heures manquantes lui seront décomptées à 50% du plein tarif.</p>
+        <p><strong>Annulation :</strong> Les réservations doivent être annulées avec un préavis d'au moins 48 heures hors cas de force majeure. En cas de non-respect, un forfait annulation tardive pourra être appliqué.</p>
+        <p><strong>Retard :</strong> Lors d'une réservation non honorée, après quinze minutes de retard, l'appareil sera considéré comme libre.</p>
+      </div>
+      <div class="article">
+        <h4>Article 3-4 — Formalités Avant et Après Vol</h4>
+        <p><strong>Avant le vol, tout pilote doit :</strong></p>
+        <ul>
+          <li>S'assurer d'être titulaire d'un titre aéronautique et des qualifications nécessaires en état de validité ainsi que d'une visite médicale valide.</li>
+          <li>En cas d'anomalie imposant une intervention de maintenance, prévenir l'association et renoncer à son vol (non facturé).</li>
+        </ul>
+        <p><strong>Après chaque vol, tout pilote doit :</strong></p>
+        <ul>
+          <li>Procéder à un avitaillement s'il reste moins d'un quart des réservoirs.</li>
+          <li>Abriter ou amarrer l'aéronef.</li>
+          <li>Nettoyer l'aéronef.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION IV -->
+  <div class="doc-section" id="iv">
+    <div class="section-header"><div class="num">IV</div>Vol à Frais Partagés</div>
+    <div class="section-body">
+      <div class="article">
+        <h4>Cadre Général</h4>
+        <p>Les vols à frais partagés sont réalisés dans le cadre du cercle de connaissance ou d'affinité du pilote (famille, amis, relations professionnelles, licenciés FFA). Seuls les coûts directs du vol sont partagés entre tous les occupants y compris le pilote, dans la limite de six personnes.</p>
+        <div class="important-box">Le pilote ne doit réaliser aucun bénéfice dans le cadre de ce vol.</div>
+      </div>
+      <div class="article">
+        <h4>Coavionnage (FFA/Wingly)</h4>
+        <p>Les vols à partage de frais élargis se dérouleront uniquement dans le cadre du partenariat FFA-Wingly. Le pilote devra préalablement respecter les conditions suivantes :</p>
+        <ul>
+          <li>Autorisation écrite du président ou du responsable pédagogique</li>
+          <li>250 heures de vol</li>
+          <li>10 heures de vol sur l'appareil concerné dans les 6 derniers mois</li>
+          <li>Un vol avec instructeur dans les deux derniers mois</li>
+          <li>3 décollages et 3 atterrissages sur avion train classique dans les 60 derniers jours</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION V -->
+  <div class="doc-section" id="v">
+    <div class="section-header"><div class="num">V</div>Activités Aériennes Particulières</div>
+    <div class="section-body">
+      <div class="article">
+        <h4>Baptêmes de l'Air — Vols d'Initiation</h4>
+        <p>Seuls sont autorisés à effectuer des vols constituant des activités aériennes particulières (baptêmes de l'air, vols d'initiation, etc.) les pilotes nominativement désignés par le président de l'association ou le responsable pédagogique.</p>
+        <p>Pour effectuer un vol local d'initiation à titre onéreux, le pilote membre devra :</p>
+        <ul>
+          <li>Être autorisé par le président de l'association</li>
+          <li>Être majeur</li>
+          <li>Être titulaire d'une licence de pilote professionnel avion ou d'une PPL avec 200h de vol, dont 30h dans les 12 derniers mois</li>
+          <li>Être détenteur d'un certificat d'aptitude physique et mentale de moins d'un an</li>
+          <li>Avoir effectué au minimum 3 décollages et 3 atterrissages sur avion train classique dans les 90 derniers jours précédant le vol</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION VI -->
+  <div class="doc-section" id="vi">
+    <div class="section-header"><div class="num">VI</div>Procédures d'Exclusion</div>
+    <div class="section-body">
+      <div class="article">
+        <h4>Procédure</h4>
+        <p>Le membre dont l'exclusion est envisagée doit être mis à même, avant que ladite exclusion soit prononcée, de présenter sa défense. Il sera convoqué par lettre recommandée avec accusé de réception au moins quinze jours avant la date prévue pour la comparution.</p>
+        <p>La lettre de convocation doit indiquer clairement la date, l'heure et le lieu de la comparution, préciser l'instance concernée, et comporter la mention des faits reprochés.</p>
+        <p>Le membre en instance d'exclusion est en droit de connaître au moins 5 jours avant sa comparution toutes les pièces et documents invoqués à son encontre. Il pourra présenter lui-même sa défense ou se faire assister par une personne de son choix.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION VII -->
+  <div class="doc-section" id="vii">
+    <div class="section-header"><div class="num">VII</div>Départ Volontaire du Club</div>
+    <div class="section-body">
+      <div class="article">
+        <h4>Non-Renouvellement</h4>
+        <p>En cas de non renouvellement de l'inscription, l'adhérent perdra le statut de membre de l'association et pourra dans un délai maximum de 6 mois demander le remboursement du solde de son compte pilote.</p>
+        <p>En cas de non-accomplissement de cette diligence dans le délai précité, un reçu de don pourra être établi à la demande de l'intéressé.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION VIII -->
+  <div class="doc-section" id="viii">
+    <div class="section-header"><div class="num">VIII</div>Propriétaires d'Appareils Privés</div>
+    <div class="section-body">
+      <div class="article">
+        <h4>Annexe Spécifique</h4>
+        <p>Une annexe établie par le comité directeur à ce règlement intérieur précisera les modalités particulières relatives aux membres propriétaires ou copropriétaires d'aéronefs abrités au sein de l'association.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-block">
+    <p>Règlement intérieur établi par le comité directeur du <strong>10 septembre 2023</strong>, approuvé par l'assemblée générale du <strong>22 octobre 2023</strong>.</p>
+    <p style="margin-top:8px;">Consultable à l'accueil du club et disponible sur demande — <strong>aeroclubarc@gmail.com</strong></p>
+  </div>
+
+</div>
+</body>
+</html>
