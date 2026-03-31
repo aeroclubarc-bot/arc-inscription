@@ -127,6 +127,13 @@ a{text-decoration:none;color:inherit;}
   border-radius:8px;overflow:hidden;transition:all 0.2s;
 }
 .avion-card:hover{background:rgba(255,255,255,0.08);border-color:var(--gold);}
+.avion-maintenance{opacity:0.7;border-color:rgba(239,68,68,0.3)!important;}
+.avion-maintenance:hover{border-color:rgba(239,68,68,0.5)!important;}
+.avion-badge-maintenance{position:absolute;bottom:10px;left:10px;background:rgba(239,68,68,0.85);color:white;font-size:10px;font-weight:700;padding:3px 8px;border-radius:3px;letter-spacing:0.03em;}
+.avion-price{margin-top:10px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.1);font-size:18px;font-weight:800;color:var(--gold);letter-spacing:-0.02em;}
+.avion-price span{font-size:12px;font-weight:500;color:rgba(255,255,255,0.5);}
+.avion-price-maint{color:rgba(239,68,68,0.7);}
+.maint-label{font-size:11px;font-weight:600;color:rgba(239,68,68,0.7);}
 .avion-img{
   height:180px;background:rgba(255,255,255,0.03);
   display:flex;align-items:center;justify-content:center;
@@ -261,38 +268,183 @@ a{text-decoration:none;color:inherit;}
 </head>
 <body>
 
+<!-- NAVBAR -->
+<nav id="arc-nav">
+  <div class="arc-nav-inner">
+    <a href="/" class="arc-nav-logo">
+      <img src="https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69c8ee72f60e3ec233a5a847_Logo%20ARC%20II%20FR.png" alt="ARC" height="40">
+    </a>
+    <ul class="arc-nav-links">
+      <li><a href="/">Le Club</a></li>
+      <li><a href="/la-flotte">La Flotte</a></li>
+      <li><a href="/formation">Formation PPL</a></li>
+      <li><a href="/post-ppl">Post-PPL</a></li>
+      <li><a href="/aerodrome">Aérodrome</a></li>
+      <li><a href="https://enviedepiloter.fr/commander-un-passeport/?code_fna=04158" target="_blank">Baptême de l'air</a></li>
+    </ul>
+    <a href="/tarifs" class="arc-nav-cta">Adhésion 2026</a>
+    <button class="arc-nav-burger" id="arc-burger" aria-label="Menu" onclick="document.getElementById('arc-nav').classList.toggle('open')">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+  <!-- MOBILE MENU -->
+  <ul class="arc-nav-mobile">
+    <li><a href="/">Le Club</a></li>
+    <li><a href="/la-flotte">La Flotte</a></li>
+    <li><a href="/formation">Formation PPL</a></li>
+    <li><a href="/post-ppl">Post-PPL</a></li>
+    <li><a href="/aerodrome">Aérodrome</a></li>
+    <li><a href="https://enviedepiloter.fr/commander-un-passeport/?code_fna=04158" target="_blank">Baptême de l'air</a></li>
+    <li><a href="/tarifs" class="arc-nav-cta-mobile">Adhésion 2026</a></li>
+  </ul>
+</nav>
+<style>
+#arc-nav{position:sticky;top:0;z-index:1000;background:rgba(10,22,40,0.97);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.08);font-family:'Inter',sans-serif;}
+.arc-nav-inner{max-width:1200px;margin:0 auto;padding:0 24px;height:64px;display:flex;align-items:center;justify-content:space-between;gap:24px;}
+.arc-nav-logo img{display:block;height:40px;width:auto;}
+.arc-nav-links{list-style:none;display:flex;align-items:center;gap:4px;margin:0;padding:0;}
+.arc-nav-links a{color:rgba(255,255,255,0.75);text-decoration:none;font-size:13px;font-weight:500;padding:6px 12px;border-radius:4px;transition:all 0.15s;white-space:nowrap;}
+.arc-nav-links a:hover{color:white;background:rgba(255,255,255,0.08);}
+.arc-nav-cta{background:#c8a84b;color:#0a1628;padding:8px 18px;border-radius:4px;font-size:13px;font-weight:700;text-decoration:none;white-space:nowrap;transition:background 0.2s;flex-shrink:0;}
+.arc-nav-cta:hover{background:#e0b94a;}
+.arc-nav-burger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:6px;}
+.arc-nav-burger span{display:block;width:22px;height:2px;background:white;border-radius:2px;transition:all 0.2s;}
+.arc-nav-mobile{display:none;list-style:none;padding:0 24px 16px;margin:0;border-top:1px solid rgba(255,255,255,0.08);}
+.arc-nav-mobile li{padding:0;}
+.arc-nav-mobile a{display:block;color:rgba(255,255,255,0.8);text-decoration:none;font-size:14px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.06);}
+.arc-nav-cta-mobile{color:#c8a84b !important;font-weight:700;}
+#arc-nav.open .arc-nav-mobile{display:block;}
+@media(max-width:900px){
+  .arc-nav-links{display:none;}
+  .arc-nav-cta{display:none;}
+  .arc-nav-burger{display:flex;}
+}
+</style>
+
 <!-- HERO -->
+<script>
+// ===== WIDGET PPV MODAL =====
+const API_TOTAL_M="https://ppv-production.up.railway.app/total";
+const API_TODAY_M="https://ppv-production.up.railway.app/stats/today";
+function drawModalGauge(power){
+  var canvas=document.getElementById("modal-gauge");if(!canvas)return;
+  var ctx=canvas.getContext("2d");var maxKW=13.5;var angle=(power/maxKW)*Math.PI;
+  ctx.clearRect(0,0,180,180);
+  ctx.beginPath();ctx.arc(90,90,70,Math.PI,2*Math.PI);ctx.lineWidth=10;ctx.strokeStyle="#c8e6c9";ctx.stroke();
+  ctx.save();ctx.translate(90,90);ctx.rotate(Math.PI+angle);
+  ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(62,0);ctx.lineWidth=4;ctx.strokeStyle="#1b5e20";ctx.stroke();
+  ctx.restore();
+  ctx.beginPath();ctx.arc(90,90,5,0,2*Math.PI);ctx.fillStyle="#1b5e20";ctx.fill();
+}
+async function updateModalPPV(){
+  try{
+    var res=await fetch(API_TOTAL_M+"?t="+Date.now());var data=await res.json();
+    var total=parseFloat(data.total_kwh)||0;var powerKW=(data.current_power_w||0)/1000;
+    var co2Kg=total*0.42;var flightHours=co2Kg/66.9;
+    document.getElementById("modal-odometer").innerText=total.toLocaleString("fr-FR",{minimumFractionDigits:1});
+    document.getElementById("modal-co2").innerText=co2Kg.toLocaleString("fr-FR",{maximumFractionDigits:0});
+    document.getElementById("modal-avgas").innerText=flightHours.toLocaleString("fr-FR",{minimumFractionDigits:1});
+    document.getElementById("modal-power").innerText=powerKW.toFixed(2);
+    var bp=document.getElementById("badge-power");if(bp)bp.innerText=powerKW.toFixed(2)+" kW";
+    drawModalGauge(powerKW);
+    var progress=Math.min(flightHours*5,480);
+    var plane=document.getElementById("modal-plane");if(plane)plane.style.transform="translateX("+progress+"px)";
+  }catch(e){}
+}
+async function updateModalToday(){
+  try{
+    var res=await fetch(API_TODAY_M+"?t="+Date.now());var data=await res.json();
+    var el=document.getElementById("modal-today");
+    if(el)el.innerText=Number(data.today_kwh||0).toLocaleString("fr-FR",{minimumFractionDigits:1});
+  }catch(e){}
+}
+updateModalPPV();updateModalToday();
+setInterval(updateModalPPV,120000);setInterval(updateModalToday,120000);
+document.addEventListener("DOMContentLoaded",function(){
+  var badge=document.getElementById("ppv-badge");
+  if(badge)badge.addEventListener("click",function(){updateModalPPV();updateModalToday();});
+});
+</script>
 <div class="hero">
   <div class="hero-bg-text">ARC</div>
-  <div class="hero-badge">☀️ Aérodrome Vert LFPX</div>
-  <div class="hero-content">
-    <p class="hero-eyebrow">Aéroclub A.R.C. — Chavenay LFPX</p>
-    <h1>Volez sur des<br><em>Jodel d'exception</em><br>à 30 min de Paris</h1>
-    <p class="hero-sub">Le seul aéroclub d'Île-de-France spécialisé en train classique. Une école de pilotage rigoureuse, une flotte de caractère, un esprit de club authentique depuis 1969.</p>
-    <div class="hero-cta">
-      <a href="/tarifs" class="btn-primary">✈ S'inscrire en ligne</a>
-      <a href="/formation" class="btn-outline">Formation PPL →</a>
-    </div>
-    <div class="hero-stats">
-      <div class="stat-item">
-        <div class="stat-num">5<span></span></div>
-        <div class="stat-label">Avions en flotte</div>
+  <div class="hero-badge" id="ppv-badge" onclick="document.getElementById('ppv-modal').style.display='flex'" style="cursor:pointer;" title="Voir la production solaire en direct">☀️ AÉRODROME VERT LFPX <span id="badge-power" style="color:var(--gold);margin-left:6px;">-- kW</span></div>
+
+<!-- MODAL PPV -->
+<div id="ppv-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.7);align-items:center;justify-content:center;padding:20px;" onclick="if(event.target===this)this.style.display='none'">
+  <div style="position:relative;max-width:700px;width:100%;max-height:90vh;overflow-y:auto;border-radius:16px;">
+    <button onclick="document.getElementById('ppv-modal').style.display='none'" style="position:absolute;top:12px;right:14px;background:rgba(0,0,0,0.4);color:white;border:none;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:18px;z-index:10;display:flex;align-items:center;justify-content:center;">✕</button>
+    <div style="font-family:Orbitron,sans-serif;background:linear-gradient(180deg,#f4faf4,#e6f3e6);padding:24px 28px 20px;border-radius:16px;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,0.3);">
+      <img src="https://cdn.prod.website-files.com/6284f93948ed036842dcdb04/699471a49cec0af5126515de_LOGOARCVERT.png" style="width:110px;margin-bottom:10px;">
+      <h2 style="color:#1b5e20;font-size:13px;letter-spacing:1.5px;margin:0;">✈️ AÉRODROME VERT — LFPX</h2>
+      <div style="margin-top:12px;font-size:12px;color:#555;">Production solaire depuis la mise en service</div>
+      <div style="display:flex;justify-content:center;align-items:flex-end;gap:8px;margin-top:6px;">
+        <div id="modal-odometer" style="font-size:40px;font-weight:700;color:#2e7d32;">--</div>
+        <div style="font-size:18px;color:#2e7d32;margin-bottom:4px;">kWh</div>
       </div>
-      <div class="stat-item">
-        <div class="stat-num">55<span>+</span></div>
-        <div class="stat-label">Ans d'expérience</div>
+      <div style="display:flex;justify-content:center;gap:28px;margin-top:14px;font-size:13px;flex-wrap:wrap;">
+        <div>🌍<br><span id="modal-co2" style="font-weight:700;color:#1b5e20;">--</span><br><span style="font-size:11px;color:#666;">kg CO₂ évités</span></div>
+        <div>✈️<br><span id="modal-avgas" style="font-weight:700;color:#1b5e20;">--</span><br><span style="font-size:11px;color:#666;">heures de vol éq. AVGAS</span></div>
       </div>
-      <div class="stat-item">
-        <div class="stat-num">10<span>+</span></div>
-        <div class="stat-label">Clubs réseau CAP</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-num">30<span>min</span></div>
-        <div class="stat-label">De Paris</div>
+      <canvas id="modal-gauge" width="180" height="180" style="margin-top:16px;"></canvas>
+      <div style="margin-top:4px;font-size:16px;color:#1b5e20;">☀️ <span id="modal-power">--</span> kW</div>
+      <div style="margin-top:6px;font-size:13px;color:#333;">⚡ +<span id="modal-today">0</span> kWh aujourd'hui</div>
+      <div style="margin-top:16px;height:40px;position:relative;">
+        <img id="modal-plane" src="https://cdn.prod.website-files.com/6284f93948ed036842dcdb04/69977429e27128a086822153_image.png" style="height:32px;position:absolute;left:0;transition:transform 2s ease-out;filter:drop-shadow(0 4px 8px rgba(0,0,0,0.3));">
       </div>
     </div>
   </div>
 </div>
+  <div class="hero-content" style="display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;max-width:1100px;margin:0 auto;width:100%;">
+    <div>
+      <p class="hero-eyebrow">Aéroclub A.R.C. — Chavenay LFPX</p>
+      <h1>Volez sur des<br><em>Jodel d'exception</em><br>à 30 min de Paris</h1>
+      <p class="hero-sub">Le seul aéroclub d'Île-de-France spécialisé en train classique. Une école de pilotage rigoureuse, une flotte de caractère, un esprit de club authentique depuis 1969.</p>
+      <div class="hero-cta">
+        <a href="/tarifs" class="btn-primary">✈ S'inscrire en ligne</a>
+        <a href="/formation" class="btn-outline">Formation PPL →</a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat-item">
+          <div class="stat-num">5<span></span></div>
+          <div class="stat-label">Avions en flotte</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">55<span>+</span></div>
+          <div class="stat-label">Ans d'expérience</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">10<span>+</span></div>
+          <div class="stat-label">Clubs réseau CAP</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">30<span>min</span></div>
+          <div class="stat-label">De Paris</div>
+        </div>
+      </div>
+    </div>
+    <!-- VIDÉO YOUTUBE CÔTE À CÔTE -->
+    <div style="position:relative;border-radius:12px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,0.4);">
+      <div style="position:relative;padding-bottom:56.25%;height:0;">
+        <iframe
+          src="https://www.youtube.com/embed/wmx0uu0OOv4?autoplay=0&rel=0&modestbranding=1"
+          style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen
+          title="Aéroclub ARC — Vol en Jodel">
+        </iframe>
+      </div>
+      <div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.7));padding:16px 20px;">
+        <div style="color:white;font-size:12px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;opacity:0.8;">F-BJLL — Jodel DR1050 · Vol au-dessus de l'Île-de-France</div>
+      </div>
+    </div>
+  </div>
+</div>
+<style>
+@media(max-width:900px){
+  .hero-content{grid-template-columns:1fr !important;}
+  .hero-content>div:last-child{display:none;}
+}
+</style>
 
 <!-- PPV WIDGET -->
 <div class="ppv-section">
@@ -412,6 +564,100 @@ a{text-decoration:none;color:inherit;}
   </div>
 </div>
 
+<!-- SECTION FORMATION TRAIN CLASSIQUE -->
+<div class="section light">
+  <div class="container">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;">
+      <div>
+        <p class="section-label">Pourquoi le train classique ?</p>
+        <h2 class="section-title">Former les meilleurs pilotes<br>depuis 1969</h2>
+        <p style="font-size:15px;color:var(--gray);line-height:1.7;margin-bottom:24px;">Apprendre sur train classique, c'est plus difficile — et c'est précisément pour ça que ça forge les meilleurs pilotes. À l'ARC, nous avons fait le choix délibéré de ne pas prendre le chemin facile.</p>
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <div style="display:flex;gap:14px;align-items:flex-start;">
+            <div style="width:36px;height:36px;background:var(--sky);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px;">🎯</div>
+            <div>
+              <div style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:3px;">Précision maximale aux atterrissages</div>
+              <div style="font-size:13px;color:var(--gray);line-height:1.5;">Le train classique ne pardonne pas les approximations — vous développez une maîtrise que les pilotes tricycle n'auront jamais.</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:14px;align-items:flex-start;">
+            <div style="width:36px;height:36px;background:var(--sky);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px;">🌬️</div>
+            <div>
+              <div style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:3px;">Sensibilité météo exceptionnelle</div>
+              <div style="font-size:13px;color:var(--gray);line-height:1.5;">Vent de travers, vent arrière, effets de sol — vous apprenez à lire la météo et à respecter la machine dès les premières heures.</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:14px;align-items:flex-start;">
+            <div style="width:36px;height:36px;background:var(--sky);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px;">✈️</div>
+            <div>
+              <div style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:3px;">Qualification TW reconnue</div>
+              <div style="font-size:13px;color:var(--gray);line-height:1.5;">La qualification "Tailwheel" est valorisée dans toute la communauté des pilotes. Elle ouvre l'accès à des appareils rares et de caractère.</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:14px;align-items:flex-start;">
+            <div style="width:36px;height:36px;background:var(--sky);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px;">🧠</div>
+            <div>
+              <div style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:3px;">De meilleures habitudes pour toute la vie</div>
+              <div style="font-size:13px;color:var(--gray);line-height:1.5;">Les réflexes acquis sur Jodel restent gravés. Les pilotes ARC sont reconnus pour leur rigueur, leur attention aux conditions et leur respect de la machine.</div>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:28px;padding:16px 20px;background:rgba(200,168,75,0.06);border:1px solid rgba(200,168,75,0.2);border-radius:6px;">
+          <div style="font-size:13px;color:var(--navy);line-height:1.6;font-style:italic;">"Après tout, il s'agit d'une activité de loisir — alors pourquoi piloter des engins sans âme ?"</div>
+          <div style="font-size:11px;color:var(--gray);margin-top:6px;font-weight:600;">— L'esprit ARC depuis 1969</div>
+        </div>
+        <div style="margin-top:24px;display:flex;gap:12px;flex-wrap:wrap;">
+          <a href="/formation" class="btn-primary">Voir la formation PPL</a>
+          <a href="/post-ppl" style="display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:600;color:var(--sky);text-decoration:none;">Qualifications post-PPL →</a>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div style="background:var(--navy);border-radius:10px;padding:24px;text-align:center;grid-column:span 2;">
+          <div style="font-size:11px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;">Formation PPL à l'ARC</div>
+          <div style="display:flex;justify-content:space-around;flex-wrap:wrap;gap:16px;">
+            <div style="text-align:center;">
+              <div style="font-size:32px;font-weight:900;color:white;letter-spacing:-0.03em;line-height:1;">45</div>
+              <div style="font-size:11px;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.08em;margin-top:2px;">heures min</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:32px;font-weight:900;color:white;letter-spacing:-0.03em;line-height:1;">~6 500</div>
+              <div style="font-size:11px;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.08em;margin-top:2px;">€ estimé</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:32px;font-weight:900;color:var(--gold);letter-spacing:-0.03em;line-height:1;">+TW</div>
+              <div style="font-size:11px;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.08em;margin-top:2px;">inclus</div>
+            </div>
+          </div>
+        </div>
+        <div style="background:var(--cream);border:1px solid var(--light);border-radius:8px;padding:18px;text-align:center;">
+          <div style="font-size:24px;margin-bottom:8px;">🌙</div>
+          <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:4px;">Vol de Nuit</div>
+          <div style="font-size:12px;color:var(--gray);">~650 €</div>
+          <a href="/post-ppl" style="display:block;margin-top:8px;font-size:11px;color:var(--sky);font-weight:600;text-decoration:none;">En savoir plus →</a>
+        </div>
+        <div style="background:var(--cream);border:1px solid var(--light);border-radius:8px;padding:18px;text-align:center;">
+          <div style="font-size:24px;margin-bottom:8px;">⛰️</div>
+          <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:4px;">Montagne</div>
+          <div style="font-size:12px;color:var(--gray);">Via réseau CAP</div>
+          <a href="/post-ppl" style="display:block;margin-top:8px;font-size:11px;color:var(--sky);font-weight:600;text-decoration:none;">En savoir plus →</a>
+        </div>
+        <div style="background:var(--cream);border:1px solid var(--light);border-radius:8px;padding:18px;text-align:center;">
+          <div style="font-size:24px;margin-bottom:8px;">🔄</div>
+          <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:4px;">Remise en condition</div>
+          <div style="font-size:12px;color:var(--gray);">Pilotes confirmés</div>
+          <a href="/post-ppl" style="display:block;margin-top:8px;font-size:11px;color:var(--sky);font-weight:600;text-decoration:none;">En savoir plus →</a>
+        </div>
+        <div style="background:var(--cream);border:1px solid var(--light);border-radius:8px;padding:18px;text-align:center;">
+          <div style="font-size:24px;margin-bottom:8px;">✈️</div>
+          <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:4px;">Qualification TW</div>
+          <div style="font-size:12px;color:var(--gray);">~750 €</div>
+          <a href="/post-ppl" style="display:block;margin-top:8px;font-size:11px;color:var(--sky);font-weight:600;text-decoration:none;">En savoir plus →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- FLOTTE -->
 <div class="flotte-section">
   <div class="container">
@@ -419,8 +665,11 @@ a{text-decoration:none;color:inherit;}
     <h2 class="section-title">5 avions de caractère</h2>
     <p class="section-lead">Du Jodel d'initiation au Robin de voyage longue distance — tous en train classique.</p>
     <div class="flotte-grid">
+
+      <!-- D112 -->
       <div class="avion-card">
-        <div class="avion-img"><img src="https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69cbab6d849f808cfd4aae83_PPM_Juin2025_p5_xref80_3378x1886.jpeg" alt="Jodel D112 F-PZRF">
+        <div class="avion-img">
+          <img src="https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69cbab6d849f808cfd4aae83_PPM_Juin2025_p5_xref80_3378x1886.jpeg" alt="Jodel D112 F-PZRF">
           <span class="avion-badge">Initiation</span>
         </div>
         <div class="avion-body">
@@ -430,11 +679,15 @@ a{text-decoration:none;color:inherit;}
             <div class="avion-spec"><span class="spec-k">Moteur</span><span class="spec-v">65 cv — Continental A65</span></div>
             <div class="avion-spec"><span class="spec-k">Croisière</span><span class="spec-v">130 km/h</span></div>
             <div class="avion-spec"><span class="spec-k">Places</span><span class="spec-v">2</span></div>
+            <div class="avion-price">95 <span>€/h</span></div>
           </div>
         </div>
       </div>
+
+      <!-- D113 -->
       <div class="avion-card">
-        <div class="avion-img"><img src="https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69cbab6c98fbef52a5ea988c_PJIL%20hangar.jpeg" alt="Jodel D113 F-PJIL">
+        <div class="avion-img">
+          <img src="https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69cbab6c98fbef52a5ea988c_PJIL%20hangar.jpeg" alt="Jodel D113 F-PJIL">
           <span class="avion-badge">Perfectionnement</span>
         </div>
         <div class="avion-body">
@@ -444,12 +697,35 @@ a{text-decoration:none;color:inherit;}
             <div class="avion-spec"><span class="spec-k">Moteur</span><span class="spec-v">100 cv — Lycoming O-200</span></div>
             <div class="avion-spec"><span class="spec-k">Croisière</span><span class="spec-v">180 km/h</span></div>
             <div class="avion-spec"><span class="spec-k">Places</span><span class="spec-v">2</span></div>
+            <div class="avion-price">120 <span>€/h</span></div>
           </div>
         </div>
       </div>
+
+      <!-- DR1050 -->
       <div class="avion-card">
-        <div class="avion-img"><img src="https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69cbab6c280e4445e394b652_PHOTO-2025-08-09-23-46-13%20(2).jpeg" alt="Jodel DH251 F-POUF">
+        <div class="avion-img">
+          <img src="https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69cbab6b138c3c93b57231c3_BJLL.jpeg" alt="Jodel DR1050 F-BJLL">
+          <span class="avion-badge">Polyvalent</span>
+        </div>
+        <div class="avion-body">
+          <div class="avion-immat">F-BJLL</div>
+          <div class="avion-name">Jodel DR1050</div>
+          <div class="avion-specs">
+            <div class="avion-spec"><span class="spec-k">Moteur</span><span class="spec-v">100 cv — Lycoming O-200</span></div>
+            <div class="avion-spec"><span class="spec-k">Croisière</span><span class="spec-v">190 km/h</span></div>
+            <div class="avion-spec"><span class="spec-k">Places</span><span class="spec-v">3</span></div>
+            <div class="avion-price">120 <span>€/h</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DH251 — EN MAINTENANCE -->
+      <div class="avion-card avion-maintenance">
+        <div class="avion-img">
+          <img src="https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69cbab6c280e4445e394b652_PHOTO-2025-08-09-23-46-13%20(2).jpeg" alt="Jodel DH251 F-POUF">
           <span class="avion-badge">Voyage</span>
+          <span class="avion-badge-maintenance">🔧 En maintenance</span>
         </div>
         <div class="avion-body">
           <div class="avion-immat">F-POUF</div>
@@ -458,11 +734,15 @@ a{text-decoration:none;color:inherit;}
             <div class="avion-spec"><span class="spec-k">Moteur</span><span class="spec-v">115 cv — Lycoming O-235</span></div>
             <div class="avion-spec"><span class="spec-k">Croisière</span><span class="spec-v">190 km/h</span></div>
             <div class="avion-spec"><span class="spec-k">Autonomie</span><span class="spec-v">>700 km</span></div>
+            <div class="avion-price avion-price-maint">140 <span>€/h</span> <span class="maint-label">· Indisponible</span></div>
           </div>
         </div>
       </div>
+
+      <!-- DR250 -->
       <div class="avion-card">
-        <div class="avion-img"><img src="https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69cbab6bca79c1ce90572dbf_BNVA.jpeg" alt="Robin DR250 F-BNVA">
+        <div class="avion-img">
+          <img src="https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69cbab6bca79c1ce90572dbf_BNVA.jpeg" alt="Robin DR250 F-BNVA">
           <span class="avion-badge">Voyage Long</span>
         </div>
         <div class="avion-body">
@@ -472,23 +752,11 @@ a{text-decoration:none;color:inherit;}
             <div class="avion-spec"><span class="spec-k">Moteur</span><span class="spec-v">160 cv — Lycoming O-320</span></div>
             <div class="avion-spec"><span class="spec-k">Croisière</span><span class="spec-v">240 km/h</span></div>
             <div class="avion-spec"><span class="spec-k">Autonomie</span><span class="spec-v">>1200 km</span></div>
+            <div class="avion-price">200 <span>€/h</span></div>
           </div>
         </div>
       </div>
-      <div class="avion-card">
-        <div class="avion-img"><img src="https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69cbab6b138c3c93b57231c3_BJLL.jpeg" alt="Jodel DR1050 F-BJLL">
-          <span class="avion-badge">Polyvalent</span>
-        </div>
-        <div class="avion-body">
-          <div class="avion-immat">F-BJLL</div>
-          <div class="avion-name">Jodel DR1050</div>
-          <div class="avion-specs">
-            <div class="avion-spec"><span class="spec-k">Moteur</span><span class="spec-v">115 cv — Lycoming O-235</span></div>
-            <div class="avion-spec"><span class="spec-k">Croisière</span><span class="spec-v">190 km/h</span></div>
-            <div class="avion-spec"><span class="spec-k">Places</span><span class="spec-v">3</span></div>
-          </div>
-        </div>
-      </div>
+
     </div>
     <div class="flotte-cta">
       <a href="/la-flotte" class="btn-outline">Voir la flotte complète →</a>
