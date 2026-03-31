@@ -3,432 +3,98 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Formation PPL — Aéroclub A.R.C.</title>
-<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<title>Formation PPL — Aéroclub A.R.C. LFPX</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --navy: #0a1628;
-    --blue: #1a3a6b;
-    --sky: #2d6be4;
-    --gold: #c8a84b;
-    --cream: #f8f5f0;
-    --white: #ffffff;
-    --gray: #6b7280;
-    --light: #e8e4dd;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--navy); }
-
-  /* Hero */
-  .hero {
-    background: var(--navy);
-    padding: 80px 24px 72px;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-  }
-  .hero::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(ellipse at 60% 0%, rgba(45,107,228,0.25) 0%, transparent 70%);
-  }
-  .hero .eyebrow {
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--gold);
-    margin-bottom: 16px;
-    position: relative;
-  }
-  .hero h1 {
-    font-family: 'Libre Baskerville', serif;
-    font-size: clamp(32px, 5vw, 52px);
-    color: white;
-    line-height: 1.15;
-    margin-bottom: 20px;
-    position: relative;
-  }
-  .hero p {
-    color: rgba(255,255,255,0.7);
-    font-size: 17px;
-    max-width: 560px;
-    margin: 0 auto 36px;
-    line-height: 1.6;
-    position: relative;
-  }
-  .hero-badges {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    justify-content: center;
-    position: relative;
-  }
-  .badge {
-    background: rgba(255,255,255,0.1);
-    border: 1px solid rgba(255,255,255,0.2);
-    color: white;
-    padding: 7px 16px;
-    border-radius: 20px;
-    font-size: 13px;
-    font-weight: 500;
-  }
-  .badge.gold { background: rgba(200,168,75,0.2); border-color: var(--gold); color: var(--gold); }
-
-  /* Section */
-  .section { padding: 64px 24px; }
-  .section.light { background: white; }
-  .section.dark { background: var(--navy); }
-  .container { max-width: 900px; margin: 0 auto; }
-
-  .section-label {
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--gold);
-    margin-bottom: 12px;
-  }
-  h2 {
-    font-family: 'Libre Baskerville', serif;
-    font-size: clamp(24px, 3vw, 34px);
-    color: var(--navy);
-    line-height: 1.2;
-    margin-bottom: 20px;
-  }
-  .dark h2 { color: white; }
-  .lead {
-    font-size: 16px;
-    line-height: 1.7;
-    color: var(--gray);
-    margin-bottom: 32px;
-    max-width: 700px;
-  }
-  .dark .lead { color: rgba(255,255,255,0.65); }
-
-  /* Steps */
-  .steps { display: flex; flex-direction: column; gap: 0; margin-top: 40px; }
-  .step {
-    display: grid;
-    grid-template-columns: 56px 1fr;
-    gap: 24px;
-    padding: 28px 0;
-    border-bottom: 1px solid var(--light);
-    position: relative;
-  }
-  .step:last-child { border-bottom: none; }
-  .step-num {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    background: var(--sky);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: 'Libre Baskerville', serif;
-    font-size: 18px;
-    font-weight: 700;
-    flex-shrink: 0;
-    margin-top: 2px;
-  }
-  .step-content h3 {
-    font-family: 'Libre Baskerville', serif;
-    font-size: 18px;
-    color: var(--navy);
-    margin-bottom: 8px;
-  }
-  .step-content p { font-size: 14px; color: var(--gray); line-height: 1.6; }
-  .step-content .meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 10px;
-  }
-  .meta-tag {
-    background: var(--cream);
-    border: 1px solid var(--light);
-    color: var(--navy);
-    font-size: 11px;
-    font-weight: 600;
-    padding: 3px 10px;
-    border-radius: 10px;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-  .meta-tag.blue { background: rgba(45,107,228,0.08); border-color: rgba(45,107,228,0.2); color: var(--sky); }
-
-  /* Cards grid */
-  .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 32px; }
-  @media (max-width: 700px) { .cards { grid-template-columns: 1fr; } }
-  .card {
-    background: var(--cream);
-    border: 1px solid var(--light);
-    border-radius: 8px;
-    padding: 24px;
-  }
-  .dark .card { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.1); }
-  .card-icon { font-size: 28px; margin-bottom: 14px; }
-  .card h4 { font-family: 'Libre Baskerville', serif; font-size: 15px; color: var(--navy); margin-bottom: 8px; }
-  .dark .card h4 { color: white; }
-  .card p { font-size: 13px; color: var(--gray); line-height: 1.5; }
-  .dark .card p { color: rgba(255,255,255,0.5); }
-
-  /* Conditions table */
-  .cond-table { width: 100%; border-collapse: collapse; margin-top: 24px; }
-  .cond-table th {
-    background: var(--navy);
-    color: white;
-    padding: 12px 16px;
-    text-align: left;
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-  }
-  .cond-table td { padding: 12px 16px; font-size: 14px; border-bottom: 1px solid var(--light); color: var(--navy); }
-  .cond-table tr:last-child td { border-bottom: none; }
-  .cond-table tr:nth-child(even) td { background: var(--cream); }
-  .ok { color: #16a34a; font-weight: 600; }
-  .val { color: var(--sky); font-weight: 600; }
-
-  /* CTA */
-  .cta-box {
-    background: var(--sky);
-    border-radius: 8px;
-    padding: 40px 36px;
-    text-align: center;
-    margin-top: 48px;
-  }
-  .cta-box h3 { font-family: 'Libre Baskerville', serif; font-size: 24px; color: white; margin-bottom: 10px; }
-  .cta-box p { color: rgba(255,255,255,0.8); font-size: 15px; margin-bottom: 24px; }
-  .cta-btn {
-    display: inline-block;
-    background: white;
-    color: var(--sky);
-    font-weight: 700;
-    font-size: 14px;
-    padding: 13px 30px;
-    border-radius: 4px;
-    text-decoration: none;
-    transition: all 0.2s;
-  }
-  .cta-btn:hover { background: var(--gold); color: white; }
-  .cta-btn + .cta-btn { margin-left: 12px; background: transparent; border: 2px solid white; color: white; }
-  .cta-btn + .cta-btn:hover { background: white; color: var(--sky); }
-
-  /* Divider */
-  .divider { height: 1px; background: var(--light); margin: 0; }
-
-  /* Highlight quote */
-  .highlight {
-    border-left: 3px solid var(--gold);
-    padding: 16px 20px;
-    background: rgba(200,168,75,0.06);
-    border-radius: 0 6px 6px 0;
-    margin: 24px 0;
-    font-size: 15px;
-    line-height: 1.6;
-    color: var(--navy);
-    font-style: italic;
-  }
-
-  /* Two cols */
-  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start; }
-  @media (max-width: 700px) { .two-col { grid-template-columns: 1fr; } }
-
-  /* List */
-  .check-list { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-top: 16px; }
-  .check-list li { display: flex; align-items: flex-start; gap: 10px; font-size: 14px; color: var(--gray); line-height: 1.5; }
-  .check-list li::before { content: '✓'; color: var(--sky); font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+:root{--navy:#0a1628;--blue:#1a3a6b;--sky:#2d6be4;--gold:#c8a84b;--cream:#f8f5f0;--white:#fff;--gray:#6b7280;--light:#e8e4dd;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:var(--cream);color:var(--navy);-webkit-font-smoothing:antialiased;}
+a{text-decoration:none;color:inherit;}
+img{max-width:100%;height:auto;}
+nav#arc-nav{position:sticky;top:0;z-index:1000;background:rgba(10,22,40,0.97);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.08);}
+.arc-nav-inner{max-width:1200px;margin:0 auto;padding:0 24px;height:64px;display:flex;align-items:center;justify-content:space-between;gap:24px;}
+.arc-nav-logo img{display:block;height:40px;width:auto;}
+.arc-nav-links{list-style:none;display:flex;align-items:center;gap:4px;margin:0;padding:0;}
+.arc-nav-links a{color:rgba(255,255,255,0.75);font-size:13px;font-weight:500;padding:6px 12px;border-radius:4px;transition:all 0.15s;white-space:nowrap;}
+.arc-nav-links a:hover,.arc-nav-links a.active{color:white;background:rgba(255,255,255,0.08);}
+.arc-nav-cta{background:#c8a84b;color:#0a1628;padding:8px 18px;border-radius:4px;font-size:13px;font-weight:700;white-space:nowrap;transition:background 0.2s;flex-shrink:0;}
+.arc-nav-cta:hover{background:#e0b94a;}
+.arc-nav-burger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:6px;}
+.arc-nav-burger span{display:block;width:22px;height:2px;background:white;border-radius:2px;}
+.arc-nav-mobile{display:none;list-style:none;padding:0 24px 16px;margin:0;border-top:1px solid rgba(255,255,255,0.08);}
+.arc-nav-mobile a{display:block;color:rgba(255,255,255,0.8);font-size:14px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.06);}
+.arc-nav-cta-mobile{color:#c8a84b !important;font-weight:700;}
+#arc-nav.open .arc-nav-mobile{display:block;}
+@media(max-width:900px){.arc-nav-links,.arc-nav-cta{display:none;}.arc-nav-burger{display:flex;}}
+.page-hero{background:linear-gradient(135deg,var(--navy) 0%,var(--blue) 100%);padding:72px 24px 56px;text-align:center;}
+.page-hero .eyebrow{font-size:11px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:12px;}
+.page-hero h1{font-size:clamp(32px,5vw,56px);font-weight:900;color:white;letter-spacing:-0.03em;line-height:1.05;margin-bottom:14px;}
+.page-hero .sub{font-size:16px;color:rgba(255,255,255,0.6);max-width:560px;margin:0 auto;}
+.container{max-width:1100px;margin:0 auto;padding:0 24px;}
+.section{padding:72px 24px;}
+.section.light{background:white;}
+.section.cream{background:var(--cream);}
+.section.dark{background:var(--navy);}
+.section-label{font-size:11px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;}
+.section-title{font-size:clamp(24px,3.5vw,36px);font-weight:800;color:var(--navy);letter-spacing:-0.02em;line-height:1.1;margin-bottom:14px;}
+.lead{font-size:16px;color:var(--gray);line-height:1.7;max-width:640px;margin-bottom:32px;}
+.btn-primary{display:inline-flex;align-items:center;gap:8px;background:var(--gold);color:var(--navy);padding:13px 28px;border-radius:4px;font-weight:700;font-size:14px;transition:background 0.2s;}
+.btn-primary:hover{background:#e0b94a;}
+footer{background:var(--navy);padding:40px 24px;text-align:center;border-top:1px solid rgba(255,255,255,0.08);}
+footer p{color:rgba(255,255,255,0.35);font-size:13px;line-height:1.8;}
+footer a{color:var(--gold);}
 </style>
 </head>
 <body>
-
-<!-- HERO -->
-<div class="hero">
-  <p class="eyebrow">Aéroclub A.R.C. — Chavenay LFPX</p>
-  <h1>Brevet de Pilote Privé<br>PPL(A)</h1>
-  <p>La formation complète pour obtenir votre licence de pilote avion, sur train classique Jodel — une école de pilotage rigoureuse et passionnante.</p>
-  <div class="hero-badges">
-    <span class="badge">✈ Train classique Jodel</span>
-    <span class="badge">📍 Chavenay LFPX</span>
-    <span class="badge">🎓 Instructeurs FFA qualifiés</span>
-    <span class="badge gold">Réseau CAP</span>
+<nav id="arc-nav">
+  <div class="arc-nav-inner">
+    <a href="/" class="arc-nav-logo"><img src="https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69c8ee72f60e3ec233a5a847_Logo%20ARC%20II%20FR.png" alt="ARC" height="40"></a>
+    <ul class="arc-nav-links">
+      <li><a href="/la-flotte">La Flotte</a></li>
+      <li><a href="/formation">Formation PPL</a></li>
+      <li><a href="/post-ppl">Post-PPL</a></li>
+      <li><a href="/aerodrome">Aérodrome</a></li>
+      <li><a href="https://enviedepiloter.fr/commander-un-passeport/?code_fna=04158" target="_blank">Initiation au Pilotage</a></li>
+      <li><a href="/" id="nav-inscription">Inscription</a></li>
+    </ul>
+    <a href="/tarifs" class="arc-nav-cta">Adhésion 2026</a>
+    <button class="arc-nav-burger" onclick="document.getElementById('arc-nav').classList.toggle('open')"><span></span><span></span><span></span></button>
   </div>
+  <ul class="arc-nav-mobile">
+    <li><a href="/la-flotte">La Flotte</a></li>
+    <li><a href="/formation">Formation PPL</a></li>
+    <li><a href="/post-ppl">Post-PPL</a></li>
+    <li><a href="/aerodrome">Aérodrome</a></li>
+    <li><a href="https://enviedepiloter.fr/commander-un-passeport/?code_fna=04158" target="_blank">Initiation au Pilotage</a></li>
+    <li><a href="/">Inscription</a></li>
+    <li><a href="/tarifs" class="arc-nav-cta-mobile">Adhésion 2026</a></li>
+  </ul>
+</nav>
+
+<div class="page-hero">
+  <p class="eyebrow">Brevet de Pilote Privé</p>
+  <h1>Formation PPL</h1>
+  <p class="sub">Obtenez votre licence de pilote privé à Chavenay — tous les avions en train classique, qualification TW incluse.</p>
 </div>
 
-<!-- QU'EST-CE QUE LE PPL -->
-<div class="section light">
+<div class="section cream">
   <div class="container">
-    <p class="section-label">La licence</p>
-    <h2>Qu'est-ce que le PPL(A) ?</h2>
-    <div class="two-col">
+    <div style="background:rgba(45,107,228,0.06);border:1px solid rgba(45,107,228,0.15);border-radius:10px;padding:28px 32px;margin-bottom:40px;display:flex;align-items:center;gap:20px;">
+      <span style="font-size:32px;">✈️</span>
       <div>
-        <p class="lead">Le PPL (Private Pilot Licence) est la licence de pilote privé avion délivrée par la DGAC. Elle vous autorise à piloter un avion monomoteur en VFR (vol à vue), à transporter des passagers, et à voler dans toute l'Europe.</p>
-        <div class="highlight">À l'ARC, la formation PPL se fait sur train classique Jodel — une discipline plus exigeante qui forge de meilleurs pilotes. Vous en sortirez plus attentif, plus précis, et plus fier.</div>
+        <p style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:4px;">Page en cours de migration</p>
+        <p style="font-size:14px;color:var(--gray);">Le contenu détaillé de cette page sera disponible prochainement. En attendant, contactez-nous directement.</p>
       </div>
-      <div>
-        <ul class="check-list">
-          <li>Valable à vie (renouvellement de la qualification SEP tous les 2 ans)</li>
-          <li>Autorisation de vol dans toute l'Europe et hors UE</li>
-          <li>Transport de passagers autorisé (sans rémunération)</li>
-          <li>Accès à la flotte complète de l'ARC</li>
-          <li>Voler dans les clubs du réseau CAP sans frais supplémentaires</li>
-          <li>Passerelle vers le LAPL, le vol de nuit, l'IFR</li>
-        </ul>
-      </div>
+    </div>
+    <div style="display:flex;gap:16px;flex-wrap:wrap;">
+      <a href="/contact" class="btn-primary">📞 Nous contacter</a>
+      <a href="/tarifs" style="display:inline-flex;align-items:center;gap:8px;background:var(--navy);color:white;padding:13px 28px;border-radius:4px;font-weight:700;font-size:14px;">Adhésion 2026</a>
     </div>
   </div>
 </div>
 
-<div class="divider"></div>
-
-<!-- PARCOURS -->
-<div class="section">
-  <div class="container">
-    <p class="section-label">Le parcours</p>
-    <h2>Les étapes de la formation</h2>
-    <p class="lead">La formation PPL comporte un minimum de 45 heures de vol et une préparation théorique complète. À l'ARC, nos instructeurs adaptent le rythme à chaque élève.</p>
-
-    <div class="steps">
-      <div class="step">
-        <div class="step-num">1</div>
-        <div class="step-content">
-          <h3>Vol de découverte</h3>
-          <p>Avant de vous engager, venez faire un vol d'initiation avec un instructeur. 30 minutes en double commande pour découvrir le Jodel, l'aérodrome de Chavenay, et l'ambiance du club.</p>
-          <div class="meta"><span class="meta-tag">30 min</span><span class="meta-tag blue">~100 €</span></div>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-num">2</div>
-        <div class="step-content">
-          <h3>Phase biplace — Prise en main</h3>
-          <p>Vous apprenez les bases du pilotage : décollages, atterrissages, virages, gestion du moteur. L'instructeur est à bord en double commande. La difficulté particulière du train classique vous donne d'excellents réflexes dès le début.</p>
-          <div class="meta"><span class="meta-tag">~20h DC</span><span class="meta-tag blue">Jodel D112 ou D113</span></div>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-num">3</div>
-        <div class="step-content">
-          <h3>Lâcher solo</h3>
-          <p>Premier vol seul à bord — le moment clé de tout pilote. Vous effectuez un tour de piste complet sans instructeur. Une étape inoubliable.</p>
-          <div class="meta"><span class="meta-tag">Étape clé</span><span class="meta-tag blue">Aide FFA : 335 €</span></div>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-num">4</div>
-        <div class="step-content">
-          <h3>Navigation et perfectionnement</h3>
-          <p>Vous progressez en navigation solo, vols de campagne, atterrissages sur terrains différents. Vous consolidez aussi la théorie pour l'examen écrit (9 matières).</p>
-          <div class="meta"><span class="meta-tag">~25h vol</span><span class="meta-tag">Théorie 9 matières</span></div>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-num">5</div>
-        <div class="step-content">
-          <h3>Examen théorique (QCM DGAC)</h3>
-          <p>9 épreuves écrites dans un centre agréé. Météorologie, navigation, réglementation, mécanique du vol, facteurs humains... L'ARC organise des sessions de révision collectives.</p>
-          <div class="meta"><span class="meta-tag">9 matières</span><span class="meta-tag blue">Centre agréé Paris</span></div>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-num">6</div>
-        <div class="step-content">
-          <h3>Examen pratique (DGAC)</h3>
-          <p>Vol de contrôle avec un examinateur DGAC. Navigation, pannes simulées, procédures. À la clé : votre licence PPL(A) — valable dans toute l'Europe.</p>
-          <div class="meta"><span class="meta-tag">~1h30 vol</span><span class="meta-tag blue">Aide FFA : 670 €</span></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- CONDITIONS -->
-<div class="section light">
-  <div class="container">
-    <p class="section-label">Conditions d'accès</p>
-    <h2>Qui peut passer le PPL ?</h2>
-    <table class="cond-table">
-      <tr><th>Condition</th><th>Exigence</th><th>Statut</th></tr>
-      <tr><td>Âge minimum</td><td>16 ans pour le lâcher solo, 17 ans pour la licence</td><td class="ok">✓</td></tr>
-      <tr><td>Certificat médical</td><td>Classe 2 DGAC (médecin agréé) — valable 5 ans jusqu'à 40 ans</td><td class="ok">✓</td></tr>
-      <tr><td>Niveau scolaire</td><td>Aucun prérequis — bonne maîtrise du français écrit recommandée</td><td class="ok">✓</td></tr>
-      <tr><td>Heures de vol minimales</td><td>45h dont 10h solo, 5h de navigation solo</td><td class="val">PPL EASA</td></tr>
-      <tr><td>Langue</td><td>Radiotelephonie en français (+ anglais recommandé)</td><td class="ok">✓</td></tr>
-    </table>
-  </div>
-</div>
-
-<!-- AVANTAGES ARC -->
-<div class="section dark">
-  <div class="container">
-    <p class="section-label" style="color:var(--gold)">Pourquoi l'ARC ?</p>
-    <h2>L'avantage train classique</h2>
-    <p class="lead">Apprendre sur un Jodel à train classique, c'est plus difficile — et c'est précisément ce qui forge les meilleurs pilotes.</p>
-    <div class="cards">
-      <div class="card">
-        <div class="card-icon">🎯</div>
-        <h4>Précision décuplée</h4>
-        <p>L'atterrissage sur train classique exige une précision que le train tricycle ne demande pas. Vous développez des réflexes que vous garderez toute votre vie de pilote.</p>
-      </div>
-      <div class="card">
-        <div class="card-icon">🌬️</div>
-        <h4>Sensibilité météo</h4>
-        <p>Le vent de travers est votre maître. Vous apprendrez à le lire, à l'anticiper, à le respecter — une compétence essentielle pour tout pilote sérieux.</p>
-      </div>
-      <div class="card">
-        <div class="card-icon">🤝</div>
-        <h4>Réseau CAP</h4>
-        <p>Votre adhésion à l'ARC vous donne accès à une dizaine de clubs partenaires dans toute la France, sans surcoût. Une liberté rare dans le monde aéroclubiste.</p>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- TARIFS -->
-<div class="section">
-  <div class="container">
-    <p class="section-label">Budget indicatif</p>
-    <h2>Combien ça coûte ?</h2>
-    <p class="lead">Le coût total d'un PPL à l'ARC dépend de votre progression et du nombre d'heures nécessaires. Voici une estimation réaliste.</p>
-
-    <div class="cards" style="grid-template-columns: repeat(2,1fr); margin-top: 28px;">
-      <div class="card" style="border-color: var(--sky);">
-        <h4 style="color:var(--sky);font-size:13px;letter-spacing:0.05em;text-transform:uppercase;font-family:'DM Sans',sans-serif;margin-bottom:16px;">Formation vol (45h minimum)</h4>
-        <div style="font-family:'Libre Baskerville',serif;font-size:36px;color:var(--navy);margin-bottom:4px;">~5 800 €</div>
-        <p>Sur la base de 45h à ~130€/h (D112). En pratique, la moyenne est autour de 55-60h selon l'élève.</p>
-      </div>
-      <div class="card">
-        <h4 style="font-size:13px;letter-spacing:0.05em;text-transform:uppercase;font-family:'DM Sans',sans-serif;margin-bottom:16px;">Frais annexes</h4>
-        <ul class="check-list">
-          <li>Cotisation ARC + FFA : ~300 €/an</li>
-          <li>Manuel de formation + livres : ~150 €</li>
-          <li>Certificat médical classe 2 : ~100 €</li>
-          <li>Examens DGAC : ~200 €</li>
-          <li><strong>Aides FFA jeunes : jusqu'à -1 005 €</strong></li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="highlight" style="margin-top:24px;">
-      💡 La FFA propose des aides financières pour les moins de 25 ans : 335 € au lâcher, 670 € à l'obtention du PPL. Renseignez-vous auprès du club à l'inscription.
-    </div>
-  </div>
-</div>
-
-<!-- CTA -->
-<div class="section light">
-  <div class="container">
-    <div class="cta-box">
-      <h3>Prêt à commencer ?</h3>
-      <p>Venez rencontrer nos instructeurs, faire un vol d'initiation, et rejoindre la communauté ARC.</p>
-      <a href="/tarifs" class="cta-btn">S'inscrire en ligne</a>
-      <a href="/contact" class="cta-btn">Nous contacter</a>
-    </div>
-  </div>
-</div>
-
+<footer>
+  <p>© 2026 Aéroclub A.R.C. — <a href="/statuts">Statuts</a> — <a href="/reglement">Règlement intérieur</a> — <a href="mailto:aeroclubarc@gmail.com">aeroclubarc@gmail.com</a></p>
+</footer>
 </body>
 </html>
