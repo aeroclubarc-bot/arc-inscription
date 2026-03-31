@@ -13,6 +13,10 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
 });
 
+app.get("/home-arc", (req, res) => {
+  res.sendFile(path.join(__dirname, "home.html"));
+});
+
 app.get("/ppl", (req, res) => {
   res.sendFile(path.join(__dirname, "ppl.html"));
 });

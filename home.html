@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aéroclub A.R.C. — Chavenay LFPX</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0a1628;--blue:#1a3a6b;--sky:#2d6be4;--gold:#c8a84b;
+  --cream:#f8f5f0;--white:#fff;--gray:#6b7280;--light:#e8e4dd;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:var(--cream);color:var(--navy);-webkit-font-smoothing:antialiased;}
+a{text-decoration:none;color:inherit;}
+
+/* ── HERO ── */
+.hero{
+  position:relative;min-height:92vh;
+  background:linear-gradient(160deg,rgba(10,22,40,0.85) 0%,rgba(26,58,107,0.75) 60%,rgba(14,34,68,0.85) 100%),url('https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69cbab6cdd0be9259eb62f3f_PHOTO-2025-08-09-23-46-13%20(1).jpeg') center/cover no-repeat;
+  display:flex;flex-direction:column;justify-content:center;
+  overflow:hidden;padding:80px 24px 60px;
+}
+.hero-bg-text{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  font-family:'Inter',sans-serif;font-size:clamp(120px,20vw,280px);
+  font-weight:700;color:rgba(255,255,255,0.03);white-space:nowrap;
+  pointer-events:none;user-select:none;letter-spacing:-0.02em;
+}
+.hero-content{max-width:1100px;margin:0 auto;width:100%;position:relative;z-index:1;}
+.hero-eyebrow{font-family:'Inter',sans-serif;font-weight:700;
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:11px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:24px;
+}
+.hero-eyebrow::before{content:'';width:32px;height:1px;background:var(--gold);}
+.hero h1{
+  font-family:'Inter',sans-serif;
+  font-size:clamp(40px,6.5vw,78px);
+  font-weight:900;
+  color:white;
+  line-height:1.0;
+  letter-spacing:-0.03em;
+  margin-bottom:24px;
+  max-width:700px;
+}
+.hero h1 em{color:var(--gold);font-style:normal;font-weight:900;}
+.hero-sub{
+  font-size:clamp(15px,2vw,18px);color:rgba(255,255,255,0.65);
+  line-height:1.6;max-width:540px;margin-bottom:40px;
+}
+.hero-cta{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:60px;}
+.btn-primary{
+  background:var(--gold);color:var(--navy);
+  padding:14px 32px;border-radius:4px;
+  font-weight:700;font-size:14px;letter-spacing:0.04em;
+  transition:all 0.2s;display:inline-flex;align-items:center;gap:8px;
+}
+.btn-primary:hover{background:#e0b94a;transform:translateY(-1px);}
+.btn-outline{
+  background:transparent;color:white;
+  border:1.5px solid rgba(255,255,255,0.3);
+  padding:14px 32px;border-radius:4px;
+  font-weight:600;font-size:14px;letter-spacing:0.04em;
+  transition:all 0.2s;display:inline-flex;align-items:center;gap:8px;
+}
+.btn-outline:hover{border-color:white;background:rgba(255,255,255,0.05);}
+.hero-stats{
+  display:flex;flex-wrap:wrap;gap:40px;
+  padding-top:40px;border-top:1px solid rgba(255,255,255,0.1);
+}
+.stat-item{text-align:left;}
+.stat-num{
+  font-family:'Inter',sans-serif;
+  font-size:clamp(28px,4vw,42px);color:white;font-weight:700;
+  line-height:1;
+}
+.stat-num span{color:var(--gold);}
+.stat-label{font-size:12px;color:rgba(255,255,255,0.45);margin-top:4px;text-transform:uppercase;letter-spacing:0.08em;}
+.hero-badge{
+  position:absolute;top:32px;right:32px;
+  background:rgba(200,168,75,0.15);border:1px solid rgba(200,168,75,0.3);
+  color:var(--gold);padding:8px 16px;border-radius:4px;
+  font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;
+  display:none;
+}
+@media(min-width:768px){.hero-badge{display:block;}}
+
+/* ── SECTION COMMUNE ── */
+.section{padding:80px 24px;}
+.section.light{background:white;}
+.section.dark{background:var(--navy);}
+.section.cream{background:var(--cream);}
+.container{max-width:1100px;margin:0 auto;}
+.section-label{font-size:11px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:12px;}
+.section-title{font-family:'Inter',sans-serif;font-size:clamp(26px,4vw,40px);font-weight:800;color:var(--navy);line-height:1.1;letter-spacing:-0.02em;margin-bottom:16px;}
+.dark .section-title{color:white;}
+.section-lead{font-size:16px;color:var(--gray);line-height:1.7;max-width:620px;margin-bottom:40px;}
+.dark .section-lead{color:rgba(255,255,255,0.6);}
+
+/* ── AVANTAGES ── */
+.avantages-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:48px;}
+@media(max-width:768px){.avantages-grid{grid-template-columns:1fr;}}
+.avantage-card{
+  background:var(--cream);border:1px solid var(--light);
+  border-radius:8px;padding:28px;
+  transition:transform 0.2s,box-shadow 0.2s;
+}
+.avantage-card:hover{transform:translateY(-3px);box-shadow:0 8px 32px rgba(10,22,40,0.1);}
+.avantage-icon{font-size:32px;margin-bottom:16px;}
+.avantage-card h3{font-family:'Inter',sans-serif;font-size:17px;font-weight:700;color:var(--navy);margin-bottom:8px;letter-spacing:-0.01em;}
+.avantage-card p{font-size:13px;color:var(--gray);line-height:1.6;}
+.avantage-tag{
+  display:inline-block;margin-top:12px;
+  background:rgba(45,107,228,0.08);color:var(--sky);
+  font-size:11px;font-weight:600;padding:3px 10px;
+  border-radius:10px;letter-spacing:0.05em;text-transform:uppercase;
+}
+
+/* ── FLOTTE SLIDER ── */
+.flotte-section{background:var(--navy);padding:80px 24px;}
+.flotte-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:40px;}
+@media(max-width:900px){.flotte-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:600px){.flotte-grid{grid-template-columns:1fr;}}
+.avion-card{
+  background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);
+  border-radius:8px;overflow:hidden;transition:all 0.2s;
+}
+.avion-card:hover{background:rgba(255,255,255,0.08);border-color:var(--gold);}
+.avion-img{
+  height:180px;background:rgba(255,255,255,0.03);
+  display:flex;align-items:center;justify-content:center;
+  font-size:48px;color:rgba(255,255,255,0.15);
+  position:relative;overflow:hidden;
+}
+.avion-img img{width:100%;height:100%;object-fit:cover;}
+.avion-badge{
+  position:absolute;top:10px;left:10px;
+  background:var(--gold);color:var(--navy);
+  font-size:10px;font-weight:700;padding:3px 8px;
+  border-radius:3px;letter-spacing:0.05em;
+}
+.avion-body{padding:16px 20px;}
+.avion-immat{font-size:11px;color:var(--gold);font-weight:600;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:4px;}
+.avion-name{font-family:'Inter',sans-serif;font-size:16px;font-weight:700;color:white;margin-bottom:10px;letter-spacing:-0.01em;}
+.avion-specs{display:flex;flex-direction:column;gap:4px;}
+.avion-spec{display:flex;justify-content:space-between;font-size:12px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,0.06);}
+.avion-spec:last-child{border-bottom:none;}
+.spec-k{color:rgba(255,255,255,0.4);}
+.spec-v{color:rgba(255,255,255,0.8);font-weight:600;}
+.flotte-cta{text-align:center;margin-top:32px;}
+
+/* ── TRAIN CLASSIQUE ── */
+.tc-section{background:white;padding:80px 24px;}
+.tc-grid{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;}
+@media(max-width:768px){.tc-grid{grid-template-columns:1fr;}}
+.tc-visual{
+  background:linear-gradient(135deg,var(--navy) 0%,var(--blue) 100%);
+  border-radius:12px;padding:40px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-height:320px;text-align:center;position:relative;overflow:hidden;
+}
+.tc-visual::before{
+  content:'TW';position:absolute;
+  font-family:'Inter',sans-serif;font-size:160px;font-weight:700;
+  color:rgba(255,255,255,0.04);
+  top:50%;left:50%;transform:translate(-50%,-50%);
+}
+.tc-visual-icon{font-size:64px;margin-bottom:16px;position:relative;}
+.tc-visual h3{font-family:'Inter',sans-serif;font-size:22px;font-weight:800;color:white;margin-bottom:8px;position:relative;letter-spacing:-0.02em;}
+.tc-visual p{font-size:13px;color:rgba(255,255,255,0.55);position:relative;}
+.tc-list{list-style:none;display:flex;flex-direction:column;gap:14px;margin-top:24px;}
+.tc-list li{
+  display:flex;align-items:flex-start;gap:12px;
+  font-size:14px;color:var(--gray);line-height:1.5;
+}
+.tc-list li::before{
+  content:'✓';color:var(--sky);font-weight:700;
+  flex-shrink:0;margin-top:1px;
+}
+.highlight-quote{
+  border-left:3px solid var(--gold);
+  padding:16px 20px;background:rgba(200,168,75,0.05);
+  border-radius:0 6px 6px 0;margin:24px 0;
+  font-size:15px;color:var(--navy);line-height:1.6;font-style:italic;
+}
+
+/* ── FORMATIONS ── */
+.formations-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:40px;}
+@media(max-width:600px){.formations-grid{grid-template-columns:1fr;}}
+.formation-card{
+  border:1px solid var(--light);border-radius:8px;overflow:hidden;
+  background:white;transition:all 0.2s;
+}
+.formation-card:hover{box-shadow:0 8px 32px rgba(10,22,40,0.1);transform:translateY(-2px);}
+.formation-card.featured{grid-column:span 2;display:grid;grid-template-columns:1fr 1fr;}
+@media(max-width:600px){.formation-card.featured{grid-column:span 1;display:block;}}
+.fc-head{background:var(--navy);padding:24px;display:flex;flex-direction:column;gap:8px;}
+.fc-head.gold{background:linear-gradient(135deg,var(--blue),var(--navy));}
+.fc-icon{font-size:32px;}
+.fc-head h3{font-family:'Inter',sans-serif;font-size:18px;color:white;}
+.fc-tag{font-size:10px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);}
+.fc-body{padding:20px 24px;}
+.fc-body p{font-size:13px;color:var(--gray);line-height:1.6;margin-bottom:14px;}
+.fc-price{font-family:'Inter',sans-serif;font-size:26px;color:var(--sky);font-weight:800;letter-spacing:-0.02em;}
+.fc-price span{font-size:13px;color:var(--gray);}
+.fc-link{font-size:12px;font-weight:600;color:var(--sky);text-transform:uppercase;letter-spacing:0.05em;}
+.fc-link:hover{color:var(--gold);}
+
+/* ── CAP ── */
+.cap-box{
+  background:rgba(200,168,75,0.06);border:1px solid rgba(200,168,75,0.2);
+  border-radius:8px;padding:28px 32px;margin-top:40px;
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:20px;
+}
+.cap-box h3{font-family:'Inter',sans-serif;font-size:18px;color:var(--navy);margin-bottom:6px;}
+.cap-box p{font-size:13px;color:var(--gray);max-width:560px;line-height:1.5;}
+.cap-clubs{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;}
+.cap-club{background:white;border:1px solid var(--light);border-radius:20px;padding:4px 12px;font-size:11px;color:var(--navy);font-weight:500;}
+
+/* ── AÉRODROME ── */
+.aero-section{background:var(--cream);padding:80px 24px;}
+.aero-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start;}
+@media(max-width:768px){.aero-grid{grid-template-columns:1fr;}}
+.info-list{display:flex;flex-direction:column;gap:16px;margin-top:24px;}
+.info-row{display:flex;gap:16px;align-items:flex-start;padding:14px 16px;background:white;border-radius:6px;border:1px solid var(--light);}
+.info-row .ico{font-size:20px;flex-shrink:0;margin-top:2px;}
+.info-row .content h4{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:2px;}
+.info-row .content p{font-size:12px;color:var(--gray);line-height:1.5;}
+.map-embed{border-radius:8px;overflow:hidden;border:1px solid var(--light);}
+
+/* ── TARIFS RAPIDES ── */
+.tarifs-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:40px;}
+@media(max-width:900px){.tarifs-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:480px){.tarifs-grid{grid-template-columns:1fr;}}
+.tarif-card{
+  background:white;border:1px solid var(--light);border-radius:8px;
+  padding:20px;text-align:center;
+}
+.tarif-card .label{font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--gray);margin-bottom:8px;}
+.tarif-card .price{font-family:'Inter',sans-serif;font-size:30px;color:var(--sky);font-weight:900;letter-spacing:-0.03em;}
+.tarif-card .price span{font-size:13px;color:var(--gray);}
+.tarif-card .desc{font-size:11px;color:var(--gray);margin-top:4px;line-height:1.4;}
+
+/* ── CTA FINAL ── */
+.cta-section{
+  background:var(--sky);padding:80px 24px;text-align:center;
+}
+.cta-section h2{font-family:'Inter',sans-serif;font-size:clamp(26px,4vw,40px);color:white;margin-bottom:12px;}
+.cta-section p{color:rgba(255,255,255,0.75);font-size:16px;margin-bottom:32px;max-width:480px;margin-left:auto;margin-right:auto;}
+.cta-buttons{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;}
+.btn-white{background:white;color:var(--sky);padding:14px 32px;border-radius:4px;font-weight:700;font-size:14px;transition:all 0.2s;}
+.btn-white:hover{background:var(--gold);color:white;}
+.btn-ghost{background:transparent;color:white;border:1.5px solid rgba(255,255,255,0.4);padding:14px 32px;border-radius:4px;font-weight:600;font-size:14px;transition:all 0.2s;}
+.btn-ghost:hover{background:rgba(255,255,255,0.1);border-color:white;}
+
+/* ── PPV WIDGET ── */
+.ppv-section{background:white;padding:32px 24px;}
+.ppv-wrapper{max-width:1100px;margin:0 auto;}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-bg-text">ARC</div>
+  <div class="hero-badge">☀️ Aérodrome Vert LFPX</div>
+  <div class="hero-content">
+    <p class="hero-eyebrow">Aéroclub A.R.C. — Chavenay LFPX</p>
+    <h1>Volez sur des<br><em>Jodel d'exception</em><br>à 30 min de Paris</h1>
+    <p class="hero-sub">Le seul aéroclub d'Île-de-France spécialisé en train classique. Une école de pilotage rigoureuse, une flotte de caractère, un esprit de club authentique depuis 1969.</p>
+    <div class="hero-cta">
+      <a href="/tarifs" class="btn-primary">✈ S'inscrire en ligne</a>
+      <a href="/formation" class="btn-outline">Formation PPL →</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat-item">
+        <div class="stat-num">5<span></span></div>
+        <div class="stat-label">Avions en flotte</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">55<span>+</span></div>
+        <div class="stat-label">Ans d'expérience</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">10<span>+</span></div>
+        <div class="stat-label">Clubs réseau CAP</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">30<span>min</span></div>
+        <div class="stat-label">De Paris</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PPV WIDGET -->
+<div class="ppv-section">
+  <div class="ppv-wrapper" id="ppv-inject"></div>
+</div>
+
+<!-- SECTION PPV DESCRIPTIVE -->
+<div class="section light">
+  <div class="container">
+    <p class="section-label">Inauguré le 26 août 2025</p>
+    <h2 class="section-title" style="margin-bottom:8px;">Notre centrale solaire &<br>borne de recharge</h2>
+    <p style="font-size:15px;color:var(--gray);line-height:1.6;max-width:680px;margin-bottom:32px;">
+      Avec le soutien de la <strong style="color:var(--navy);">Région Île-de-France</strong> et du réseau CAP, l'ARC a mis en service une centrale photovoltaïque en autoconsommation, un système de stockage par batteries de seconde vie, et une borne de recharge ouverte à tous.
+    </p>
+
+    <!-- 4 blocs équipements -->
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:40px;">
+      <div style="display:flex;gap:14px;align-items:flex-start;padding:16px 18px;background:var(--cream);border-radius:6px;border:1px solid var(--light);">
+        <span style="font-size:24px;flex-shrink:0;">☀️</span>
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:4px;">Centrale photovoltaïque</div>
+          <div style="font-size:12px;color:var(--gray);line-height:1.5;">Production solaire en autoconsommation — couvre une large part des besoins électriques du club-house, locaux techniques et éclairage.</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:14px;align-items:flex-start;padding:16px 18px;background:var(--cream);border-radius:6px;border:1px solid var(--light);">
+        <span style="font-size:24px;flex-shrink:0;">🔋</span>
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:4px;">Batteries seconde vie (Citroën C3)</div>
+          <div style="font-size:12px;color:var(--gray);line-height:1.5;">Modules reconditionnés issus de Citroën C3 électriques — prolongent la durée de vie des matériaux et lissent la production solaire.</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:14px;align-items:flex-start;padding:16px 18px;background:var(--cream);border-radius:6px;border:1px solid var(--light);">
+        <span style="font-size:24px;flex-shrink:0;">🔌</span>
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:4px;">Borne de recharge</div>
+          <div style="font-size:12px;color:var(--gray);line-height:1.5;">Accessible à tous sur l'aérodrome. <strong style="color:var(--navy);">Gratuite pour les membres ARC</strong> pendant leur vol avec un avion du club.</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:14px;align-items:flex-start;padding:16px 18px;background:var(--cream);border-radius:6px;border:1px solid var(--light);">
+        <span style="font-size:24px;flex-shrink:0;">🔄</span>
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:4px;">Boucle d'autoconsommation collective</div>
+          <div style="font-size:12px;color:var(--gray);line-height:1.5;">L'électricité produite alimente d'abord les aéroclubs de la plateforme. L'injection réseau n'intervient qu'en ultime recours.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chiffres clés + carte verte -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;">
+      <div>
+        <div style="font-size:12px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);margin-bottom:16px;">Impact environnemental</div>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div style="background:white;border:1px solid var(--light);border-radius:6px;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:13px;color:var(--gray);">CO₂ évité par an</span>
+            <span style="font-family:'Inter',sans-serif;font-size:22px;font-weight:700;color:#2e7d32;">~14,8 t CO₂</span>
+          </div>
+          <div style="background:white;border:1px solid var(--light);border-radius:6px;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:13px;color:var(--gray);">Heures de vol compensées / an</span>
+            <span style="font-family:'Inter',sans-serif;font-size:22px;font-weight:700;color:#2e7d32;">~319 h</span>
+          </div>
+          <div style="background:white;border:1px solid var(--light);border-radius:6px;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:13px;color:var(--gray);">AVGAS 100LL compensés / an</span>
+            <span style="font-family:'Inter',sans-serif;font-size:22px;font-weight:700;color:#2e7d32;">~6 387 L</span>
+          </div>
+          <div style="background:white;border:1px solid var(--light);border-radius:6px;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:13px;color:var(--gray);">Facteur émission AVGAS</span>
+            <span style="font-size:15px;font-weight:700;color:var(--navy);">2,31 kgCO₂/L</span>
+          </div>
+        </div>
+        <div style="margin-top:16px;font-size:11px;color:var(--gray);font-style:italic;line-height:1.5;">Méthodologie : production annuelle estimée × litres d'AVGAS évités, facteur d'émission moyen 2,31 kgCO₂/L.</div>
+      </div>
+
+      <div style="background:linear-gradient(135deg,#1b5e20 0%,#2e7d32 100%);border-radius:12px;padding:36px;text-align:center;position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;">
+        <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(255,255,255,0.07) 0%,transparent 70%);"></div>
+        <div style="font-size:48px;position:relative;">☀️</div>
+        <div style="position:relative;font-family:'Inter',sans-serif;font-size:15px;color:white;font-style:italic;text-align:center;line-height:1.5;opacity:0.9;">
+          "Réduire nos émissions,<br>élever nos ambitions."
+        </div>
+        <div style="position:relative;font-size:12px;color:rgba(255,255,255,0.55);text-align:center;">Antoine Drieu, Président de l'Aéroclub ARC</div>
+        <div style="position:relative;border-top:1px solid rgba(255,255,255,0.15);padding-top:16px;width:100%;display:flex;flex-wrap:wrap;justify-content:center;gap:10px;">
+          <span style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.8);padding:4px 12px;border-radius:20px;font-size:11px;">ATY Solar</span>
+          <span style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.8);padding:4px 12px;border-radius:20px;font-size:11px;">Battwoo</span>
+          <span style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.8);padding:4px 12px;border-radius:20px;font-size:11px;">Région Île-de-France</span>
+          <span style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.8);padding:4px 12px;border-radius:20px;font-size:11px;">Réseau CAP</span>
+        </div>
+        <a href="/ppv" style="position:relative;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:white;padding:10px 22px;border-radius:4px;font-size:13px;font-weight:600;text-decoration:none;">Voir la production en direct →</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- AVANTAGES -->
+<div class="section cream">
+  <div class="container">
+    <p class="section-label">Pourquoi l'ARC ?</p>
+    <h2 class="section-title">Un club à part dans<br>le monde aéronautique</h2>
+    <div class="avantages-grid">
+      <div class="avantage-card">
+        <div class="avantage-icon">🎯</div>
+        <h3>Train classique</h3>
+        <p>La variante la plus exigeante — et la plus formatrice. Nos Jodel vous donnent des réflexes que vous garderez toute votre vie de pilote.</p>
+        <span class="avantage-tag">Qualification TW</span>
+      </div>
+      <div class="avantage-card">
+        <div class="avantage-icon">🏛️</div>
+        <h3>Membre du réseau CAP</h3>
+        <p>L'ARC est membre du <strong>Cercle Aéronautique du Parlement</strong>. Votre adhésion vous ouvre l'accès à plus de 10 aéroclubs partenaires en France, sans frais supplémentaires.</p>
+        <span class="avantage-tag">Cercle Aéronautique du Parlement</span>
+      </div>
+      <div class="avantage-card">
+        <div class="avantage-icon">☀️</div>
+        <h3>Aérodrome vert</h3>
+        <p>Nos panneaux solaires produisent de l'énergie renouvelable sur l'aérodrome. L'ARC s'engage pour une aviation responsable.</p>
+        <span class="avantage-tag">Production solaire live</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FLOTTE -->
+<div class="flotte-section">
+  <div class="container">
+    <p class="section-label" style="color:var(--gold)">La flotte</p>
+    <h2 class="section-title">5 avions de caractère</h2>
+    <p class="section-lead">Du Jodel d'initiation au Robin de voyage longue distance — tous en train classique.</p>
+    <div class="flotte-grid">
+      <div class="avion-card">
+        <div class="avion-img"><img src="https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69cbab6d849f808cfd4aae83_PPM_Juin2025_p5_xref80_3378x1886.jpeg" alt="Jodel D112 F-PZRF">
+          <span class="avion-badge">Initiation</span>
+        </div>
+        <div class="avion-body">
+          <div class="avion-immat">F-PZRF</div>
+          <div class="avion-name">Jodel D112</div>
+          <div class="avion-specs">
+            <div class="avion-spec"><span class="spec-k">Moteur</span><span class="spec-v">65 cv — Continental A65</span></div>
+            <div class="avion-spec"><span class="spec-k">Croisière</span><span class="spec-v">130 km/h</span></div>
+            <div class="avion-spec"><span class="spec-k">Places</span><span class="spec-v">2</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="avion-card">
+        <div class="avion-img"><img src="https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69cbab6c98fbef52a5ea988c_PJIL%20hangar.jpeg" alt="Jodel D113 F-PJIL">
+          <span class="avion-badge">Perfectionnement</span>
+        </div>
+        <div class="avion-body">
+          <div class="avion-immat">F-PJIL</div>
+          <div class="avion-name">Jodel D113</div>
+          <div class="avion-specs">
+            <div class="avion-spec"><span class="spec-k">Moteur</span><span class="spec-v">100 cv — Lycoming O-200</span></div>
+            <div class="avion-spec"><span class="spec-k">Croisière</span><span class="spec-v">180 km/h</span></div>
+            <div class="avion-spec"><span class="spec-k">Places</span><span class="spec-v">2</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="avion-card">
+        <div class="avion-img"><img src="https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69cbab6c280e4445e394b652_PHOTO-2025-08-09-23-46-13%20(2).jpeg" alt="Jodel DH251 F-POUF">
+          <span class="avion-badge">Voyage</span>
+        </div>
+        <div class="avion-body">
+          <div class="avion-immat">F-POUF</div>
+          <div class="avion-name">Jodel DH 251</div>
+          <div class="avion-specs">
+            <div class="avion-spec"><span class="spec-k">Moteur</span><span class="spec-v">115 cv — Lycoming O-235</span></div>
+            <div class="avion-spec"><span class="spec-k">Croisière</span><span class="spec-v">190 km/h</span></div>
+            <div class="avion-spec"><span class="spec-k">Autonomie</span><span class="spec-v">>700 km</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="avion-card">
+        <div class="avion-img"><img src="https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69cbab6bca79c1ce90572dbf_BNVA.jpeg" alt="Robin DR250 F-BNVA">
+          <span class="avion-badge">Voyage Long</span>
+        </div>
+        <div class="avion-body">
+          <div class="avion-immat">F-BNVA</div>
+          <div class="avion-name">Robin DR 250</div>
+          <div class="avion-specs">
+            <div class="avion-spec"><span class="spec-k">Moteur</span><span class="spec-v">160 cv — Lycoming O-320</span></div>
+            <div class="avion-spec"><span class="spec-k">Croisière</span><span class="spec-v">240 km/h</span></div>
+            <div class="avion-spec"><span class="spec-k">Autonomie</span><span class="spec-v">>1200 km</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="avion-card">
+        <div class="avion-img"><img src="https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69cbab6b138c3c93b57231c3_BJLL.jpeg" alt="Jodel DR1050 F-BJLL">
+          <span class="avion-badge">Polyvalent</span>
+        </div>
+        <div class="avion-body">
+          <div class="avion-immat">F-BJLL</div>
+          <div class="avion-name">Jodel DR1050</div>
+          <div class="avion-specs">
+            <div class="avion-spec"><span class="spec-k">Moteur</span><span class="spec-v">115 cv — Lycoming O-235</span></div>
+            <div class="avion-spec"><span class="spec-k">Croisière</span><span class="spec-v">190 km/h</span></div>
+            <div class="avion-spec"><span class="spec-k">Places</span><span class="spec-v">3</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="flotte-cta">
+      <a href="/la-flotte" class="btn-outline">Voir la flotte complète →</a>
+    </div>
+  </div>
+</div>
+
+<!-- TRAIN CLASSIQUE -->
+<div class="tc-section">
+  <div class="container">
+    <div class="tc-grid">
+      <div>
+        <p class="section-label">Notre spécialité</p>
+        <h2 class="section-title">Le train classique,<br>une école à part</h2>
+        <div class="highlight-quote">
+          "Apprendre sur train classique, c'est plus difficile — et c'est précisément ce qui forge les meilleurs pilotes."
+        </div>
+        <ul class="tc-list">
+          <li>Développe une sensibilité météo exceptionnelle dès les premiers vols</li>
+          <li>Exige une précision aux atterrissages que le tricycle ne demande pas</li>
+          <li>Vous rend plus attentif à la machine et à l'environnement</li>
+          <li>Qualification TW reconnue et valorisée dans la communauté des pilotes</li>
+          <li>Avions d'exception avec du caractère — pas des engins sans âme</li>
+        </ul>
+        <div style="margin-top:28px;">
+          <a href="/formation" class="btn-primary">Découvrir la formation PPL</a>
+        </div>
+      </div>
+      <div class="tc-visual">
+        <div class="tc-visual-icon">✈️</div>
+        <h3>Train Classique</h3>
+        <p>Qualification TW<br>Sur Jodel & Robin</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FORMATIONS -->
+<div class="section cream">
+  <div class="container">
+    <p class="section-label">Formations</p>
+    <h2 class="section-title">Du premier vol au brevet</h2>
+    <p class="section-lead">Nos instructeurs qualifiés vous accompagnent à chaque étape de votre progression.</p>
+    <div class="formations-grid">
+      <div class="formation-card featured">
+        <div class="fc-head gold">
+          <div class="fc-icon">🎓</div>
+          <h3>Brevet PPL(A)</h3>
+          <div class="fc-tag">Formation Complète</div>
+        </div>
+        <div class="fc-body">
+          <p>La formation complète pour obtenir votre licence de pilote privé avion sur train classique Jodel. 45 heures de vol minimum, préparation théorique, aides FFA jusqu'à 1 005 €.</p>
+          <div class="fc-price">~6 500 <span>€</span></div>
+          <br>
+          <a href="/formation" class="fc-link">Voir le programme →</a>
+        </div>
+      </div>
+      <div class="formation-card">
+        <div class="fc-head">
+          <div class="fc-icon">🌙</div>
+          <h3>Vol de Nuit</h3>
+          <div class="fc-tag">Post-PPL</div>
+        </div>
+        <div class="fc-body">
+          <p>Qualification VFR nuit — 5h de vol spécifiques. Une expérience inoubliable.</p>
+          <div class="fc-price">~650 <span>€</span></div>
+          <br>
+          <a href="/post-ppl" class="fc-link">En savoir plus →</a>
+        </div>
+      </div>
+      <div class="formation-card">
+        <div class="fc-head">
+          <div class="fc-icon">✈️</div>
+          <h3>Qualification TW</h3>
+          <div class="fc-tag">Pilotes Tricycle</div>
+        </div>
+        <div class="fc-body">
+          <p>Déjà breveté sur tricycle ? Obtenez la qualification train classique en quelques heures.</p>
+          <div class="fc-price">~750 <span>€</span></div>
+          <br>
+          <a href="/post-ppl" class="fc-link">En savoir plus →</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="cap-box">
+      <div>
+        <h3>🤝 Membre du Cercle Aéronautique du Parlement (CAP)</h3>
+        <p>L'ARC est membre du <strong>Cercle Aéronautique du Parlement</strong>, réseau fondé pour promouvoir l'aviation générale auprès des institutions. En adhérant à l'ARC, vous intégrez ce réseau et bénéficiez d'un accès à plus de 10 aéroclubs partenaires partout en France, sans frais supplémentaires.</p>
+        <div style="margin-top:10px;font-size:12px;color:var(--gray);font-style:italic;">Président du réseau CAP : Philippe Favarel — partenaire du projet de transition énergétique de l'ARC.</div>
+        <div class="cap-clubs" style="margin-top:12px;">
+          <span class="cap-club">✈ ARC — Chavenay LFPX (78)</span>
+          <span class="cap-club">🏛 Cercle Aéronautique du Parlement</span>
+          <span class="cap-club">🇫🇷 10+ aéroclubs partenaires</span>
+          <span class="cap-club">📍 Île-de-France & Province</span>
+        </div>
+      </div>
+      <a href="/tarifs" class="btn-primary">Rejoindre l'ARC & le CAP</a>
+    </div>
+  </div>
+</div>
+
+<!-- TARIFS RAPIDES -->
+<div class="section light">
+  <div class="container">
+    <p class="section-label">Tarifs 2026</p>
+    <h2 class="section-title">Transparence totale</h2>
+    <p class="section-lead">Tous nos tarifs sont affichés clairement. Pas de frais cachés.</p>
+    <div class="tarifs-grid">
+      <div class="tarif-card">
+        <div class="label">Adhésion ARC</div>
+        <div class="price">200 <span>€/an</span></div>
+        <div class="desc">Accès flotte complète + réseau CAP</div>
+      </div>
+      <div class="tarif-card">
+        <div class="label">Heure de vol D112</div>
+        <div class="price">130 <span>€/h</span></div>
+        <div class="desc">Carburant et assurance inclus</div>
+      </div>
+      <div class="tarif-card">
+        <div class="label">Heure de vol Robin</div>
+        <div class="price">155 <span>€/h</span></div>
+        <div class="desc">4 places — idéal voyage</div>
+      </div>
+      <div class="tarif-card">
+        <div class="label">Baptême de l'air</div>
+        <div class="price">100 <span>€</span></div>
+        <div class="desc">30 min — découverte en famille</div>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:28px;">
+      <a href="/tarifs" class="btn-primary">Voir tous les tarifs & s'inscrire</a>
+    </div>
+  </div>
+</div>
+
+<!-- AÉRODROME -->
+<div class="aero-section">
+  <div class="container">
+    <div class="aero-grid">
+      <div>
+        <p class="section-label">Nous trouver</p>
+        <h2 class="section-title">Aérodrome de<br>Chavenay LFPX</h2>
+        <p style="color:var(--gray);font-size:15px;line-height:1.6;margin-bottom:24px;">À 10 km de Versailles et 30 km de Paris par l'A13. Ouvert 7j/7 aux élèves et pilotes.</p>
+        <div class="info-list">
+          <div class="info-row">
+            <span class="ico">📍</span>
+            <div class="content">
+              <h4>Adresse</h4>
+              <p>Aérodrome de Chavenay-Villepreux, 78450 Chavenay</p>
+            </div>
+          </div>
+          <div class="info-row">
+            <span class="ico">📞</span>
+            <div class="content">
+              <h4>Téléphone</h4>
+              <p>01 34 62 30 75</p>
+            </div>
+          </div>
+          <div class="info-row">
+            <span class="ico">✉️</span>
+            <div class="content">
+              <h4>Email</h4>
+              <p><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="640501160b07081106051607240309050d084a070b09">[email&#160;protected]</a></p>
+            </div>
+          </div>
+          <div class="info-row">
+            <span class="ico">🕐</span>
+            <div class="content">
+              <h4>Ouverture</h4>
+              <p>7 jours sur 7 — Selon activité et météo</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="map-embed">
+          <iframe
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2628.7!2d1.9661!3d48.9702!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47e68b2f4b5c3a1d%3A0x1!2sA%C3%A9rodrome+de+Chavenay-Villepreux!5e0!3m2!1sfr!2sfr!4v1"
+            width="100%" height="360" style="border:0;display:block;" allowfullscreen loading="lazy">
+          </iframe>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CTA FINAL -->
+<div class="cta-section">
+  <div class="container">
+    <h2>Prêt à prendre les commandes ?</h2>
+    <p>Rejoignez l'Aéroclub A.R.C. et découvrez le plaisir de piloter un Jodel au-dessus de l'Île-de-France.</p>
+    <div class="cta-buttons">
+      <a href="/tarifs" class="btn-white">S'inscrire en ligne</a>
+      <a href="/contact" class="btn-ghost">Nous contacter</a>
+    </div>
+  </div>
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+// Injection du widget PPV depuis la page PPV
+fetch('https://ppv-production.up.railway.app/total?t='+Date.now())
+  .then(r=>r.json())
+  .then(data=>{
+    const total=data.total_kwh||0;
+    const powerKW=(data.current_power_w||0)/1000;
+    const flightHours=((total*0.42)/66.9).toFixed(1);
+    const isActive=powerKW>0.2;
+    document.getElementById('ppv-inject').innerHTML=`
+      <div style="font-family:'Inter',sans-serif;background:rgba(27,94,32,0.06);border:1px solid rgba(27,94,32,0.12);border-radius:10px;padding:16px 24px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <span style="font-size:28px;${isActive?'filter:drop-shadow(0 0 8px rgba(255,200,50,0.8))':'opacity:0.4'}">☀️</span>
+          <div><div style="font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#1b5e20;">Aéroclub Vert</div>
+          <div style="font-size:11px;color:#666;font-style:italic;">Quand le soleil fait voler nos pilotes</div></div>
+        </div>
+        <div style="display:flex;gap:24px;flex-wrap:wrap;">
+          <div style="text-align:center;"><div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:0.08em;">Production totale</div><div style="font-size:18px;font-weight:700;color:#2e7d32;">⚡ ${total.toLocaleString('fr-FR',{maximumFractionDigits:0})} kWh</div></div>
+          <div style="text-align:center;"><div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:0.08em;">Actuellement</div><div style="font-size:18px;font-weight:700;color:#2e7d32;">${powerKW.toFixed(2)} kW</div></div>
+          <div style="text-align:center;"><div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:0.08em;">Heures CO₂ neutralisées</div><div style="font-size:18px;font-weight:700;color:#2e7d32;">✈️ ${flightHours} h</div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <div style="width:8px;height:8px;border-radius:50%;background:${isActive?'#2e7d32':'#9e9e9e'};${isActive?'box-shadow:0 0 8px #66bb6a':''}"></div>
+          <span style="font-size:11px;color:${is
