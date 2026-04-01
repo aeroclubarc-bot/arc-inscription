@@ -38,7 +38,7 @@ app.get("/api/ppv/today", async (req, res) => {
 });
 
 // ── PAGES ────────────────────────────────────────────────────────────
-app.get("/", (req, res) => res.sendFile(path.join(__dirname, "home.html")));
+app.get("/", (req, res) => res.redirect(301, "/home-arc"));
 app.get("/home-arc", (req, res) => res.sendFile(path.join(__dirname, "home.html")));
 app.get("/accueil", (req, res) => res.sendFile(path.join(__dirname, "accueil.html")));
 app.get("/leclub", (req, res) => res.sendFile(path.join(__dirname, "leclub.html")));
