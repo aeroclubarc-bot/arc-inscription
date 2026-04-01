@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aérodrome de Chavenay LFPX — Aéroclub A.R.C.</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 :root{--navy:#0a1628;--blue:#1a3a6b;--sky:#2d6be4;--gold:#c8a84b;--cream:#f8f5f0;--white:#fff;--gray:#6b7280;--light:#e8e4dd;}
@@ -12,7 +13,7 @@ a{text-decoration:none;color:inherit;}
 img{max-width:100%;height:auto;}
 nav#arc-nav{position:sticky;top:0;z-index:1000;background:rgba(10,22,40,0.97);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.08);}
 .arc-nav-inner{max-width:1200px;margin:0 auto;padding:0 24px;height:64px;display:flex;align-items:center;justify-content:space-between;gap:24px;}
-.arc-nav-logo img{display:block;height:40px;width:auto;}
+.arc-nav-logo img{display:block;height:52px;width:auto;filter:brightness(1.1);}
 .arc-nav-links{list-style:none;display:flex;align-items:center;gap:4px;margin:0;padding:0;}
 .arc-nav-links a{color:rgba(255,255,255,0.75);font-size:13px;font-weight:500;padding:6px 12px;border-radius:4px;transition:all 0.15s;white-space:nowrap;}
 .arc-nav-links a:hover,.arc-nav-links a.active{color:white;background:rgba(255,255,255,0.08);}
@@ -25,38 +26,51 @@ nav#arc-nav{position:sticky;top:0;z-index:1000;background:rgba(10,22,40,0.97);ba
 .arc-nav-cta-mobile{color:#c8a84b !important;font-weight:700;}
 #arc-nav.open .arc-nav-mobile{display:block;}
 @media(max-width:900px){.arc-nav-links,.arc-nav-cta{display:none;}.arc-nav-burger{display:flex;}}
-.page-hero{background:linear-gradient(135deg,var(--navy) 0%,var(--blue) 100%);padding:72px 24px 56px;text-align:center;}
+.page-hero{background:linear-gradient(135deg,rgba(10,22,40,0.92) 0%,rgba(26,58,107,0.85) 100%),url('https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69cbab6c2b58dfb3fb3458b2_IMG_6319.jpeg') center/cover;padding:72px 24px 56px;text-align:center;}
 .page-hero .eyebrow{font-size:11px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:12px;}
 .page-hero h1{font-size:clamp(32px,5vw,56px);font-weight:900;color:white;letter-spacing:-0.03em;line-height:1.05;margin-bottom:14px;}
 .page-hero .sub{font-size:16px;color:rgba(255,255,255,0.6);max-width:560px;margin:0 auto;}
 .container{max-width:1100px;margin:0 auto;padding:0 24px;}
-.section{padding:72px 24px;}
+.section{padding:64px 24px;}
 .section.light{background:white;}
 .section.cream{background:var(--cream);}
 .section.dark{background:var(--navy);}
 .section-label{font-size:11px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;}
-.section-title{font-size:clamp(24px,3.5vw,36px);font-weight:800;color:var(--navy);letter-spacing:-0.02em;line-height:1.1;margin-bottom:14px;}
-.dark .section-title,.dark .section-label{color:white;}
-.dark .section-label{color:var(--gold);}
-.lead{font-size:16px;color:var(--gray);line-height:1.7;max-width:640px;margin-bottom:32px;}
-.btn-primary{display:inline-flex;align-items:center;gap:8px;background:var(--gold);color:var(--navy);padding:13px 28px;border-radius:4px;font-weight:700;font-size:14px;transition:background 0.2s;}
-.btn-primary:hover{background:#e0b94a;}
-.btn-outline{display:inline-flex;align-items:center;gap:8px;background:transparent;color:white;border:1.5px solid rgba(255,255,255,0.3);padding:13px 28px;border-radius:4px;font-weight:600;font-size:14px;transition:all 0.2s;}
-.btn-outline:hover{border-color:white;}
-.btn-navy{display:inline-flex;align-items:center;gap:8px;background:var(--navy);color:white;padding:13px 28px;border-radius:4px;font-weight:700;font-size:14px;transition:background 0.2s;}
-.btn-navy:hover{background:var(--blue);}
-footer{background:var(--navy);padding:48px 24px 32px;border-top:1px solid rgba(255,255,255,0.08);}
-.footer-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr 1fr;gap:40px;}
-.footer-brand img{height:48px;margin-bottom:12px;}
-.footer-brand p{font-size:13px;color:rgba(255,255,255,0.4);line-height:1.6;}
-.footer-col h4{font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:14px;}
-.footer-col ul{list-style:none;}
-.footer-col ul li{margin-bottom:8px;}
-.footer-col ul li a{font-size:13px;color:rgba(255,255,255,0.5);transition:color 0.15s;}
-.footer-col ul li a:hover{color:white;}
-.footer-bottom{max-width:1100px;margin:32px auto 0;padding-top:24px;border-top:1px solid rgba(255,255,255,0.08);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;}
-.footer-bottom p{font-size:12px;color:rgba(255,255,255,0.3);}
-@media(max-width:768px){.footer-inner{grid-template-columns:1fr;gap:28px;}}
+.section-title{font-size:clamp(22px,3.5vw,34px);font-weight:800;color:var(--navy);letter-spacing:-0.02em;line-height:1.1;margin-bottom:14px;}
+.dark .section-title{color:white;}
+.lead{font-size:15px;color:var(--gray);line-height:1.7;margin-bottom:28px;}
+.info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:32px;}
+@media(max-width:768px){.info-grid{grid-template-columns:1fr;}}
+.info-card{background:white;border-radius:10px;padding:22px 20px;border:1px solid var(--light);}
+.info-card .icon{font-size:26px;margin-bottom:10px;}
+.info-card h3{font-size:14px;font-weight:700;color:var(--navy);margin-bottom:5px;}
+.info-card p{font-size:13px;color:var(--gray);line-height:1.6;}
+.info-card code{font-family:monospace;background:var(--cream);padding:1px 5px;border-radius:3px;font-size:13px;color:var(--navy);font-weight:600;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start;}
+@media(max-width:768px){.two-col{grid-template-columns:1fr;}}
+.freq-table{width:100%;border-collapse:collapse;margin-top:12px;}
+.freq-table th{background:var(--navy);color:white;padding:10px 14px;text-align:left;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;}
+.freq-table td{padding:10px 14px;border-bottom:1px solid var(--light);font-size:13px;}
+.freq-table tr:last-child td{border-bottom:none;}
+.freq-table tr:nth-child(even) td{background:rgba(248,245,240,0.5);}
+.rwy-table{width:100%;border-collapse:collapse;margin-top:12px;}
+.rwy-table th{background:var(--navy);color:white;padding:8px 12px;text-align:left;font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;}
+.rwy-table td{padding:9px 12px;border-bottom:1px solid var(--light);font-size:13px;}
+.rwy-table tr:last-child td{border-bottom:none;}
+.vac-img{border-radius:10px;overflow:hidden;box-shadow:0 4px 24px rgba(10,22,40,0.15);width:100%;}
+.vac-img img{width:100%;display:block;}
+.consigne{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;background:var(--cream);border-radius:6px;border-left:3px solid var(--gold);margin-bottom:8px;}
+.consigne span{font-size:13px;color:var(--navy);line-height:1.5;}
+.charte-box{background:white;border:1px solid var(--light);border-radius:12px;padding:28px;margin-top:32px;}
+.charte-box h3{font-size:18px;font-weight:800;color:var(--navy);margin-bottom:6px;letter-spacing:-0.01em;}
+.charte-box p{font-size:14px;color:var(--gray);line-height:1.6;margin-bottom:14px;}
+.charte-article{padding:14px 0;border-bottom:1px solid var(--light);}
+.charte-article:last-child{border-bottom:none;}
+.charte-article h4{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:4px;}
+.charte-article p{font-size:13px;color:var(--gray);line-height:1.5;}
+footer{background:var(--navy);padding:40px 24px;text-align:center;border-top:1px solid rgba(255,255,255,0.08);}
+footer p{color:rgba(255,255,255,0.35);font-size:13px;line-height:1.8;}
+footer a{color:var(--gold);}
 </style>
 </head>
 <body>
@@ -67,7 +81,7 @@ footer{background:var(--navy);padding:48px 24px 32px;border-top:1px solid rgba(2
       <li><a href="/la-flotte">La Flotte</a></li>
       <li><a href="/formation">Formation PPL</a></li>
       <li><a href="/post-ppl">Post-PPL</a></li>
-      <li><a href="/aerodrome" class="active">Aérodrome</a></li>
+      <li><a href="/aerodrome">Aérodrome</a></li>
       <li><a href="https://enviedepiloter.fr/commander-un-passeport/?code_fna=04158" target="_blank">Initiation au Pilotage</a></li>
       <li><a href="/tarifs">Inscription</a></li>
     </ul>
@@ -84,147 +98,194 @@ footer{background:var(--navy);padding:48px 24px 32px;border-top:1px solid rgba(2
     <li><a href="/tarifs" class="arc-nav-cta-mobile">Adhésion 2026</a></li>
   </ul>
 </nav>
-<title>Aérodrome de Chavenay LFPX — Aéroclub A.R.C.</title>
-</head>
-<body>
-<div class="page-hero" style="background:linear-gradient(135deg,#0a1628 0%,#1a3a6b 60%,#0e2244 100%),url('https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69cbab6c2b58dfb3fb3458b2_IMG_6319.jpeg') center/cover;background-blend-mode:multiply;">
+<div class="page-hero">
   <p class="eyebrow">Chavenay — 78450 Villepreux</p>
   <h1>Aérodrome de Chavenay<br>LFPX</h1>
-  <p class="sub">À 30 minutes de Paris, un aérodrome de campagne à l'atmosphère unique — piste en herbe, hangar ARC, centrale solaire.</p>
+  <p class="sub">À 30 minutes de Paris, une piste en herbe à l'atmosphère unique — hangar ARC, tour de contrôle, centrale solaire inaugurée en 2025.</p>
 </div>
-
-<style>
-.info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin:40px 0;}
-@media(max-width:768px){.info-grid{grid-template-columns:1fr;}}
-.info-card{background:white;border-radius:10px;padding:24px;border:1px solid var(--light);}
-.info-card .icon{font-size:28px;margin-bottom:12px;}
-.info-card h3{font-size:15px;font-weight:700;color:var(--navy);margin-bottom:6px;}
-.info-card p{font-size:13px;color:var(--gray);line-height:1.6;}
-.info-card code{font-family:monospace;background:var(--cream);padding:2px 6px;border-radius:3px;font-size:13px;color:var(--navy);}
-.two-col{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start;}
-@media(max-width:768px){.two-col{grid-template-columns:1fr;}}
-.freq-table{width:100%;border-collapse:collapse;margin-top:16px;}
-.freq-table th{background:var(--navy);color:white;padding:10px 14px;text-align:left;font-size:12px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;}
-.freq-table td{padding:10px 14px;border-bottom:1px solid var(--light);font-size:14px;}
-.freq-table tr:last-child td{border-bottom:none;}
-.freq-table tr:nth-child(even) td{background:var(--cream);}
-.map-embed{border-radius:10px;overflow:hidden;box-shadow:0 4px 20px rgba(10,22,40,0.12);}
-</style>
 
 <!-- INFOS PRATIQUES -->
 <div class="section light">
   <div class="container">
-    <p class="section-label">Informations pratiques</p>
-    <h2 class="section-title">L'aérodrome en chiffres</h2>
+    <p class="section-label">Informations AIP</p>
+    <h2 class="section-title">LFPX — Données officielles</h2>
     <div class="info-grid">
       <div class="info-card">
         <div class="icon">📍</div>
         <h3>Localisation</h3>
-        <p>Chavenay — 78450 Villepreux<br>À 30 min de Paris (A13 sortie 8)<br>Lat: 48°58'N — Lon: 001°58'E</p>
-      </div>
-      <div class="info-card">
-        <div class="icon">🛬</div>
-        <h3>Piste</h3>
-        <p>Piste herbe 09/27<br>Longueur : 790 m<br>Altitude : 538 ft / 164 m AMSL</p>
+        <p>Chavenay-Villepreux — 78450<br>LAT : 48°50'32"N<br>LONG : 001°58'49"E<br>ALT : 424 ft / 129 m AMSL</p>
       </div>
       <div class="info-card">
         <div class="icon">📡</div>
         <h3>Fréquences</h3>
-        <p>Tour LFPX : <code>123.500 MHz</code><br>ATIS : non disponible<br>Info trafic auto-info</p>
+        <p>TWR : <code>129.525</code><br>ATIS/V : <code>125.275</code><br>Sol : <code>121.900</code><br>Absence ATS : A/A <code>129.525</code></p>
       </div>
       <div class="info-card">
         <div class="icon">🕐</div>
-        <h3>Horaires</h3>
-        <p>Ouvert 7j/7<br>Créneau recommandé :<br>Samedi & Dimanche matin</p>
+        <h3>Horaires ATS</h3>
+        <p>Lun–Ven : 08h00–19h00<br>Sam, Dim, JF : 08h00–20h00<br>(heure locale, SS+30 max)<br>Sol Sam/Dim/JF : sur ATIS</p>
       </div>
       <div class="info-card">
         <div class="icon">⛽</div>
-        <h3>Carburant</h3>
-        <p>AVGAS 100LL disponible sur place<br>Paiement CB ou en espèces<br>Pompiste sur demande</p>
+        <h3>Carburant & Services</h3>
+        <p>AVGAS 100LL disponible H24<br>Carte Total acceptée<br>Petites réparations avions tourisme<br>☀️ Borne recharge VE (membres)</p>
       </div>
       <div class="info-card">
-        <div class="icon">☀️</div>
-        <h3>Aérodrome Vert</h3>
-        <p>Centrale solaire 13,5 kWc<br>Batteries seconde vie Citroën<br>Borne de recharge VE gratuite membres</p>
+        <div class="icon">📞</div>
+        <h3>Contact</h3>
+        <p>Chef CA : <a href="tel:0130562871" style="color:var(--sky);">01 30 56 28 71</a><br>Exploitant : Groupe ADP<br>Dir. Bourget — Bât. Paul Bert<br>93350 Le Bourget</p>
+      </div>
+      <div class="info-card">
+        <div class="icon">⚠️</div>
+        <h3>Restrictions</h3>
+        <p>Radio obligatoire<br>ULM classes 1,2,4,5,6 interdits<br>Hélicos école/entraîn. interdits<br>VFR de nuit : non agréé</p>
       </div>
     </div>
   </div>
 </div>
 
-<!-- CARTE + FRÉQUENCES -->
+<!-- PISTES -->
 <div class="section cream">
   <div class="container">
     <div class="two-col">
       <div>
-        <p class="section-label">Accès & navigation</p>
-        <h2 class="section-title">Comment venir à LFPX</h2>
-        <p class="lead">Situé en zone CTR de Paris, l'accès se fait en général par le viaduc de Chavenay au nord ou la vallée de la Mauldre au sud. Toujours contacter la tour de Chavenay avant l'entrée en espace.</p>
-        <table class="freq-table">
-          <tr><th>Service</th><th>Fréquence</th></tr>
-          <tr><td>Tour Chavenay</td><td><strong>123.500 MHz</strong></td></tr>
-          <tr><td>Paris Info</td><td><strong>124.000 MHz</strong></td></tr>
-          <tr><td>Orly Approche</td><td><strong>119.700 MHz</strong></td></tr>
-          <tr><td>Urgence</td><td><strong>121.500 MHz</strong></td></tr>
+        <p class="section-label">Pistes & Procédures</p>
+        <h2 class="section-title">Configuration des pistes</h2>
+        <table class="rwy-table">
+          <tr><th>Piste</th><th>QFU</th><th>Dimensions</th><th>Surface</th><th>TODA</th></tr>
+          <tr><td>05</td><td>051°</td><td>825 × 60 m</td><td>Herbe</td><td>727 m</td></tr>
+          <tr><td>23</td><td>231°</td><td>825 × 60 m</td><td>Herbe</td><td>729 m</td></tr>
+          <tr><td>10</td><td>103°</td><td>710 × 100 m</td><td>Herbe</td><td>635 m ①</td></tr>
+          <tr><td>28</td><td>283°</td><td>710 × 100 m</td><td>Herbe</td><td>710 m</td></tr>
         </table>
-        <div style="margin-top:24px;padding:16px 20px;background:white;border-radius:8px;border:1px solid var(--light);">
-          <p style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:6px;">📞 Contact terrain</p>
-          <p style="font-size:14px;color:var(--gray);"><a href="tel:+33134623075" style="color:var(--sky);font-weight:600;">01 34 62 30 75</a><br><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="127377607d717e677073607152757f737b7e3c717d7f">[email&#160;protected]</a></p>
+        <p style="font-size:12px;color:var(--gray);margin-top:8px;">① RWY 10 : TODA réduite — gabarit routier 15 ft à l'extrémité Est. Piste préférentielle 10/28.</p>
+        <div style="margin-top:20px;">
+          <p class="section-label" style="margin-bottom:8px;">Consignes particulières</p>
+          <div class="consigne"><span>🏃 Piste préférentielle : <strong>10/28</strong> — sauf vent de travers &gt; 5 kts ou demande pilote.</span></div>
+          <div class="consigne"><span>🛫 Départ QFU 051° : virer à droite de 20° après fin de bande.</span></div>
+          <div class="consigne"><span>🛣️ QFU 103° : vérifier performances — gabarit routier 15 ft en bout de piste.</span></div>
+          <div class="consigne"><span>📻 Contact radio obligatoire avant pénétration RMZ.</span></div>
+          <div class="consigne"><span>🏘️ Éviter le survol des communes avoisinantes — respecter les circuits publiés.</span></div>
+          <div class="consigne"><span>⚠️ Proxim. circuits ST-CYR — ne pas dépasser la D98 en tour de piste QFU 103° et 051°.</span></div>
         </div>
       </div>
       <div>
-        <div class="map-embed">
-          <iframe
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2625.5!2d1.9660!3d48.9700!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47e681a2c8c3b3e7%3A0x1a2b3c4d5e6f7a8b!2sA%C3%A9rodrome+de+Chavenay!5e0!3m2!1sfr!2sfr!4v1700000000000"
-            width="100%" height="380" style="border:0;display:block;" allowfullscreen loading="lazy">
-          </iframe>
+        <p class="section-label">Fréquences</p>
+        <h2 class="section-title">Radionavigation</h2>
+        <table class="freq-table">
+          <tr><th>Service</th><th>Fréquence</th></tr>
+          <tr><td>TWR Chavenay</td><td><strong>129.525 MHz</strong></td></tr>
+          <tr><td>ATIS/Vélivol</td><td><strong>125.275 MHz</strong></td></tr>
+          <tr><td>Sol (GND)</td><td><strong>121.900 MHz</strong></td></tr>
+          <tr><td>Absence ATS — A/A</td><td><strong>129.525 MHz</strong></td></tr>
+          <tr><td>Paris Info</td><td><strong>124.000 MHz</strong></td></tr>
+          <tr><td>Urgence</td><td><strong>121.500 MHz</strong></td></tr>
+        </table>
+        <div style="margin-top:16px;padding:14px 16px;background:rgba(45,107,228,0.06);border:1px solid rgba(45,107,228,0.15);border-radius:8px;">
+          <p style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:4px;">Application AEROPS</p>
+          <p style="font-size:13px;color:var(--gray);">Calcul des redevances en ligne :<br><a href="https://gat.aerops.com/prices/calculator/lfpx" target="_blank" style="color:var(--sky);">gat.aerops.com · LFPX</a></p>
         </div>
-        <div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-          <a href="https://maps.google.com/?q=Aerodrome+Chavenay+LFPX" target="_blank" class="btn-navy" style="justify-content:center;font-size:13px;">
-            🗺️ Google Maps
-          </a>
-          <a href="https://www.sia.aviation-civile.gouv.fr/" target="_blank" class="btn-navy" style="justify-content:center;font-size:13px;">
-            ✈️ SIA France
-          </a>
+        <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <a href="https://maps.google.com/?q=Aerodrome+Chavenay+LFPX" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:6px;background:var(--navy);color:white;padding:11px 16px;border-radius:6px;font-size:13px;font-weight:600;">🗺️ Google Maps</a>
+          <a href="https://www.sia.aviation-civile.gouv.fr/" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:6px;background:var(--navy);color:white;padding:11px 16px;border-radius:6px;font-size:13px;font-weight:600;">✈️ SIA France</a>
         </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- PHOTOS AÉRODROME -->
+<!-- CARTE VAC -->
 <div class="section dark">
   <div class="container">
-    <p class="section-label">Le site</p>
-    <h2 class="section-title" style="color:white;">Un cadre unique en Île-de-France</h2>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-top:32px;">
-      <img src="https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69cbab6cdd0be9259eb62f3f_PHOTO-2025-08-09-23-46-13%20(1).jpeg" alt="Hangar ARC" style="border-radius:8px;width:100%;height:220px;object-fit:cover;">
-      <img src="https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69cbab6c1037de72799f45fc_IMG_2704.jpeg" alt="Centrale solaire" style="border-radius:8px;width:100%;height:220px;object-fit:cover;">
-      <img src="https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69cbab6c2b58dfb3fb3458b2_IMG_6319.jpeg" alt="Vue IDF" style="border-radius:8px;width:100%;height:220px;object-fit:cover;">
+    <p class="section-label">Document officiel SIA</p>
+    <h2 class="section-title">Carte VAC — Approche à vue LFPX</h2>
+    <p style="font-size:14px;color:rgba(255,255,255,0.5);margin-bottom:24px;line-height:1.6;">Carte d'approche à vue officielle — AD 2 LFPX APP 01 · Édition AMDT 04/25 · 20 MAR 2025 · © Service de l'Information Aéronautique</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+      <div>
+        <p style="font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;">Approche à vue — AD 2 LFPX APP 01</p>
+        <div class="vac-img">
+          <img src="https://www.sia.aviation-civile.gouv.fr/dvd/eAIP_2025_05_22/FRANCE/AIRAC-2025-05-22/pdf/France/AD/AD-2.LFPX-fr-FR.pdf#page=1"
+               onerror="this.parentNode.innerHTML='<div style=\'padding:24px;background:rgba(255,255,255,0.05);border-radius:8px;text-align:center;\'><p style=\'color:rgba(255,255,255,0.5);font-size:14px;\'>📄 Carte VAC disponible sur le SIA<br><a href=\'https://www.sia.aviation-civile.gouv.fr\' target=\'_blank\' style=\'color:#c8a84b;font-weight:600;\'>www.sia.aviation-civile.gouv.fr</a></p></div>'"
+               alt="Carte VAC LFPX"
+               style="width:100%;display:block;border-radius:8px;">
+        </div>
+        <p style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:8px;text-align:center;">© Service de l'Information Aéronautique — AMDT 04/25</p>
+      </div>
+      <div>
+        <p style="font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;">Atterrissage à vue — AD 2 LFPX ATT 01</p>
+        <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:24px;">
+          <p style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.7;margin-bottom:14px;">Circuits de piste publiés :</p>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
+            <div style="background:rgba(255,255,255,0.05);padding:10px 14px;border-radius:6px;font-size:13px;color:rgba(255,255,255,0.7);">
+              <strong style="color:var(--gold);">RWY 05/23</strong> — 825 × 60 m — Tour main gauche
+            </div>
+            <div style="background:rgba(255,255,255,0.05);padding:10px 14px;border-radius:6px;font-size:13px;color:rgba(255,255,255,0.7);">
+              <strong style="color:var(--gold);">RWY 10/28</strong> — 710 × 100 m — Piste préférentielle
+            </div>
+          </div>
+          <p style="font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:12px;">Télécharger les cartes officielles SIA :</p>
+          <a href="https://www.sia.aviation-civile.gouv.fr/dvd/eAIP_2025_05_22/FRANCE/AIRAC-2025-05-22/pdf/France/AD/AD-2.LFPX-fr-FR.pdf" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;background:var(--gold);color:var(--navy);padding:12px 20px;border-radius:6px;font-size:13px;font-weight:700;margin-bottom:8px;">📥 Télécharger AD 2 LFPX (PDF)</a>
+          <a href="https://www.sia.aviation-civile.gouv.fr" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;background:rgba(255,255,255,0.08);color:white;padding:12px 20px;border-radius:6px;font-size:13px;font-weight:600;">🌐 SIA — Aviation civile</a>
+        </div>
+      </div>
     </div>
   </div>
 </div>
+
+<!-- CHARTE DE CHAVENAY -->
+<div class="section light">
+  <div class="container">
+    <div class="two-col">
+      <div>
+        <p class="section-label">Cohabitation riverains / usagers</p>
+        <h2 class="section-title">Charte de Chavenay</h2>
+        <p class="lead">La Charte de Chavenay est un accord de respect mutuel entre les usagers de l'aérodrome et les riverains, établi avec la Mairie de Chavenay, l'AUDACE et l'ADNAC. Elle est obligatoire avant toute utilisation de l'aérodrome.</p>
+        <div class="charte-box">
+          <h3>🤝 Charte des relations et de respect mutuel</h3>
+          <p>Édition 2022 — Signataires : AUDACE, ADNAC, Mairie de Chavenay, ADP, DSAC Nord, SNA-RP, FFA.</p>
+          <div class="charte-article">
+            <h4>Article 4 — Plage de silence (week-ends & jours fériés)</h4>
+            <p>Entre le 1er avril et le 30 septembre : <strong>samedi</strong> avant 09h00, de 12h30 à 14h00 et après 19h00. <strong>Dimanche & JF</strong> avant 09h00, de 12h30 à 15h00 et après 19h00. Seuls autorisés : départs en voyage ou vol local &gt;30 minutes.</p>
+          </div>
+          <div class="charte-article">
+            <h4>Article 5 — Voltige</h4>
+            <p>Activité réservée aux aéronefs et pilotes autorisés par la DSAC Nord, selon protocole. Zone N°6203, 1500–3500 ft AMSL, axe RWY 10/28.</p>
+          </div>
+          <div class="charte-article">
+            <h4>Article 6 — Piste 10/28</h4>
+            <p>La piste 10/28 est la piste préférentielle de l'aérodrome. Elle doit être utilisée en priorité sauf vent de travers &gt; 5 kts.</p>
+          </div>
+          <div style="margin-top:16px;">
+            <a href="https://entrevoisins.groupeadp.fr/wp-content/uploads/2023/04/20180921-Charte_Chavenay.pdf" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:var(--navy);color:white;padding:12px 20px;border-radius:6px;font-size:13px;font-weight:700;">📥 Télécharger la Charte de Chavenay</a>
+          </div>
+        </div>
+      </div>
+      <div>
+        <p class="section-label">Accès & navigation</p>
+        <h2 class="section-title">Comment venir à LFPX</h2>
+        <div style="border-radius:10px;overflow:hidden;box-shadow:0 4px 20px rgba(10,22,40,0.12);margin-bottom:16px;">
+          <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2626!2d1.966!3d48.970!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47e681a0000000%3A0x0!2sA%C3%A9rodrome+de+Chavenay+LFPX!5e0!3m2!1sfr!2sfr!4v1700000000000" width="100%" height="300" style="border:0;display:block;" allowfullscreen loading="lazy"></iframe>
+        </div>
+        <div style="background:var(--cream);border-radius:8px;padding:16px 18px;border:1px solid var(--light);">
+          <p style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:8px;">📍 En voiture</p>
+          <p style="font-size:13px;color:var(--gray);line-height:1.6;">A13 — sortie Versailles-Ouest (n°8) → D7 direction Chavenay → D109 direction Villepreux. L'aérodrome est indiqué "Aérodrome de Chavenay".<br><br><strong>Adresse GPS :</strong> Route de Villepreux, 78450 Chavenay.</p>
+        </div>
+        <div style="margin-top:12px;background:rgba(200,168,75,0.06);border:1px solid rgba(200,168,75,0.15);border-radius:8px;padding:16px 18px;">
+          <p style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:6px;">📸 Photos de l'aérodrome</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+            <img src="https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69cbab6cdd0be9259eb62f3f_PHOTO-2025-08-09-23-46-13%20(1).jpeg" style="border-radius:6px;width:100%;height:70px;object-fit:cover;" alt="Hangar ARC">
+            <img src="https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69cbab6c1037de72799f45fc_IMG_2704.jpeg" style="border-radius:6px;width:100%;height:70px;object-fit:cover;" alt="Centrale solaire">
+            <img src="https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69cbab6c2b58dfb3fb3458b2_IMG_6319.jpeg" style="border-radius:6px;width:100%;height:70px;object-fit:cover;" alt="Vue IDF">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <footer>
-  <div class="footer-inner">
-    <div class="footer-brand">
-      <img src="https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69c8ee72f60e3ec233a5a847_Logo%20ARC%20II%20FR.png" alt="ARC">
-      <p>Aéroclub A.R.C.<br>Aérodrome de Chavenay — LFPX<br>78450 Villepreux</p>
-    </div>
-    <div class="footer-col">
-      <h4>Navigation</h4>
-      <ul>
-        <li><a href="/">Le Club</a></li>
-        <li><a href="/la-flotte">La Flotte</a></li>
-        <li><a href="/formation">Formation PPL</a></li>
-        <li><a href="/post-ppl">Post-PPL</a></li>
-        <li><a href="/aerodrome">Aérodrome</a></li>
-        <li><a href="/tarifs">Adhésion 2026</a></li>
-      </ul>
-    </div>
-    <div class="footer-col">
-      <h4>Contact</h4>
-      <ul>
-        <li><a href="tel:+33134623075">01 34 62 30 75</a></li>
-        <li><a href="/cdn-cgi/l/email-protection#d4b5b1a6bbb7b8a1b6b5a6b794b3b9b5bdb8fab7bbb9"><span class="__cf_email__" data-cfemail="1677736479757a637477647556717b777f7a3875797b">[email&#160;protected]</span></a></li>
-        <li><a href="/statuts">Statuts</a></li>
-        <li><a href="/reglement">Règlement intérieur</a></li>
-      </
+  <p>© 2026 Aéroclub A.R.C. — SIRET 44776577700019 — RNA W783005211 — Agrément FFA 04158<br>
+  <a href="/statuts">Statuts</a> · <a href="/reglement">Règlement intérieur</a> · <a href="mailto:aeroclubarc@gmail.com">aeroclubarc@gmail.com</a> · <a href="tel:+33134623075">01 34 62 30 75</a></p>
+</footer>
+</body>
+</html>
