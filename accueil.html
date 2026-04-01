@@ -196,26 +196,60 @@ footer a{color:var(--gold);}
   <p>© 2026 Aéroclub A.R.C. — SIRET 44776577700019 — RNA W783005211 — Agrément FFA 04158<br>
   <a href="/statuts">Statuts</a> · <a href="/reglement">Règlement intérieur</a> · <a href="/cdn-cgi/l/email-protection#91f0f4e3fef2fde4f3f0e3f2d1f6fcf0f8fdbff2fefc"><span class="__cf_email__" data-cfemail="600105120f030c150201120320070d01090c4e030f0d">[email&#160;protected]</span></a> · <a href="tel:+33134623075">01 34 62 30 75</a></p>
 </footer>
-
 <script>
-// PPV Strip — en fin de body pour accès DOM garanti
-async function updatePPV(){
-  try{
-    var r=await fetch('https://ppv-production.up.railway.app/total?t='+Date.now());
-    var d=await r.json();
-    var total=d.total_kwh||0;
-    var kw=(d.current_power_w||0)/1000;
-    var h=(total*0.42/66.9).toFixed(1);
-    var el;
-    el=document.getElementById('ppv-total');if(el)el.innerText=total.toLocaleString('fr-FR',{maximumFractionDigits:0});
-    el=document.getElementById('ppv-power');if(el)el.innerText=kw.toFixed(2);
-    el=document.getElementById('ppv-hours');if(el)el.innerText=h;
-    var dot=document.getElementById('ppv-dot');
-    if(dot){dot.classList.toggle('active',kw>0.2);}
-  }catch(e){console.log('PPV error',e);}
-}
-updatePPV();
-setInterval(updatePPV,120000);
+(function(){
+  var API="https://ppv-production.up.railway.app/total";
+  var API2="https://ppv-production.up.railway.app/stats/today";
+  function drawGauge(canvasId,power){
+    var c=document.getElementById(canvasId);if(!c)return;
+    var ctx=c.getContext("2d");var max=13.5;var a=(power/max)*Math.PI;
+    ctx.clearRect(0,0,c.width,c.height);
+    var cx=c.width/2,cy=c.height/2,r=cx*0.77;
+    ctx.beginPath();ctx.arc(cx,cy,r,Math.PI,2*Math.PI);ctx.lineWidth=c.width*0.055;ctx.strokeStyle="#c8e6c9";ctx.stroke();
+    ctx.save();ctx.translate(cx,cy);ctx.rotate(Math.PI+a);
+    ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(r*0.86,0);ctx.lineWidth=c.width*0.022;ctx.strokeStyle="#1b5e20";ctx.stroke();
+    ctx.restore();
+    ctx.beginPath();ctx.arc(cx,cy,c.width*0.038,0,2*Math.PI);ctx.fillStyle="#1b5e20";ctx.fill();
+  }
+  async function update(){
+    try{
+      var res=await fetch(API+"?t="+Date.now());
+      var d=await res.json();
+      var total=parseFloat(d.total_kwh)||0;
+      var kw=(d.current_power_w||0)/1000;
+      var co2=total*0.42;
+      var h=co2/66.9;
+      var on=kw>0.2;
+      var dots=document.querySelectorAll(".ppv-pill-dot");
+      dots.forEach(function(dot){dot.classList.toggle("on",on);});
+      var el;
+      el=document.getElementById("ppv-pill-kw");if(el)el.innerText=kw.toFixed(2)+" kW";
+      el=document.getElementById("ppv-pill-total");if(el)el.innerText=total.toLocaleString("fr-FR",{maximumFractionDigits:0})+" kWh";
+      el=document.getElementById("badge-power");if(el)el.innerText=kw.toFixed(2)+" kW";
+      el=document.getElementById("badge-total");if(el)el.innerText=total.toLocaleString("fr-FR",{maximumFractionDigits:0})+" kWh";
+      var dot2=document.getElementById("ppv-dot-hero");if(dot2){dot2.style.background=on?"#4caf50":"#9e9e9e";dot2.style.boxShadow=on?"0 0 6px #66bb6a":"none";}
+      el=document.getElementById("ppv-total");if(el)el.innerText=total.toLocaleString("fr-FR",{maximumFractionDigits:0});
+      el=document.getElementById("ppv-power");if(el)el.innerText=kw.toFixed(2);
+      el=document.getElementById("ppv-hours");if(el)el.innerText=(h).toFixed(1);
+      var dot3=document.getElementById("ppv-dot");if(dot3)dot3.classList.toggle("active",on);
+      el=document.getElementById("modal-odometer");if(el)el.innerText=total.toLocaleString("fr-FR",{minimumFractionDigits:1});
+      el=document.getElementById("modal-co2");if(el)el.innerText=co2.toLocaleString("fr-FR",{maximumFractionDigits:0});
+      el=document.getElementById("modal-avgas");if(el)el.innerText=h.toLocaleString("fr-FR",{minimumFractionDigits:1});
+      el=document.getElementById("modal-power");if(el)el.innerText=kw.toFixed(2);
+      drawGauge("modal-gauge",kw);
+      var plane=document.getElementById("modal-plane");if(plane)plane.style.transform="translateX("+Math.min(h*5,480)+"px)";
+    }catch(e){console.log("PPV:",e);}
+  }
+  async function updateToday(){
+    try{
+      var res=await fetch(API2+"?t="+Date.now());var d=await res.json();
+      var el=document.getElementById("modal-today");
+      if(el)el.innerText=Number(d.today_kwh||0).toLocaleString("fr-FR",{minimumFractionDigits:1});
+    }catch(e){}
+  }
+  update();updateToday();
+  setInterval(update,120000);setInterval(updateToday,120000);
+})();
 </script>
 </body>
 </html>
