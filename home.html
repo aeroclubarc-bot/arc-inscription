@@ -618,6 +618,97 @@ a{text-decoration:none;color:inherit;}
   </div>
 </div>
 
+<!-- CAMERA LIVE + MÉTÉO -->
+<div style="background:#0a1628;padding:56px 24px;">
+  <div style="max-width:1200px;margin:0 auto;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+      <div style="font-size:18px;font-weight:800;color:white;letter-spacing:-0.01em;font-family:'Inter',sans-serif;">✈️ LIVE — Piste LFPX</div>
+      <div id="live-badge" style="font-weight:700;font-size:13px;color:#9ca3af;transition:color .3s;font-family:monospace;">● CONNEXION...</div>
+    </div>
+    <div style="display:flex;gap:16px;flex-wrap:wrap;">
+      <!-- VIDÉO -->
+      <div style="flex:1.6;background:#0f172a;border-radius:12px;padding:10px;min-width:280px;">
+        <div id="arc-video-wrap" style="position:relative;background:black;border-radius:10px;overflow:hidden;min-height:240px;">
+          <div id="arc-loader" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,.85);z-index:10;gap:12px;transition:opacity .5s;">
+            <div style="width:36px;height:36px;border:3px solid rgba(255,255,255,.15);border-top-color:#22c55e;border-radius:50%;animation:spin .8s linear infinite;"></div>
+            <div id="arc-loader-text" style="color:rgba(255,255,255,.6);font-size:12px;letter-spacing:.05em;font-family:monospace;">Connexion au flux live...</div>
+          </div>
+          <video id="arc-video" autoplay muted playsinline style="width:100%;display:block;background:black;"></video>
+          <div style="position:absolute;bottom:10px;right:10px;display:flex;align-items:center;gap:8px;">
+            <span id="arc-retry-info" style="display:none;background:rgba(239,68,68,.8);color:white;padding:4px 8px;border-radius:4px;font-size:11px;font-family:monospace;"></span>
+            <button id="arc-fullscreen-btn" style="background:rgba(0,0,0,.7);color:white;border:none;padding:6px 10px;border-radius:6px;cursor:pointer;font-size:12px;font-family:monospace;">⛶ Plein écran</button>
+          </div>
+        </div>
+      </div>
+      <!-- MÉTÉO WINDY -->
+      <div style="flex:1;background:#0f172a;border-radius:12px;padding:10px;min-width:280px;">
+        <div style="color:rgba(255,255,255,.8);font-size:13px;font-weight:700;margin-bottom:10px;padding:4px 0;font-family:monospace;">🌬️ Météo LFPX en direct</div>
+        <iframe
+          src="https://embed.windy.com/embed2.html?lat=48.970&lon=1.966&detailLat=48.970&detailLon=1.966&width=650&height=450&zoom=10&level=surface&overlay=wind&product=ecmwf&menu=&message=true&marker=true&calendar=now&pressure=&type=map&location=coordinates&detail=true&metricWind=km%2Fh&metricTemp=%C2%B0C&radarRange=-1"
+          width="100%" height="320" frameborder="0"
+          style="border-radius:8px;display:block;"
+          title="Météo LFPX Chavenay — Windy">
+        </iframe>
+        <div style="color:rgba(255,255,255,.35);font-size:11px;margin-top:8px;text-align:center;line-height:1.6;font-family:monospace;">
+          Carte météo temps réel — Windy.com<br>
+          <a href="https://www.windy.com/?48.970,1.966,10" target="_blank" style="color:rgba(255,255,255,.5);">Ouvrir sur Windy ↗</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<style>
+@keyframes spin{to{transform:rotate(360deg)}}
+#live-badge.live{color:#22c55e;animation:blink-badge 2s infinite}
+#live-badge.error{color:#ef4444}
+@keyframes blink-badge{0%,100%{opacity:1}50%{opacity:.5}}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.13/dist/hls.min.js"></script>
+<script>
+(function(){
+  var video=document.getElementById("arc-video");
+  var loader=document.getElementById("arc-loader");
+  var loaderText=document.getElementById("arc-loader-text");
+  var badge=document.getElementById("live-badge");
+  var retryInfo=document.getElementById("arc-retry-info");
+  var streamUrl="https://arccamera-production.up.railway.app/piste/index.m3u8";
+  var retryCount=0,hls;var MAX_RETRIES=5;
+  function setLive(ok){
+    if(ok){badge.textContent="● EN DIRECT";badge.className="live";badge.style.color="";loader.style.opacity="0";loader.style.pointerEvents="none";retryInfo.style.display="none";retryCount=0;}
+    else{badge.textContent="● HORS LIGNE";badge.className="error";badge.style.color="";}
+  }
+  function setLoading(msg){loader.style.opacity="1";loader.style.pointerEvents="";loaderText.textContent=msg||"Connexion au flux live...";badge.textContent="● CONNEXION...";badge.className="";badge.style.color="#9ca3af";}
+  function initHLS(){
+    if(hls)hls.destroy();
+    if(window.Hls&&Hls.isSupported()){
+      hls=new Hls({lowLatencyMode:true,liveSyncDurationCount:1,liveMaxLatencyDurationCount:2,maxBufferLength:3,maxMaxBufferLength:5,backBufferLength:0});
+      hls.loadSource(streamUrl);hls.attachMedia(video);
+      hls.on(Hls.Events.MANIFEST_PARSED,function(){video.play().catch(function(){});setLive(true);});
+      hls.on(Hls.Events.ERROR,function(e,data){
+        if(data.fatal){
+          setLive(false);
+          if(retryCount<MAX_RETRIES){
+            retryCount++;var d=Math.min(retryCount*5,30);
+            retryInfo.style.display="inline";retryInfo.textContent="Reconnexion "+retryCount+"/"+MAX_RETRIES+" dans "+d+"s...";
+            setLoading("Reconnexion "+retryCount+"/"+MAX_RETRIES+"...");
+            setTimeout(initHLS,d*1000);
+          }else{loaderText.textContent="Stream indisponible";badge.textContent="● HORS LIGNE";badge.className="error";}
+        }
+      });
+    }else if(video.canPlayType("application/vnd.apple.mpegurl")){
+      video.src=streamUrl;
+      video.addEventListener("loadedmetadata",function(){setLive(true);});
+      video.addEventListener("error",function(){setLive(false);});
+    }else{loaderText.textContent="Navigateur non compatible HLS";badge.textContent="● NON SUPPORTÉ";}
+  }
+  document.getElementById("arc-fullscreen-btn").onclick=function(){
+    var w=document.getElementById("arc-video-wrap");
+    if(w.requestFullscreen)w.requestFullscreen();else if(w.webkitRequestFullscreen)w.webkitRequestFullscreen();
+  };
+  setLoading();initHLS();
+})();
+</script>
+
 <!-- FLOTTE -->
 <div class="flotte-section">
   <div class="container">
