@@ -13,7 +13,7 @@ a{text-decoration:none;color:inherit;}
 img{max-width:100%;height:auto;}
 nav#arc-nav{position:sticky;top:0;z-index:1000;background:rgba(10,22,40,0.97);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.08);}
 .arc-nav-inner{max-width:1200px;margin:0 auto;padding:0 24px;height:64px;display:flex;align-items:center;justify-content:space-between;gap:24px;}
-.arc-nav-logo img{display:block;height:40px;width:auto;}
+.arc-nav-logo img{display:block;height:52px;width:auto;filter:brightness(1.1);}
 .arc-nav-links{list-style:none;display:flex;align-items:center;gap:4px;margin:0;padding:0;}
 .arc-nav-links a{color:rgba(255,255,255,0.75);font-size:13px;font-weight:500;padding:6px 12px;border-radius:4px;transition:all 0.15s;white-space:nowrap;}
 .arc-nav-links a:hover,.arc-nav-links a.active{color:white;background:rgba(255,255,255,0.08);}
@@ -37,9 +37,23 @@ nav#arc-nav{position:sticky;top:0;z-index:1000;background:rgba(10,22,40,0.97);ba
 .section.dark{background:var(--navy);}
 .section-label{font-size:11px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;}
 .section-title{font-size:clamp(24px,3.5vw,36px);font-weight:800;color:var(--navy);letter-spacing:-0.02em;line-height:1.1;margin-bottom:14px;}
+.dark .section-title{color:white;}
 .lead{font-size:16px;color:var(--gray);line-height:1.7;max-width:640px;margin-bottom:32px;}
 .btn-primary{display:inline-flex;align-items:center;gap:8px;background:var(--gold);color:var(--navy);padding:13px 28px;border-radius:4px;font-weight:700;font-size:14px;transition:background 0.2s;}
 .btn-primary:hover{background:#e0b94a;}
+.step{display:flex;gap:20px;align-items:flex-start;margin-bottom:28px;}
+.step-num{width:40px;height:40px;background:var(--sky);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:white;flex-shrink:0;}
+.step h3{font-size:15px;font-weight:700;color:var(--navy);margin-bottom:4px;}
+.step p{font-size:13px;color:var(--gray);line-height:1.6;}
+.price-card{background:var(--navy);border-radius:12px;padding:32px;color:white;text-align:center;}
+.price-card .amount{font-size:56px;font-weight:900;color:var(--gold);letter-spacing:-0.04em;line-height:1;}
+.price-card .unit{font-size:16px;color:rgba(255,255,255,0.5);margin-top:4px;}
+.price-card .desc{font-size:14px;color:rgba(255,255,255,0.6);margin-top:12px;line-height:1.6;}
+.tw-box{background:rgba(45,107,228,0.06);border:1px solid rgba(45,107,228,0.15);border-radius:10px;padding:24px 28px;margin-top:32px;}
+.tw-box h3{font-size:16px;font-weight:700;color:var(--navy);margin-bottom:8px;}
+.tw-box p{font-size:14px;color:var(--gray);line-height:1.6;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start;}
+@media(max-width:768px){.two-col{grid-template-columns:1fr;}}
 footer{background:var(--navy);padding:40px 24px;text-align:center;border-top:1px solid rgba(255,255,255,0.08);}
 footer p{color:rgba(255,255,255,0.35);font-size:13px;line-height:1.8;}
 footer a{color:var(--gold);}
@@ -48,14 +62,14 @@ footer a{color:var(--gold);}
 <body>
 <nav id="arc-nav">
   <div class="arc-nav-inner">
-    <a href="/" class="arc-nav-logo"><img src="https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69c8ee72f60e3ec233a5a847_Logo%20ARC%20II%20FR.png" alt="ARC" height="40"></a>
+    <a href="/accueil" class="arc-nav-logo"><img src="https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69c8ee72f60e3ec233a5a847_Logo%20ARC%20II%20FR.png" alt="ARC" height="52" style="filter:brightness(1.1);"></a>
     <ul class="arc-nav-links">
       <li><a href="/la-flotte">La Flotte</a></li>
       <li><a href="/formation">Formation PPL</a></li>
       <li><a href="/post-ppl">Post-PPL</a></li>
       <li><a href="/aerodrome">Aérodrome</a></li>
       <li><a href="https://enviedepiloter.fr/commander-un-passeport/?code_fna=04158" target="_blank">Initiation au Pilotage</a></li>
-      <li><a href="/" id="nav-inscription">Inscription</a></li>
+      <li><a href="/tarifs">Inscription</a></li>
     </ul>
     <a href="/tarifs" class="arc-nav-cta">Adhésion 2026</a>
     <button class="arc-nav-burger" onclick="document.getElementById('arc-nav').classList.toggle('open')"><span></span><span></span><span></span></button>
@@ -66,35 +80,124 @@ footer a{color:var(--gold);}
     <li><a href="/post-ppl">Post-PPL</a></li>
     <li><a href="/aerodrome">Aérodrome</a></li>
     <li><a href="https://enviedepiloter.fr/commander-un-passeport/?code_fna=04158" target="_blank">Initiation au Pilotage</a></li>
-    <li><a href="/">Inscription</a></li>
+    <li><a href="/tarifs">Inscription</a></li>
     <li><a href="/tarifs" class="arc-nav-cta-mobile">Adhésion 2026</a></li>
   </ul>
 </nav>
-
 <div class="page-hero">
-  <p class="eyebrow">Brevet de Pilote Privé</p>
+  <p class="eyebrow">Brevet de Pilote Privé — PPL(A)</p>
   <h1>Formation PPL</h1>
-  <p class="sub">Obtenez votre licence de pilote privé à Chavenay — tous les avions en train classique, qualification TW incluse.</p>
+  <p class="sub">Obtenez votre licence de pilote privé sur Jodel — qualification Tailwheel incluse, 45 heures minimum, à 30 minutes de Paris.</p>
 </div>
 
-<div class="section cream">
+<!-- PARCOURS -->
+<div class="section light">
   <div class="container">
-    <div style="background:rgba(45,107,228,0.06);border:1px solid rgba(45,107,228,0.15);border-radius:10px;padding:28px 32px;margin-bottom:40px;display:flex;align-items:center;gap:20px;">
-      <span style="font-size:32px;">✈️</span>
+    <div class="two-col">
       <div>
-        <p style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:4px;">Page en cours de migration</p>
-        <p style="font-size:14px;color:var(--gray);">Le contenu détaillé de cette page sera disponible prochainement. En attendant, contactez-nous directement.</p>
+        <p class="section-label">Le parcours PPL à l'ARC</p>
+        <h2 class="section-title">De zéro à pilote breveté</h2>
+        <p class="lead">La formation PPL(A) à l'ARC suit le programme EASA. Elle débute sur le Jodel D112 (65cv) pour les premières heures d'instruction, puis progresse vers le D113 ou le DR1050.</p>
+        <div class="step">
+          <div class="step-num">1</div>
+          <div><h3>Vol de découverte</h3><p>30 minutes avec un instructeur pour découvrir le pilotage et l'aérodrome de Chavenay. À partir de 100 €.</p></div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div><h3>Phase sol</h3><p>Formation théorique aux 9 matières ATPL/PPL : météo, navigation, réglementation, performances, mécanique du vol…</p></div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div><h3>Instruction en double commande</h3><p>Minimum 25 heures avec instructeur qualifié FI(A). Décollages, atterrissages, navigation, procédures d'urgence.</p></div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div><h3>Vol solo</h3><p>Minimum 10 heures en solo dont le lâcher, le cross-country solo et la navigation de 270 km.</p></div>
+        </div>
+        <div class="step">
+          <div class="step-num">5</div>
+          <div><h3>Examens théoriques + pratique</h3><p>9 épreuves théoriques DGAC, puis examen pratique en vol avec un examinateur agréé FE(A).</p></div>
+        </div>
+        <div class="tw-box">
+          <h3>🏅 Qualification Tailwheel incluse</h3>
+          <p>En formant sur Jodel (train classique), vous obtenez automatiquement la qualification TW avec votre PPL. Cette qualification est valorisée dans toute la communauté des pilotes et ouvre l'accès à des appareils rares et de caractère.</p>
+        </div>
+      </div>
+      <div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:24px;">
+          <div class="price-card">
+            <div class="amount">45</div>
+            <div class="unit">heures minimum</div>
+            <div class="desc">25h double commande<br>10h solo<br>+ phases prépa</div>
+          </div>
+          <div class="price-card">
+            <div class="amount">~6500</div>
+            <div class="unit">€ estimé</div>
+            <div class="desc">Hors licence FFA<br>et frais d'examen<br>(estimatif)</div>
+          </div>
+        </div>
+        <div style="background:var(--cream);border-radius:10px;padding:24px;border:1px solid var(--light);">
+          <p style="font-size:11px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--gold);margin-bottom:12px;">Aides disponibles</p>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div style="display:flex;gap:12px;align-items:flex-start;">
+              <span style="font-size:18px;flex-shrink:0;">🎓</span>
+              <div><div style="font-size:13px;font-weight:700;color:var(--navy);">Aide FFA — Lâcher solo</div><div style="font-size:12px;color:var(--gray);">335 € pour les moins de 21 ans</div></div>
+            </div>
+            <div style="display:flex;gap:12px;align-items:flex-start;">
+              <span style="font-size:18px;flex-shrink:0;">🏅</span>
+              <div><div style="font-size:13px;font-weight:700;color:var(--navy);">Aide FFA — Brevet PPL</div><div style="font-size:12px;color:var(--gray);">670 € pour les moins de 21 ans</div></div>
+            </div>
+            <div style="display:flex;gap:12px;align-items:flex-start;">
+              <span style="font-size:18px;flex-shrink:0;">💳</span>
+              <div><div style="font-size:13px;font-weight:700;color:var(--navy);">Compte Personnel de Formation</div><div style="font-size:12px;color:var(--gray);">Renseignez-vous auprès du club</div></div>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:20px;background:rgba(200,168,75,0.06);border:1px solid rgba(200,168,75,0.2);border-radius:8px;padding:16px 20px;">
+          <p style="font-size:13px;font-style:italic;color:var(--navy);line-height:1.6;">"Apprendre sur train classique, c'est plus difficile — et c'est précisément pour ça que ça forge les meilleurs pilotes."</p>
+        </div>
+        <div style="margin-top:24px;display:flex;gap:12px;flex-wrap:wrap;">
+          <a href="/tarifs" class="btn-primary">S'inscrire au club →</a>
+          <a href="/contact" style="display:inline-flex;align-items:center;gap:8px;background:var(--navy);color:white;padding:13px 28px;border-radius:4px;font-weight:700;font-size:14px;">Nous contacter</a>
+        </div>
       </div>
     </div>
-    <div style="display:flex;gap:16px;flex-wrap:wrap;">
-      <a href="/contact" class="btn-primary">📞 Nous contacter</a>
-      <a href="/tarifs" style="display:inline-flex;align-items:center;gap:8px;background:var(--navy);color:white;padding:13px 28px;border-radius:4px;font-weight:700;font-size:14px;">Adhésion 2026</a>
+  </div>
+</div>
+
+<!-- TARIFS AVIONS -->
+<div class="section dark">
+  <div class="container">
+    <p class="section-label">Tarifs de vol</p>
+    <h2 class="section-title">Avions disponibles pour la formation</h2>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:32px;">
+      <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:24px;text-align:center;">
+        <img src="https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69cbab6c28af42b04cd6e7c8_QJ%20POUF%20IL.jpeg" style="width:100%;height:140px;object-fit:cover;border-radius:6px;margin-bottom:14px;" alt="D112">
+        <div style="font-size:11px;color:var(--gold);font-weight:700;letter-spacing:0.1em;margin-bottom:4px;">F-PZRF</div>
+        <div style="font-size:16px;font-weight:800;color:white;margin-bottom:6px;">Jodel D112</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:12px;">Continental A65 — 65 cv</div>
+        <div style="font-size:28px;font-weight:900;color:var(--gold);">95 <span style="font-size:14px;font-weight:500;color:rgba(255,255,255,0.5);">€/h</span></div>
+      </div>
+      <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:24px;text-align:center;">
+        <img src="https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69cbab6c98fbef52a5ea988c_PJIL%20hangar.jpeg" style="width:100%;height:140px;object-fit:cover;border-radius:6px;margin-bottom:14px;" alt="D113">
+        <div style="font-size:11px;color:var(--gold);font-weight:700;letter-spacing:0.1em;margin-bottom:4px;">F-PJIL</div>
+        <div style="font-size:16px;font-weight:800;color:white;margin-bottom:6px;">Jodel D113</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:12px;">Lycoming O-200 — 100 cv</div>
+        <div style="font-size:28px;font-weight:900;color:var(--gold);">120 <span style="font-size:14px;font-weight:500;color:rgba(255,255,255,0.5);">€/h</span></div>
+      </div>
+      <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:24px;text-align:center;">
+        <img src="https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69cbab6b138c3c93b57231c3_BJLL.jpeg" style="width:100%;height:140px;object-fit:cover;border-radius:6px;margin-bottom:14px;opacity:0.6;" alt="DR1050">
+        <div style="font-size:11px;color:var(--gold);font-weight:700;letter-spacing:0.1em;margin-bottom:4px;">F-BJLL</div>
+        <div style="font-size:16px;font-weight:800;color:white;margin-bottom:6px;">Jodel DR1050</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:12px;">Lycoming O-200 — 100 cv</div>
+        <div style="font-size:14px;font-weight:700;color:rgba(239,68,68,0.8);">🔧 En maintenance</div>
+      </div>
     </div>
   </div>
 </div>
 
 <footer>
-  <p>© 2026 Aéroclub A.R.C. — <a href="/statuts">Statuts</a> — <a href="/reglement">Règlement intérieur</a> — <a href="mailto:aeroclubarc@gmail.com">aeroclubarc@gmail.com</a></p>
+  <p>© 2026 Aéroclub A.R.C. — <a href="/statuts">Statuts</a> — <a href="/reglement">Règlement intérieur</a> — <a href="mailto:aeroclubarc@gmail.com">aeroclubarc@gmail.com</a> — <a href="tel:+33134623075">01 34 62 30 75</a></p>
 </footer>
 </body>
 </html>

@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aéroclub A.R.C. — Bienvenue</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0a1628;--blue:#1a3a6b;--sky:#2d6be4;--gold:#c8a84b;--cream:#f8f5f0;--white:#fff;--gray:#6b7280;--light:#e8e4dd;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:var(--cream);color:var(--navy);-webkit-font-smoothing:antialiased;}
+a{text-decoration:none;color:inherit;}
+img{max-width:100%;height:auto;}
+nav#arc-nav{position:sticky;top:0;z-index:1000;background:rgba(10,22,40,0.97);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.08);}
+.arc-nav-inner{max-width:1200px;margin:0 auto;padding:0 24px;height:64px;display:flex;align-items:center;justify-content:space-between;gap:24px;}
+.arc-nav-logo img{display:block;height:52px;width:auto;filter:brightness(1.1);}
+.arc-nav-links{list-style:none;display:flex;align-items:center;gap:4px;margin:0;padding:0;}
+.arc-nav-links a{color:rgba(255,255,255,0.75);font-size:13px;font-weight:500;padding:6px 12px;border-radius:4px;transition:all 0.15s;white-space:nowrap;}
+.arc-nav-links a:hover,.arc-nav-links a.active{color:white;background:rgba(255,255,255,0.08);}
+.arc-nav-cta{background:#c8a84b;color:#0a1628;padding:8px 18px;border-radius:4px;font-size:13px;font-weight:700;white-space:nowrap;transition:background 0.2s;flex-shrink:0;}
+.arc-nav-cta:hover{background:#e0b94a;}
+.arc-nav-burger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:6px;}
+.arc-nav-burger span{display:block;width:22px;height:2px;background:white;border-radius:2px;}
+.arc-nav-mobile{display:none;list-style:none;padding:0 24px 16px;margin:0;border-top:1px solid rgba(255,255,255,0.08);}
+.arc-nav-mobile a{display:block;color:rgba(255,255,255,0.8);font-size:14px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.06);}
+.arc-nav-cta-mobile{color:#c8a84b !important;font-weight:700;}
+#arc-nav.open .arc-nav-mobile{display:block;}
+@media(max-width:900px){.arc-nav-links,.arc-nav-cta{display:none;}.arc-nav-burger{display:flex;}}
+
+/* ── HERO ACCUEIL ── */
+.accueil-hero{
+  min-height:100vh;
+  background:
+    linear-gradient(160deg,rgba(10,22,40,0.88) 0%,rgba(26,58,107,0.78) 55%,rgba(10,22,40,0.92) 100%),
+    url('https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69cbab6cdd0be9259eb62f3f_PHOTO-2025-08-09-23-46-13%20(1).jpeg') center/cover no-repeat;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:80px 24px 60px;
+}
+.accueil-logo{margin-bottom:32px;}
+.accueil-logo img{height:100px;filter:brightness(1.15) drop-shadow(0 4px 24px rgba(0,0,0,0.5));}
+.accueil-eyebrow{font-size:11px;font-weight:700;letter-spacing:0.25em;text-transform:uppercase;color:var(--gold);margin-bottom:16px;}
+.accueil-hero h1{font-size:clamp(40px,7vw,88px);font-weight:900;color:white;letter-spacing:-0.04em;line-height:0.95;margin-bottom:20px;}
+.accueil-hero h1 em{color:var(--gold);font-style:normal;}
+.accueil-sub{font-size:clamp(15px,2vw,19px);color:rgba(255,255,255,0.6);max-width:520px;line-height:1.6;margin-bottom:48px;}
+.accueil-ctas{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin-bottom:64px;}
+.btn-gold{background:var(--gold);color:var(--navy);padding:15px 36px;border-radius:4px;font-weight:800;font-size:15px;transition:background 0.2s;letter-spacing:-0.01em;}
+.btn-gold:hover{background:#e0b94a;}
+.btn-ghost{background:transparent;color:white;border:1.5px solid rgba(255,255,255,0.35);padding:15px 36px;border-radius:4px;font-weight:600;font-size:15px;transition:all 0.2s;}
+.btn-ghost:hover{border-color:white;background:rgba(255,255,255,0.08);}
+.accueil-stats{display:flex;gap:48px;flex-wrap:wrap;justify-content:center;}
+.stat-item{text-align:center;}
+.stat-num{font-size:40px;font-weight:900;color:white;letter-spacing:-0.04em;line-height:1;}
+.stat-num span{color:var(--gold);}
+.stat-label{font-size:12px;color:rgba(255,255,255,0.45);text-transform:uppercase;letter-spacing:0.1em;margin-top:4px;}
+
+/* ── QUICK LINKS ── */
+.quick-links{padding:72px 24px;background:white;}
+.ql-container{max-width:1100px;margin:0 auto;}
+.ql-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:40px;}
+@media(max-width:900px){.ql-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:540px){.ql-grid{grid-template-columns:1fr;}}
+.ql-card{display:block;background:var(--cream);border:1px solid var(--light);border-radius:10px;padding:28px 24px;transition:all 0.2s;position:relative;overflow:hidden;}
+.ql-card::after{content:'→';position:absolute;right:20px;top:50%;transform:translateY(-50%);font-size:18px;color:var(--light);transition:all 0.2s;}
+.ql-card:hover{background:var(--navy);border-color:var(--navy);transform:translateY(-2px);box-shadow:0 12px 32px rgba(10,22,40,0.15);}
+.ql-card:hover .ql-icon,.ql-card:hover .ql-title,.ql-card:hover .ql-desc{color:white;}
+.ql-card:hover::after{color:var(--gold);right:16px;}
+.ql-icon{font-size:32px;margin-bottom:14px;display:block;}
+.ql-title{font-size:16px;font-weight:800;color:var(--navy);letter-spacing:-0.01em;margin-bottom:6px;}
+.ql-desc{font-size:13px;color:var(--gray);line-height:1.5;}
+
+/* ── PPV BADGE ── */
+.ppv-strip{background:rgba(27,94,32,0.06);border-top:1px solid rgba(27,94,32,0.1);border-bottom:1px solid rgba(27,94,32,0.1);padding:14px 24px;display:flex;align-items:center;justify-content:center;gap:24px;flex-wrap:wrap;cursor:pointer;font-family:'Inter',sans-serif;}
+.ppv-strip:hover{background:rgba(27,94,32,0.1);}
+.ppv-dot{width:8px;height:8px;border-radius:50%;background:#9e9e9e;flex-shrink:0;}
+.ppv-dot.active{background:#2e7d32;box-shadow:0 0 8px #66bb6a;}
+.ppv-strip span{font-size:13px;color:#1b5e20;font-weight:600;}
+.ppv-strip strong{color:#2e7d32;}
+
+footer{background:var(--navy);padding:40px 24px;text-align:center;border-top:1px solid rgba(255,255,255,0.08);}
+footer p{color:rgba(255,255,255,0.35);font-size:13px;line-height:1.8;}
+footer a{color:var(--gold);}
+</style>
+</head>
+<body>
+<nav id="arc-nav">
+  <div class="arc-nav-inner">
+    <a href="/accueil" class="arc-nav-logo"><img src="https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69c8ee72f60e3ec233a5a847_Logo%20ARC%20II%20FR.png" alt="ARC" height="52" style="filter:brightness(1.1);"></a>
+    <ul class="arc-nav-links">
+      <li><a href="/la-flotte">La Flotte</a></li>
+      <li><a href="/formation">Formation PPL</a></li>
+      <li><a href="/post-ppl">Post-PPL</a></li>
+      <li><a href="/aerodrome">Aérodrome</a></li>
+      <li><a href="https://enviedepiloter.fr/commander-un-passeport/?code_fna=04158" target="_blank">Initiation au Pilotage</a></li>
+      <li><a href="/tarifs">Inscription</a></li>
+    </ul>
+    <a href="/tarifs" class="arc-nav-cta">Adhésion 2026</a>
+    <button class="arc-nav-burger" onclick="document.getElementById('arc-nav').classList.toggle('open')"><span></span><span></span><span></span></button>
+  </div>
+  <ul class="arc-nav-mobile">
+    <li><a href="/la-flotte">La Flotte</a></li>
+    <li><a href="/formation">Formation PPL</a></li>
+    <li><a href="/post-ppl">Post-PPL</a></li>
+    <li><a href="/aerodrome">Aérodrome</a></li>
+    <li><a href="https://enviedepiloter.fr/commander-un-passeport/?code_fna=04158" target="_blank">Initiation au Pilotage</a></li>
+    <li><a href="/tarifs">Inscription</a></li>
+    <li><a href="/tarifs" class="arc-nav-cta-mobile">Adhésion 2026</a></li>
+  </ul>
+</nav>
+
+<!-- BANDEAU PPV -->
+<div class="ppv-strip" onclick="window.location.href='/'">
+  <div class="ppv-dot" id="ppv-dot"></div>
+  <span>☀️ Aérodrome Vert LFPX —</span>
+  <span>Production totale : <strong id="ppv-total">--</strong> kWh</span>
+  <span>·</span>
+  <span>Puissance : <strong id="ppv-power">--</strong> kW</span>
+  <span>·</span>
+  <span>✈️ <strong id="ppv-hours">--</strong> h de vol neutralisées</span>
+</div>
+
+<!-- HERO -->
+<div class="accueil-hero">
+  <div class="accueil-logo">
+    <img src="https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69c8ee72f60e3ec233a5a847_Logo%20ARC%20II%20FR.png" alt="Aéroclub ARC">
+  </div>
+  <p class="accueil-eyebrow">Chavenay LFPX — 30 min de Paris</p>
+  <h1>Aéroclub<br><em>A.R.C.</em></h1>
+  <p class="accueil-sub">Le seul aéroclub d'Île-de-France spécialisé en train classique. Cinq Jodel de caractère, une école rigoureuse, un esprit de club authentique depuis 1969.</p>
+  <div class="accueil-ctas">
+    <a href="/" class="btn-gold">✈ Découvrir le club</a>
+    <a href="/tarifs" class="btn-ghost">Adhésion 2026</a>
+  </div>
+  <div class="accueil-stats">
+    <div class="stat-item">
+      <div class="stat-num">5<span></span></div>
+      <div class="stat-label">Avions Jodel</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">55<span>+</span></div>
+      <div class="stat-label">Ans d'histoire</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">30<span>min</span></div>
+      <div class="stat-label">De Paris</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">100<span>%</span></div>
+      <div class="stat-label">Train classique</div>
+    </div>
+  </div>
+</div>
+
+<!-- QUICK LINKS -->
+<div class="quick-links">
+  <div class="ql-container">
+    <p style="font-size:11px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;">Explorer le club</p>
+    <h2 style="font-size:clamp(24px,3.5vw,36px);font-weight:800;color:var(--navy);letter-spacing:-0.02em;">Par où commencer ?</h2>
+    <div class="ql-grid">
+      <a href="/" class="ql-card">
+        <span class="ql-icon">🏠</span>
+        <div class="ql-title">Le Club</div>
+        <div class="ql-desc">Notre histoire, notre esprit, notre engagement pour l'aviation légère depuis 1969.</div>
+      </a>
+      <a href="/la-flotte" class="ql-card">
+        <span class="ql-icon">✈️</span>
+        <div class="ql-title">La Flotte</div>
+        <div class="ql-desc">5 appareils Jodel et Robin — de l'initiation au voyage longue distance.</div>
+      </a>
+      <a href="/formation" class="ql-card">
+        <span class="ql-icon">🎓</span>
+        <div class="ql-title">Formation PPL</div>
+        <div class="ql-desc">Obtenez votre brevet avec qualification Tailwheel incluse — 45h minimum.</div>
+      </a>
+      <a href="/post-ppl" class="ql-card">
+        <span class="ql-icon">🚀</span>
+        <div class="ql-title">Post-PPL</div>
+        <div class="ql-desc">Vol de nuit, montagne, remise en condition, qualification TW pour pilotes brevetés.</div>
+      </a>
+      <a href="/aerodrome" class="ql-card">
+        <span class="ql-icon">📍</span>
+        <div class="ql-title">Aérodrome LFPX</div>
+        <div class="ql-desc">Chavenay, piste en herbe 09/27 — infos pratiques, fréquences, accès, carte.</div>
+      </a>
+      <a href="/tarifs" class="ql-card">
+        <span class="ql-icon">📋</span>
+        <div class="ql-title">Adhésion & Tarifs</div>
+        <div class="ql-desc">Rejoindre le club, licences FFA, tarifs horaires et formulaire d'inscription en ligne.</div>
+      </a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>© 2026 Aéroclub A.R.C. — SIRET 44776577700019 — RNA W783005211 — Agrément FFA 04158<br>
+  <a href="/statuts">Statuts</a> · <a href="/reglement">Règlement intérieur</a> · <a href="mailto:aeroclubarc@gmail.com">aeroclubarc@gmail.com</a> · <a href="tel:+33134623075">01 34 62 30 75</a></p>
+</footer>
+
+<script>
+async function updatePPV(){
+  try{
+    const r=await fetch('https://ppv-production.up.railway.app/total?t='+Date.now());
+    const d=await r.json();
+    const total=d.total_kwh||0;
+    const kw=(d.current_power_w||0)/1000;
+    const h=(total*0.42/66.9).toFixed(1);
+    document.getElementById('ppv-total').innerText=total.toLocaleString('fr-FR',{maximumFractionDigits:0});
+    document.getElementById('ppv-power').innerText=kw.toFixed(2);
+    document.getElementById('ppv-hours').innerText=h;
+    const dot=document.getElementById('ppv-dot');
+    if(kw>0.2)dot.classList.add('active');else dot.classList.remove('active');
+  }catch(e){}
+}
+updatePPV();
+setInterval(updatePPV,120000);
+</script>
+</body>
+</html>

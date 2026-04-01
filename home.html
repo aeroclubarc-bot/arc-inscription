@@ -271,14 +271,14 @@ a{text-decoration:none;color:inherit;}
 <!-- NAVBAR -->
 <nav id="arc-nav">
   <div class="arc-nav-inner">
-    <a href="/" class="arc-nav-logo"><img src="https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69c8ee72f60e3ec233a5a847_Logo%20ARC%20II%20FR.png" alt="ARC" height="40"></a>
+    <a href="/accueil" class="arc-nav-logo"><img src="https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69c8ee72f60e3ec233a5a847_Logo%20ARC%20II%20FR.png" alt="ARC" height="52" style="filter:brightness(1.1);"></a>
     <ul class="arc-nav-links">
       <li><a href="/la-flotte">La Flotte</a></li>
       <li><a href="/formation">Formation PPL</a></li>
       <li><a href="/post-ppl">Post-PPL</a></li>
       <li><a href="/aerodrome">Aérodrome</a></li>
       <li><a href="https://enviedepiloter.fr/commander-un-passeport/?code_fna=04158" target="_blank">Initiation au Pilotage</a></li>
-      <li><a href="/" id="nav-inscription">Inscription</a></li>
+      <li><a href="/tarifs">Inscription</a></li>
     </ul>
     <a href="/tarifs" class="arc-nav-cta">Adhésion 2026</a>
     <button class="arc-nav-burger" onclick="document.getElementById('arc-nav').classList.toggle('open')"><span></span><span></span><span></span></button>
@@ -289,7 +289,7 @@ a{text-decoration:none;color:inherit;}
     <li><a href="/post-ppl">Post-PPL</a></li>
     <li><a href="/aerodrome">Aérodrome</a></li>
     <li><a href="https://enviedepiloter.fr/commander-un-passeport/?code_fna=04158" target="_blank">Initiation au Pilotage</a></li>
-    <li><a href="/">Inscription</a></li>
+    <li><a href="/tarifs">Inscription</a></li>
     <li><a href="/tarifs" class="arc-nav-cta-mobile">Adhésion 2026</a></li>
   </ul>
 </nav>
@@ -664,7 +664,7 @@ document.addEventListener("DOMContentLoaded",function(){
       <!-- D112 -->
       <div class="avion-card">
         <div class="avion-img">
-          <img src="https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69cbab6d849f808cfd4aae83_PPM_Juin2025_p5_xref80_3378x1886.jpeg" alt="Jodel D112 F-PZRF">
+          <img src="https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69cbab6c28af42b04cd6e7c8_QJ%20POUF%20IL.jpeg" alt="Jodel D112 F-PZRF">
           <span class="avion-badge">Initiation</span>
         </div>
         <div class="avion-body">
@@ -698,10 +698,11 @@ document.addEventListener("DOMContentLoaded",function(){
       </div>
 
       <!-- DR1050 -->
-      <div class="avion-card">
+      <div class="avion-card avion-maintenance">
         <div class="avion-img">
           <img src="https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69cbab6b138c3c93b57231c3_BJLL.jpeg" alt="Jodel DR1050 F-BJLL">
           <span class="avion-badge">Polyvalent</span>
+          <span class="avion-badge-maintenance">🔧 En maintenance</span>
         </div>
         <div class="avion-body">
           <div class="avion-immat">F-BJLL</div>
@@ -710,17 +711,16 @@ document.addEventListener("DOMContentLoaded",function(){
             <div class="avion-spec"><span class="spec-k">Moteur</span><span class="spec-v">100 cv — Lycoming O-200</span></div>
             <div class="avion-spec"><span class="spec-k">Croisière</span><span class="spec-v">190 km/h</span></div>
             <div class="avion-spec"><span class="spec-k">Places</span><span class="spec-v">3</span></div>
-            <div class="avion-price">120 <span>€/h</span></div>
+            <div class="avion-price avion-price-maint">120 <span>€/h</span> <span class="maint-label">· Indisponible</span></div>
           </div>
         </div>
       </div>
 
       <!-- DH251 — EN MAINTENANCE -->
-      <div class="avion-card avion-maintenance">
+      <div class="avion-card">
         <div class="avion-img">
           <img src="https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69cbab6c280e4445e394b652_PHOTO-2025-08-09-23-46-13%20(2).jpeg" alt="Jodel DH251 F-POUF">
           <span class="avion-badge">Voyage</span>
-          <span class="avion-badge-maintenance">🔧 En maintenance</span>
         </div>
         <div class="avion-body">
           <div class="avion-immat">F-POUF</div>
@@ -729,7 +729,7 @@ document.addEventListener("DOMContentLoaded",function(){
             <div class="avion-spec"><span class="spec-k">Moteur</span><span class="spec-v">115 cv — Lycoming O-235</span></div>
             <div class="avion-spec"><span class="spec-k">Croisière</span><span class="spec-v">190 km/h</span></div>
             <div class="avion-spec"><span class="spec-k">Autonomie</span><span class="spec-v">>700 km</span></div>
-            <div class="avion-price avion-price-maint">140 <span>€/h</span> <span class="maint-label">· Indisponible</span></div>
+            <div class="avion-price">140 <span>€/h</span></div>
           </div>
         </div>
       </div>

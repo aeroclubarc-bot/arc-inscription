@@ -9,7 +9,10 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.static(path.join(__dirname)));
 
-// Home
+// Accueil (page d'entrée avec logo)
+app.get("/accueil", (req, res) => res.sendFile(path.join(__dirname, "accueil.html")));
+
+// Home complète (club + flotte + PPV)
 app.get("/", (req, res) => res.sendFile(path.join(__dirname, "home.html")));
 app.get("/home-arc", (req, res) => res.sendFile(path.join(__dirname, "home.html")));
 
@@ -33,6 +36,7 @@ app.get("/contact", (req, res) => res.sendFile(path.join(__dirname, "contact.htm
 // Tarifs & Adhésion
 app.get("/tarifs", (req, res) => res.sendFile(path.join(__dirname, "index.html")));
 app.get("/adhesion", (req, res) => res.sendFile(path.join(__dirname, "index.html")));
+app.get("/inscription", (req, res) => res.sendFile(path.join(__dirname, "index.html")));
 
 // Documents
 app.get("/statuts", (req, res) => res.sendFile(path.join(__dirname, "statuts.html")));
