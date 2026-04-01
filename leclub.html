@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Le Club — Aéroclub A.R.C. depuis 1969</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0a1628;--blue:#1a3a6b;--sky:#2d6be4;--gold:#c8a84b;--cream:#f8f5f0;--white:#fff;--gray:#6b7280;--light:#e8e4dd;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:var(--cream);color:var(--navy);-webkit-font-smoothing:antialiased;}
+a{text-decoration:none;color:inherit;}
+img{max-width:100%;height:auto;}
+nav#arc-nav{position:sticky;top:0;z-index:1000;background:rgba(10,22,40,0.97);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.08);}
+.arc-nav-inner{max-width:1200px;margin:0 auto;padding:0 24px;height:64px;display:flex;align-items:center;justify-content:space-between;gap:24px;}
+.arc-nav-logo img{display:block;height:52px;width:auto;filter:brightness(1.1);}
+.arc-nav-links{list-style:none;display:flex;align-items:center;gap:4px;margin:0;padding:0;}
+.arc-nav-links a{color:rgba(255,255,255,0.75);font-size:13px;font-weight:500;padding:6px 12px;border-radius:4px;transition:all 0.15s;white-space:nowrap;}
+.arc-nav-links a:hover,.arc-nav-links a.active{color:white;background:rgba(255,255,255,0.08);}
+.arc-nav-cta{background:#c8a84b;color:#0a1628;padding:8px 18px;border-radius:4px;font-size:13px;font-weight:700;white-space:nowrap;transition:background 0.2s;flex-shrink:0;}
+.arc-nav-cta:hover{background:#e0b94a;}
+.arc-nav-burger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:6px;}
+.arc-nav-burger span{display:block;width:22px;height:2px;background:white;border-radius:2px;}
+.arc-nav-mobile{display:none;list-style:none;padding:0 24px 16px;margin:0;border-top:1px solid rgba(255,255,255,0.08);}
+.arc-nav-mobile a{display:block;color:rgba(255,255,255,0.8);font-size:14px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.06);}
+.arc-nav-cta-mobile{color:#c8a84b !important;font-weight:700;}
+#arc-nav.open .arc-nav-mobile{display:block;}
+@media(max-width:900px){.arc-nav-links,.arc-nav-cta{display:none;}.arc-nav-burger{display:flex;}}
+
+/* HERO */
+.hero-club{
+  min-height:70vh;
+  background:
+    linear-gradient(160deg,rgba(10,22,40,0.82) 0%,rgba(26,58,107,0.72) 55%,rgba(10,22,40,0.88) 100%),
+    url('https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69cbab6cdd0be9259eb62f3f_PHOTO-2025-08-09-23-46-13%20(1).jpeg') center/cover no-repeat;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:80px 24px 60px;
+}
+.hero-club .eyebrow{font-size:11px;font-weight:700;letter-spacing:0.25em;text-transform:uppercase;color:var(--gold);margin-bottom:14px;}
+.hero-club h1{font-size:clamp(40px,7vw,80px);font-weight:900;color:white;letter-spacing:-0.04em;line-height:0.95;margin-bottom:20px;}
+.hero-club h1 em{color:var(--gold);font-style:normal;}
+.hero-club p{font-size:clamp(15px,2vw,18px);color:rgba(255,255,255,0.6);max-width:560px;line-height:1.65;margin-bottom:36px;}
+.hero-stats{display:flex;gap:40px;flex-wrap:wrap;justify-content:center;margin-top:8px;}
+.hs{text-align:center;}
+.hs-n{font-size:36px;font-weight:900;color:white;letter-spacing:-0.04em;line-height:1;}
+.hs-n span{color:var(--gold);}
+.hs-l{font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.1em;margin-top:3px;}
+
+/* SECTIONS */
+.container{max-width:1100px;margin:0 auto;padding:0 24px;}
+.section{padding:72px 24px;}
+.section.light{background:white;}
+.section.cream{background:var(--cream);}
+.section.dark{background:var(--navy);}
+.section-label{font-size:11px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;}
+.section-title{font-size:clamp(26px,4vw,40px);font-weight:800;color:var(--navy);letter-spacing:-0.03em;line-height:1.05;margin-bottom:16px;}
+.dark .section-title{color:white;}
+.lead{font-size:16px;color:var(--gray);line-height:1.75;max-width:680px;}
+
+/* TIMELINE */
+.timeline{position:relative;padding-left:32px;margin-top:40px;}
+.timeline::before{content:'';position:absolute;left:7px;top:6px;bottom:0;width:2px;background:linear-gradient(var(--light),transparent);}
+.tl-item{position:relative;padding-bottom:36px;}
+.tl-item:last-child{padding-bottom:0;}
+.tl-dot{position:absolute;left:-32px;top:4px;width:14px;height:14px;border-radius:50%;background:var(--gold);border:3px solid var(--cream);box-shadow:0 0 0 2px var(--gold);}
+.tl-year{font-size:11px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:4px;}
+.tl-title{font-size:16px;font-weight:700;color:var(--navy);margin-bottom:4px;}
+.tl-text{font-size:14px;color:var(--gray);line-height:1.6;}
+
+/* VALEURS */
+.valeurs-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:36px;}
+@media(max-width:768px){.valeurs-grid{grid-template-columns:1fr;}}
+.valeur-card{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:28px 24px;}
+.valeur-icon{font-size:32px;margin-bottom:14px;}
+.valeur-title{font-size:16px;font-weight:800;color:white;letter-spacing:-0.01em;margin-bottom:8px;}
+.valeur-text{font-size:14px;color:rgba(255,255,255,0.5);line-height:1.65;}
+
+/* BUREAU */
+.bureau-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:32px;}
+@media(max-width:900px){.bureau-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:500px){.bureau-grid{grid-template-columns:1fr;}}
+.bureau-card{background:white;border:1px solid var(--light);border-radius:10px;padding:22px 18px;text-align:center;}
+.bureau-role{font-size:10px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--gold);margin-bottom:6px;}
+.bureau-name{font-size:15px;font-weight:700;color:var(--navy);letter-spacing:-0.01em;}
+
+/* PHOTOS */
+.photos-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:32px;}
+@media(max-width:600px){.photos-grid{grid-template-columns:1fr 1fr;}}
+.photos-grid img{border-radius:8px;width:100%;height:200px;object-fit:cover;transition:transform 0.3s;}
+.photos-grid img:hover{transform:scale(1.02);}
+.photos-grid img:first-child{grid-column:span 2;height:280px;}
+
+/* ESPRIT */
+.esprit-quote{background:rgba(200,168,75,0.06);border:1px solid rgba(200,168,75,0.2);border-radius:12px;padding:32px 36px;margin-top:36px;position:relative;}
+.esprit-quote::before{content:'"';font-size:80px;font-weight:900;color:rgba(200,168,75,0.15);position:absolute;top:-10px;left:20px;line-height:1;}
+.esprit-quote p{font-size:17px;color:var(--navy);line-height:1.7;font-style:italic;position:relative;}
+.esprit-quote cite{display:block;margin-top:14px;font-size:13px;font-weight:700;color:var(--gold);font-style:normal;}
+
+/* IDENTITE */
+.identite-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:24px;}
+@media(max-width:600px){.identite-grid{grid-template-columns:1fr;}}
+.id-item{background:var(--cream);border:1px solid var(--light);border-radius:8px;padding:16px 18px;display:flex;gap:14px;align-items:flex-start;}
+.id-item h4{font-size:12px;font-weight:700;color:var(--navy);margin-bottom:2px;text-transform:uppercase;letter-spacing:0.06em;}
+.id-item p{font-size:13px;color:var(--gray);font-family:monospace;}
+
+/* CTA */
+.cta-section{background:var(--navy);padding:64px 24px;text-align:center;}
+.btn-primary{display:inline-flex;align-items:center;gap:8px;background:var(--gold);color:var(--navy);padding:14px 30px;border-radius:4px;font-weight:800;font-size:14px;transition:background 0.2s;letter-spacing:-0.01em;}
+.btn-primary:hover{background:#e0b94a;}
+.btn-ghost{display:inline-flex;align-items:center;gap:8px;background:transparent;color:white;border:1.5px solid rgba(255,255,255,0.25);padding:14px 30px;border-radius:4px;font-weight:600;font-size:14px;transition:all 0.2s;}
+.btn-ghost:hover{border-color:white;background:rgba(255,255,255,0.06);}
+
+footer{background:var(--navy);padding:40px 24px;text-align:center;border-top:1px solid rgba(255,255,255,0.08);}
+footer p{color:rgba(255,255,255,0.35);font-size:13px;line-height:1.8;}
+footer a{color:var(--gold);}
+</style>
+</head>
+<body>
+<nav id="arc-nav">
+  <div class="arc-nav-inner">
+    <a href="/accueil" class="arc-nav-logo"><img src="https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69c8ee72f60e3ec233a5a847_Logo%20ARC%20II%20FR.png" alt="ARC" height="52" style="filter:brightness(1.1);"></a>
+    <ul class="arc-nav-links">
+      <li><a href="/leclub">Le Club</a></li>
+      <li><a href="/la-flotte">La Flotte</a></li>
+      <li><a href="/formation">Formation PPL</a></li>
+      <li><a href="/post-ppl">Post-PPL</a></li>
+      <li><a href="/aerodrome">Aérodrome</a></li>
+      <li><a href="https://enviedepiloter.fr/commander-un-passeport/?code_fna=04158" target="_blank">Initiation au Pilotage</a></li>
+      <li><a href="/tarifs">Inscription</a></li>
+    </ul>
+    <a href="/tarifs" class="arc-nav-cta">Adhésion 2026</a>
+    <button class="arc-nav-burger" onclick="document.getElementById('arc-nav').classList.toggle('open')"><span></span><span></span><span></span></button>
+  </div>
+  <ul class="arc-nav-mobile">
+    <li><a href="/leclub">Le Club</a></li>
+    <li><a href="/la-flotte">La Flotte</a></li>
+    <li><a href="/formation">Formation PPL</a></li>
+    <li><a href="/post-ppl">Post-PPL</a></li>
+    <li><a href="/aerodrome">Aérodrome</a></li>
+    <li><a href="https://enviedepiloter.fr/commander-un-passeport/?code_fna=04158" target="_blank">Initiation au Pilotage</a></li>
+    <li><a href="/tarifs">Inscription</a></li>
+    <li><a href="/tarifs" class="arc-nav-cta-mobile">Adhésion 2026</a></li>
+  </ul>
+</nav>
+<!-- HERO -->
+<div class="hero-club">
+  <p class="eyebrow">Fondé en 1969 — Chavenay LFPX</p>
+  <h1>Aéroclub<br><em>A.R.C.</em></h1>
+  <p>Aviation et Relations Culturelles. Depuis plus de 55 ans, un club pas comme les autres — là où l'on vole encore pour le plaisir, sur des avions qui ont de l'âme.</p>
+  <div class="hero-stats">
+    <div class="hs"><div class="hs-n">1969</div><div class="hs-l">Fondé en</div></div>
+    <div class="hs"><div class="hs-n">55<span>+</span></div><div class="hs-l">Ans d'histoire</div></div>
+    <div class="hs"><div class="hs-n">5</div><div class="hs-l">Avions en flotte</div></div>
+    <div class="hs"><div class="hs-n">100<span>%</span></div><div class="hs-l">Train classique</div></div>
+  </div>
+</div>
+
+<!-- L'ESPRIT DU CLUB -->
+<div class="section light">
+  <div class="container">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center;">
+      <div>
+        <p class="section-label">Notre philosophie</p>
+        <h2 class="section-title">Un club à part dans le paysage aéronautique</h2>
+        <p class="lead" style="margin-bottom:20px;">L'Aéroclub A.R.C. est un peu atypique dans le monde aéronautique : il privilégie avant tout l'esprit associatif. Les membres partagent la même passion en volant en toute liberté sur des appareils originaux, en train classique pour la majorité.</p>
+        <p style="font-size:15px;color:var(--gray);line-height:1.7;margin-bottom:20px;">Ce n'est pas simplement un club d'aviation — c'est une communauté de passionnés qui ont choisi une voie moins fréquentée, plus exigeante, et infiniment plus enrichissante. Voler sur un Jodel demande plus de technique, de vigilance, de sensibilité aux conditions météo. Et c'est précisément pour ça que ça forge les meilleurs pilotes.</p>
+        <p style="font-size:15px;color:var(--gray);line-height:1.7;">Le nom complet est révélateur : <strong style="color:var(--navy);">Aviation et Relations Culturelles</strong>. L'ARC a toujours eu cette dimension humaine et culturelle — un endroit où l'on ne fait pas que piloter, mais où l'on se retrouve, on partage, on transmet.</p>
+
+        <div class="esprit-quote">
+          <p>Après tout, il s'agit d'une activité de loisir — alors pourquoi piloter des engins sans âme ?</p>
+          <cite>— L'esprit ARC depuis 1969</cite>
+        </div>
+      </div>
+      <div>
+        <div class="photos-grid">
+          <img src="https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69cbab6c280e4445e394b652_PHOTO-2025-08-09-23-46-13%20(2).jpeg" alt="Formation coucher de soleil">
+          <img src="https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69cbab6c98fbef52a5ea988c_PJIL%20hangar.jpeg" alt="F-PJIL au hangar">
+          <img src="https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69cbab6bca79c1ce90572dbf_BNVA.jpeg" alt="F-BNVA en vol">
+          <img src="https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69cbab6c1037de72799f45fc_IMG_2704.jpeg" alt="Centrale solaire">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HISTOIRE -->
+<div class="section cream">
+  <div class="container">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:56px;">
+      <div>
+        <p class="section-label">Notre histoire</p>
+        <h2 class="section-title">55 ans de passion pour les Jodel</h2>
+        <p class="lead">L'ARC est ancré à Chavenay depuis sa fondation. Au fil des décennies, le club a traversé les évolutions de l'aviation légère en restant fidèle à ses valeurs fondatrices.</p>
+
+        <div class="timeline">
+          <div class="tl-item">
+            <div class="tl-dot"></div>
+            <div class="tl-year">1969</div>
+            <div class="tl-title">Fondation de l'ARC</div>
+            <div class="tl-text">L'Aéroclub A.R.C. — Aviation et Relations Culturelles — est fondé à Chavenay. Dès le départ, le club fait le choix des Jodel et du train classique, une singularité qui le définira pour toujours.</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot"></div>
+            <div class="tl-year">Années 1970–90</div>
+            <div class="tl-title">Constitution de la flotte</div>
+            <div class="tl-text">Le club acquiert progressivement ses Jodel de caractère : D112, D113, DR1050, DH251. Chaque avion a son histoire, ses particularités, ses passionnés au sein du club.</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot"></div>
+            <div class="tl-year">2000s</div>
+            <div class="tl-title">Ancrage dans le réseau CAP</div>
+            <div class="tl-text">L'ARC intègre le réseau CAP — un réseau d'aéroclubs partageant des valeurs communes de qualité de formation et d'esprit associatif. Ce réseau ouvre l'accès à des formations post-PPL et à une communauté plus large.</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot"></div>
+            <div class="tl-year">2020</div>
+            <div class="tl-title">Le Robin DR250 rejoint la flotte</div>
+            <div class="tl-text">Acquisition du Robin DR250 F-BNVA — le 4 places de la flotte, 160cv, taillé pour les grands voyages. Une nouvelle dimension pour le club.</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot"></div>
+            <div class="tl-year">26 août 2025</div>
+            <div class="tl-title">Inauguration de l'Aérodrome Vert ☀️</div>
+            <div class="tl-text">Avec le soutien de la Région Île-de-France et du réseau CAP, l'ARC inaugure sa centrale photovoltaïque, ses batteries de seconde vie (Citroën C3) et sa borne de recharge. LFPX devient un aérodrome pionnier en matière de transition énergétique.</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot" style="background:var(--sky);box-shadow:0 0 0 2px var(--sky);"></div>
+            <div class="tl-year" style="color:var(--sky);">2026</div>
+            <div class="tl-title">Ouverture en ligne</div>
+            <div class="tl-text">Lancement du nouveau site internet — adhésion en ligne, présentation de la flotte, formulaire de contact. Le club entre dans l'ère numérique tout en restant fidèle à ses valeurs.</div>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:20px;">
+        <img src="https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69cbab6cdd0be9259eb62f3f_PHOTO-2025-08-09-23-46-13%20(1).jpeg" alt="Hangar ARC au coucher de soleil" style="border-radius:12px;width:100%;height:280px;object-fit:cover;box-shadow:0 8px 32px rgba(10,22,40,0.15);">
+        <img src="https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69cbab6c28af42b04cd6e7c8_QJ%20POUF%20IL.jpeg" alt="La flotte ARC alignée" style="border-radius:12px;width:100%;height:220px;object-fit:cover;box-shadow:0 8px 32px rgba(10,22,40,0.15);">
+        <!-- IDENTITE JURIDIQUE -->
+        <div style="background:white;border:1px solid var(--light);border-radius:10px;padding:22px;">
+          <p style="font-size:11px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--gold);margin-bottom:14px;">Identité juridique</p>
+          <div class="identite-grid">
+            <div class="id-item"><div><h4>SIRET</h4><p>44776577700019</p></div></div>
+            <div class="id-item"><div><h4>RNA</h4><p>W783005211</p></div></div>
+            <div class="id-item"><div><h4>Agrément FFA</h4><p>04158</p></div></div>
+            <div class="id-item"><div><h4>DTO</h4><p>FR.DTO.0126</p></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- VALEURS -->
+<div class="section dark">
+  <div class="container">
+    <p class="section-label">Ce qui nous définit</p>
+    <h2 class="section-title">Nos valeurs</h2>
+    <div class="valeurs-grid">
+      <div class="valeur-card">
+        <div class="valeur-icon">✈️</div>
+        <div class="valeur-title">Le train classique comme philosophie</div>
+        <p class="valeur-text">Nous aurions pu prendre le chemin facile et former sur tricycle. Nous ne l'avons pas fait. Le train classique est plus difficile, plus exigeant — et c'est précisément pour ça qu'il forme de meilleurs pilotes et des esprits plus attentifs.</p>
+      </div>
+      <div class="valeur-card">
+        <div class="valeur-icon">🤝</div>
+        <div class="valeur-title">L'esprit associatif avant tout</div>
+        <p class="valeur-text">L'ARC n'est pas une école de pilotage commerciale. C'est une association loi 1901 où chaque membre compte, participe, contribue. Les pilotes expérimentés accueillent les nouveaux, partagent leur expérience, entretiennent les avions avec soin.</p>
+      </div>
+      <div class="valeur-card">
+        <div class="valeur-icon">🌱</div>
+        <div class="valeur-title">La responsabilité environnementale</div>
+        <p class="valeur-text">Depuis le 26 août 2025, l'ARC est un aéroclub vert. Notre centrale solaire, nos batteries de seconde vie et notre borne de recharge montrent qu'aviation légère et engagement environnemental sont compatibles.</p>
+      </div>
+      <div class="valeur-card">
+        <div class="valeur-icon">🏆</div>
+        <div class="valeur-title">L'excellence de la formation</div>
+        <p class="valeur-text">Former sur Jodel, c'est former sur ce qu'il y a de plus exigeant en aviation légère. La qualification Tailwheel incluse dans chaque PPL ARC est la preuve de notre engagement pour la qualité plutôt que la facilité.</p>
+      </div>
+      <div class="valeur-card">
+        <div class="valeur-icon">📍</div>
+        <div class="valeur-title">L'ancrage territorial</div>
+        <p class="valeur-text">Chavenay n'est pas un terrain quelconque. C'est un aérodrome de campagne en Île-de-France, avec son atmosphère unique, ses riverains avec qui nous entretenons un dialogue permanent, et sa communauté de passionnés.</p>
+      </div>
+      <div class="valeur-card">
+        <div class="valeur-icon">🔧</div>
+        <div class="valeur-title">Le respect de la machine</div>
+        <p class="valeur-text">Les Jodel de l'ARC ne sont pas des outils interchangeables. Chacun a sa personnalité, son histoire. Les membres apprennent à les connaître, à les respecter, à les écouter. C'est aussi ça, la culture ARC.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BUREAU -->
+<div class="section light">
+  <div class="container">
+    <p class="section-label">L'équipe dirigeante</p>
+    <h2 class="section-title">Le bureau de l'ARC</h2>
+    <p class="lead" style="margin-bottom:0;">Le club est dirigé par des membres bénévoles élus chaque année en assemblée générale.</p>
+    <div class="bureau-grid">
+      <div class="bureau-card">
+        <div style="width:56px;height:56px;background:var(--navy);border-radius:50%;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:22px;">✈️</div>
+        <div class="bureau-role">Président</div>
+        <div class="bureau-name">Antoine Drieu</div>
+      </div>
+      <div class="bureau-card">
+        <div style="width:56px;height:56px;background:var(--navy);border-radius:50%;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:22px;">📋</div>
+        <div class="bureau-role">Secrétaire</div>
+        <div class="bureau-name">Bureau ARC</div>
+      </div>
+      <div class="bureau-card">
+        <div style="width:56px;height:56px;background:var(--navy);border-radius:50%;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:22px;">💶</div>
+        <div class="bureau-role">Trésorier</div>
+        <div class="bureau-name">Bureau ARC</div>
+      </div>
+      <div class="bureau-card">
+        <div style="width:56px;height:56px;background:var(--navy);border-radius:50%;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:22px;">🎓</div>
+        <div class="bureau-role">Responsable FI</div>
+        <div class="bureau-name">Instructeurs ARC</div>
+      </div>
+    </div>
+    <p style="font-size:13px;color:var(--gray);margin-top:16px;text-align:center;">Pour toute demande, contactez-nous à <a href="mailto:aeroclubarc@gmail.com" style="color:var(--sky);">aeroclubarc@gmail.com</a></p>
+  </div>
+</div>
+
+<!-- CTA -->
+<div class="cta-section">
+  <div style="max-width:520px;margin:0 auto;">
+    <p style="font-size:11px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;">Rejoindre l'ARC</p>
+    <h2 style="font-size:clamp(24px,3.5vw,36px);font-weight:800;color:white;letter-spacing:-0.02em;margin-bottom:12px;">Venez voler avec nous à Chavenay</h2>
+    <p style="font-size:15px;color:rgba(255,255,255,0.55);margin-bottom:28px;line-height:1.6;">Le meilleur moyen de découvrir le club : venir un samedi ou dimanche matin, partager un café avec les pilotes, et repartir avec les idées claires.</p>
+    <div style="display:flex;gap:14px;flex-wrap:wrap;justify-content:center;">
+      <a href="/tarifs" class="btn-primary">Adhésion 2026 →</a>
+      <a href="/contact" class="btn-ghost">Nous contacter</a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>© 2026 Aéroclub A.R.C. — SIRET 44776577700019 — RNA W783005211 — Agrément FFA 04158<br>
+  <a href="/statuts">Statuts</a> · <a href="/reglement">Règlement intérieur</a> · <a href="mailto:aeroclubarc@gmail.com">aeroclubarc@gmail.com</a> · <a href="tel:+33134623075">01 34 62 30 75</a></p>
+</footer>
+</body>
+</html>

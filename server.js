@@ -9,12 +9,16 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.static(path.join(__dirname)));
 
-// Page d'accueil → home complète directement
+// Home
 app.get("/", (req, res) => res.sendFile(path.join(__dirname, "home.html")));
 app.get("/home-arc", (req, res) => res.sendFile(path.join(__dirname, "home.html")));
 
-// Page accueil splash (logo + quick links)
+// Accueil splash
 app.get("/accueil", (req, res) => res.sendFile(path.join(__dirname, "accueil.html")));
+
+// Le Club — histoire et présentation
+app.get("/leclub", (req, res) => res.sendFile(path.join(__dirname, "leclub.html")));
+app.get("/le-club", (req, res) => res.sendFile(path.join(__dirname, "leclub.html")));
 
 // Flotte
 app.get("/la-flotte", (req, res) => res.sendFile(path.join(__dirname, "laflotte.html")));
