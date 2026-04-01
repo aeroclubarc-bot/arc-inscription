@@ -122,7 +122,7 @@ footer a{color:var(--gold);}
 <body>
 <nav id="arc-nav">
   <div class="arc-nav-inner">
-    <a href="/accueil" class="arc-nav-logo"><img src="https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69c8ee72f60e3ec233a5a847_Logo%20ARC%20II%20FR.png" alt="ARC" height="52" style="filter:brightness(1.1);"></a>
+    <a href="/home-arc" class="arc-nav-logo"><img src="https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69c8ee72f60e3ec233a5a847_Logo%20ARC%20II%20FR.png" alt="ARC" height="52" style="filter:brightness(1.1);"></a>
     <ul class="arc-nav-links">
       <li><a href="/leclub">Le Club</a></li>
       <li><a href="/la-flotte">La Flotte</a></li>
@@ -237,13 +237,14 @@ footer a{color:var(--gold);}
     <!-- AVIONS PPL -->
     <p class="section-label" style="margin-top:48px;">Avions disponibles pour la formation</p>
     <div class="avions-ppl">
-      <div class="avion-ppl">
+      <div class="avion-ppl maint">
         <img src="https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69cbab6c28af42b04cd6e7c8_QJ%20POUF%20IL.jpeg" alt="D112">
         <div class="avion-ppl-body">
           <div class="avion-ppl-immat">F-PZRF</div>
           <div class="avion-ppl-name">Jodel D112</div>
           <div class="avion-ppl-info">Continental A65 — 65 cv · Initiation</div>
-          <div class="avion-ppl-price">95 <span>€/h</span></div>
+          <div class="avion-ppl-price" style="color:rgba(239,68,68,0.8);">95 <span>€/h</span></div>
+          <div class="maint-tag">🔧 En maintenance</div>
         </div>
       </div>
       <div class="avion-ppl">
@@ -339,8 +340,8 @@ footer a{color:var(--gold);}
 </div>
 <script>
 (function(){
-  var API="https://ppv-production.up.railway.app/total";
-  var API2="https://ppv-production.up.railway.app/stats/today";
+  var API="/api/ppv/total";
+  var API2="/api/ppv/today";
   function drawGauge(canvasId,power){
     var c=document.getElementById(canvasId);if(!c)return;
     var ctx=c.getContext("2d");var max=13.5;var a=(power/max)*Math.PI;

@@ -77,7 +77,7 @@ footer{background:var(--navy);padding:48px 24px 32px;border-top:1px solid rgba(2
 <body>
 <nav id="arc-nav">
   <div class="arc-nav-inner">
-    <a href="/accueil" class="arc-nav-logo"><img src="https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69c8ee72f60e3ec233a5a847_Logo%20ARC%20II%20FR.png" alt="ARC" height="52" style="filter:brightness(1.1);"></a>
+    <a href="/home-arc" class="arc-nav-logo"><img src="https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69c8ee72f60e3ec233a5a847_Logo%20ARC%20II%20FR.png" alt="ARC" height="52" style="filter:brightness(1.1);"></a>
     <ul class="arc-nav-links">
       <li><a href="/leclub">Le Club</a></li>
       <li><a href="/la-flotte">La Flotte</a></li>
@@ -148,10 +148,11 @@ footer{background:var(--navy);padding:48px 24px 32px;border-top:1px solid rgba(2
     <p class="lead">Du biplace d'initiation au 4 places de grand voyage — une flotte de Jodel et Robin entièrement en train classique. Un choix délibéré pour former les meilleurs pilotes.</p>
 
     <!-- D112 -->
-    <div class="avion-full">
+    <div class="avion-full maintenance">
       <div class="avion-full-img">
         <img src="https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69cbab6c28af42b04cd6e7c8_QJ%20POUF%20IL.jpeg" alt="Jodel D112 F-PZRF">
         <span class="badge">Initiation</span>
+        <span class="badge-maint">🔧 En maintenance</span>
       </div>
       <div class="avion-full-body">
         <div class="avion-full-immat">F-PZRF</div>
@@ -163,7 +164,7 @@ footer{background:var(--navy);padding:48px 24px 32px;border-top:1px solid rgba(2
           <div class="avion-spec-item"><div class="avion-spec-k">Places</div><div class="avion-spec-v">2</div></div>
           <div class="avion-spec-item"><div class="avion-spec-k">Autonomie</div><div class="avion-spec-v">~4 h</div></div>
         </div>
-        <div class="avion-full-price"><span class="amount">95</span><span class="unit">€/h bloc</span></div>
+        <div class="avion-full-price"><span class="amount" style="color:rgb(239,68,68)">95</span><span class="unit">€/h bloc</span><span class="maint" style="color:rgb(239,68,68);font-size:13px;font-weight:600;"> · Indisponible</span></div>
       </div>
     </div>
 
@@ -285,8 +286,8 @@ footer{background:var(--navy);padding:48px 24px 32px;border-top:1px solid rgba(2
   </div>
 <script>
 (function(){
-  var API="https://ppv-production.up.railway.app/total";
-  var API2="https://ppv-production.up.railway.app/stats/today";
+  var API="/api/ppv/total";
+  var API2="/api/ppv/today";
   function drawGauge(canvasId,power){
     var c=document.getElementById(canvasId);if(!c)return;
     var ctx=c.getContext("2d");var max=13.5;var a=(power/max)*Math.PI;

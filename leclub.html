@@ -133,7 +133,7 @@ footer a{color:var(--gold);}
 <body>
 <nav id="arc-nav">
   <div class="arc-nav-inner">
-    <a href="/accueil" class="arc-nav-logo"><img src="https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69c8ee72f60e3ec233a5a847_Logo%20ARC%20II%20FR.png" alt="ARC" height="52" style="filter:brightness(1.1);"></a>
+    <a href="/home-arc" class="arc-nav-logo"><img src="https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69c8ee72f60e3ec233a5a847_Logo%20ARC%20II%20FR.png" alt="ARC" height="52" style="filter:brightness(1.1);"></a>
     <ul class="arc-nav-links">
       <li><a href="/leclub">Le Club</a></li>
       <li><a href="/la-flotte">La Flotte</a></li>
@@ -350,8 +350,8 @@ footer a{color:var(--gold);}
 </div>
 <script>
 (function(){
-  var API="https://ppv-production.up.railway.app/total";
-  var API2="https://ppv-production.up.railway.app/stats/today";
+  var API="/api/ppv/total";
+  var API2="/api/ppv/today";
   function drawGauge(canvasId,power){
     var c=document.getElementById(canvasId);if(!c)return;
     var ctx=c.getContext("2d");var max=13.5;var a=(power/max)*Math.PI;
