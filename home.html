@@ -273,6 +273,7 @@ a{text-decoration:none;color:inherit;}
   <div class="arc-nav-inner">
     <a href="/accueil" class="arc-nav-logo"><img src="https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69c8ee72f60e3ec233a5a847_Logo%20ARC%20II%20FR.png" alt="ARC" height="52" style="filter:brightness(1.1);"></a>
     <ul class="arc-nav-links">
+      <li><a href="/leclub">Le Club</a></li>
       <li><a href="/la-flotte">La Flotte</a></li>
       <li><a href="/formation">Formation PPL</a></li>
       <li><a href="/post-ppl">Post-PPL</a></li>
@@ -284,6 +285,7 @@ a{text-decoration:none;color:inherit;}
     <button class="arc-nav-burger" onclick="document.getElementById('arc-nav').classList.toggle('open')"><span></span><span></span><span></span></button>
   </div>
   <ul class="arc-nav-mobile">
+    <li><a href="/leclub">Le Club</a></li>
     <li><a href="/la-flotte">La Flotte</a></li>
     <li><a href="/formation">Formation PPL</a></li>
     <li><a href="/post-ppl">Post-PPL</a></li>
@@ -317,51 +319,6 @@ a{text-decoration:none;color:inherit;}
 </style>
 
 <!-- HERO -->
-<script>
-// ===== WIDGET PPV MODAL =====
-const API_TOTAL_M="https://ppv-production.up.railway.app/total";
-const API_TODAY_M="https://ppv-production.up.railway.app/stats/today";
-function drawModalGauge(power){
-  var canvas=document.getElementById("modal-gauge");if(!canvas)return;
-  var ctx=canvas.getContext("2d");var maxKW=13.5;var angle=(power/maxKW)*Math.PI;
-  ctx.clearRect(0,0,180,180);
-  ctx.beginPath();ctx.arc(90,90,70,Math.PI,2*Math.PI);ctx.lineWidth=10;ctx.strokeStyle="#c8e6c9";ctx.stroke();
-  ctx.save();ctx.translate(90,90);ctx.rotate(Math.PI+angle);
-  ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(62,0);ctx.lineWidth=4;ctx.strokeStyle="#1b5e20";ctx.stroke();
-  ctx.restore();
-  ctx.beginPath();ctx.arc(90,90,5,0,2*Math.PI);ctx.fillStyle="#1b5e20";ctx.fill();
-}
-async function updateModalPPV(){
-  try{
-    var res=await fetch(API_TOTAL_M+"?t="+Date.now());var data=await res.json();
-    var total=parseFloat(data.total_kwh)||0;var powerKW=(data.current_power_w||0)/1000;
-    var co2Kg=total*0.42;var flightHours=co2Kg/66.9;
-    document.getElementById("modal-odometer").innerText=total.toLocaleString("fr-FR",{minimumFractionDigits:1});
-    document.getElementById("modal-co2").innerText=co2Kg.toLocaleString("fr-FR",{maximumFractionDigits:0});
-    document.getElementById("modal-avgas").innerText=flightHours.toLocaleString("fr-FR",{minimumFractionDigits:1});
-    document.getElementById("modal-power").innerText=powerKW.toFixed(2);
-    var bp=document.getElementById("badge-power");if(bp)bp.innerText=powerKW.toFixed(2)+" kW";
-    var bt=document.getElementById("badge-total");if(bt)bt.innerText=total.toLocaleString("fr-FR",{maximumFractionDigits:0})+" kWh";
-    var dot=document.getElementById("ppv-dot-hero");if(dot){dot.style.background=powerKW>0.2?"#4caf50":"#9e9e9e";if(powerKW>0.2)dot.style.boxShadow="0 0 6px #66bb6a";else dot.style.boxShadow="none";}
-    drawModalGauge(powerKW);
-    var progress=Math.min(flightHours*5,480);
-    var plane=document.getElementById("modal-plane");if(plane)plane.style.transform="translateX("+progress+"px)";
-  }catch(e){}
-}
-async function updateModalToday(){
-  try{
-    var res=await fetch(API_TODAY_M+"?t="+Date.now());var data=await res.json();
-    var el=document.getElementById("modal-today");
-    if(el)el.innerText=Number(data.today_kwh||0).toLocaleString("fr-FR",{minimumFractionDigits:1});
-  }catch(e){}
-}
-updateModalPPV();updateModalToday();
-setInterval(updateModalPPV,120000);setInterval(updateModalToday,120000);
-document.addEventListener("DOMContentLoaded",function(){
-  var badge=document.getElementById("ppv-badge");
-  if(badge)badge.addEventListener("click",function(){updateModalPPV();updateModalToday();});
-});
-</script>
 <div class="hero">
   <div class="hero-bg-text">ARC</div>
   <div class="hero-badge" id="ppv-badge" onclick="document.getElementById('ppv-modal').style.display='flex'" style="cursor:pointer;" title="Voir la production solaire en direct">
@@ -959,27 +916,70 @@ document.addEventListener("DOMContentLoaded",function(){
   </div>
 </div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-// Injection du widget PPV depuis la page PPV
-fetch('https://ppv-production.up.railway.app/total?t='+Date.now())
-  .then(r=>r.json())
-  .then(data=>{
-    const total=data.total_kwh||0;
-    const powerKW=(data.current_power_w||0)/1000;
-    const flightHours=((total*0.42)/66.9).toFixed(1);
-    const isActive=powerKW>0.2;
-    document.getElementById('ppv-inject').innerHTML=`
-      <div style="font-family:'Inter',sans-serif;background:rgba(27,94,32,0.06);border:1px solid rgba(27,94,32,0.12);border-radius:10px;padding:16px 24px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px;">
-        <div style="display:flex;align-items:center;gap:12px;">
-          <span style="font-size:28px;${isActive?'filter:drop-shadow(0 0 8px rgba(255,200,50,0.8))':'opacity:0.4'}">☀️</span>
-          <div><div style="font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#1b5e20;">Aéroclub Vert</div>
-          <div style="font-size:11px;color:#666;font-style:italic;">Quand le soleil fait voler nos pilotes</div></div>
-        </div>
-        <div style="display:flex;gap:24px;flex-wrap:wrap;">
-          <div style="text-align:center;"><div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:0.08em;">Production totale</div><div style="font-size:18px;font-weight:700;color:#2e7d32;">⚡ ${total.toLocaleString('fr-FR',{maximumFractionDigits:0})} kWh</div></div>
-          <div style="text-align:center;"><div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:0.08em;">Actuellement</div><div style="font-size:18px;font-weight:700;color:#2e7d32;">${powerKW.toFixed(2)} kW</div></div>
-          <div style="text-align:center;"><div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:0.08em;">Heures CO₂ neutralisées</div><div style="font-size:18px;font-weight:700;color:#2e7d32;">✈️ ${flightHours} h</div></div>
-        </div>
-        <div style="display:flex;align-items:center;gap:6px;">
-          <div style="width:8px;height:8px;border-radius:50%;background:${isActive?'#2e7d32':'#9e9e9e'};${isActive?'box-shadow:0 0 8px #66bb6a':''}"></div>
-          <span style="font-size:11px;color:${is
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+<!-- FOOTER -->
+<footer style="background:var(--navy);padding:40px 24px;text-align:center;border-top:1px solid rgba(255,255,255,0.08);">
+  <div style="max-width:1100px;margin:0 auto;">
+    <img src="https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69c8ee72f60e3ec233a5a847_Logo%20ARC%20II%20FR.png" style="height:48px;margin-bottom:14px;opacity:0.7;">
+    <p style="color:rgba(255,255,255,0.35);font-size:13px;line-height:1.8;">
+      © 2026 Aéroclub A.R.C. — SIRET 44776577700019 — RNA W783005211 — Agrément FFA 04158<br>
+      <a href="/statuts" style="color:#c8a84b;">Statuts</a> ·
+      <a href="/reglement" style="color:#c8a84b;">Règlement intérieur</a> ·
+      <a href="mailto:aeroclubarc@gmail.com" style="color:#c8a84b;">aeroclubarc@gmail.com</a> ·
+      <a href="tel:+33134623075" style="color:#c8a84b;">01 34 62 30 75</a>
+    </p>
+  </div>
+</footer>
+
+<script>
+// PPV badge + modal — placé en fin de body pour accès DOM garanti
+var API_TOTAL_M="https://ppv-production.up.railway.app/total";
+var API_TODAY_M="https://ppv-production.up.railway.app/stats/today";
+function drawModalGauge(power){
+  var canvas=document.getElementById("modal-gauge");if(!canvas)return;
+  var ctx=canvas.getContext("2d");var maxKW=13.5;var angle=(power/maxKW)*Math.PI;
+  ctx.clearRect(0,0,180,180);
+  ctx.beginPath();ctx.arc(90,90,70,Math.PI,2*Math.PI);ctx.lineWidth=10;ctx.strokeStyle="#c8e6c9";ctx.stroke();
+  ctx.save();ctx.translate(90,90);ctx.rotate(Math.PI+angle);
+  ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(62,0);ctx.lineWidth=4;ctx.strokeStyle="#1b5e20";ctx.stroke();
+  ctx.restore();
+  ctx.beginPath();ctx.arc(90,90,5,0,2*Math.PI);ctx.fillStyle="#1b5e20";ctx.fill();
+}
+async function updatePPV(){
+  try{
+    var res=await fetch(API_TOTAL_M+"?t="+Date.now());
+    var data=await res.json();
+    var total=parseFloat(data.total_kwh)||0;
+    var powerKW=(data.current_power_w||0)/1000;
+    var co2Kg=total*0.42;
+    var flightHours=co2Kg/66.9;
+    // Badge hero
+    var bp=document.getElementById("badge-power");if(bp)bp.innerText=powerKW.toFixed(2)+" kW";
+    var bt=document.getElementById("badge-total");if(bt)bt.innerText=total.toLocaleString("fr-FR",{maximumFractionDigits:0})+" kWh";
+    var dot=document.getElementById("ppv-dot-hero");
+    if(dot){dot.style.background=powerKW>0.2?"#4caf50":"#9e9e9e";dot.style.boxShadow=powerKW>0.2?"0 0 6px #66bb6a":"none";}
+    // Modal
+    var el;
+    el=document.getElementById("modal-odometer");if(el)el.innerText=total.toLocaleString("fr-FR",{minimumFractionDigits:1});
+    el=document.getElementById("modal-co2");if(el)el.innerText=co2Kg.toLocaleString("fr-FR",{maximumFractionDigits:0});
+    el=document.getElementById("modal-avgas");if(el)el.innerText=flightHours.toLocaleString("fr-FR",{minimumFractionDigits:1});
+    el=document.getElementById("modal-power");if(el)el.innerText=powerKW.toFixed(2);
+    drawModalGauge(powerKW);
+    var progress=Math.min(flightHours*5,480);
+    var plane=document.getElementById("modal-plane");if(plane)plane.style.transform="translateX("+progress+"px)";
+  }catch(e){console.log("PPV error:",e);}
+}
+async function updatePPVToday(){
+  try{
+    var res=await fetch(API_TODAY_M+"?t="+Date.now());var data=await res.json();
+    var el=document.getElementById("modal-today");
+    if(el)el.innerText=Number(data.today_kwh||0).toLocaleString("fr-FR",{minimumFractionDigits:1});
+  }catch(e){}
+}
+updatePPV();
+updatePPVToday();
+setInterval(updatePPV,120000);
+setInterval(updatePPVToday,120000);
+</script>
+</body>
+</html>
