@@ -26,10 +26,10 @@ nav#arc-nav{position:sticky;top:0;z-index:1000;background:rgba(10,22,40,0.97);ba
 .arc-nav-cta-mobile{color:#c8a84b !important;font-weight:700;}
 #arc-nav.open .arc-nav-mobile{display:block;}
 @media(max-width:900px){.arc-nav-links,.arc-nav-cta{display:none;}.arc-nav-burger{display:flex;}}
-.page-hero{background:linear-gradient(135deg,var(--navy) 0%,var(--blue) 100%);padding:72px 24px 56px;text-align:center;}
+.page-hero{background:linear-gradient(135deg,var(--navy) 0%,var(--blue) 100%),url('https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69cbab6c280e4445e394b652_PHOTO-2025-08-09-23-46-13%20(2).jpeg') center/cover;background-blend-mode:multiply;padding:72px 24px 56px;text-align:center;}
 .page-hero .eyebrow{font-size:11px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:12px;}
 .page-hero h1{font-size:clamp(32px,5vw,56px);font-weight:900;color:white;letter-spacing:-0.03em;line-height:1.05;margin-bottom:14px;}
-.page-hero .sub{font-size:16px;color:rgba(255,255,255,0.6);max-width:560px;margin:0 auto;}
+.page-hero .sub{font-size:16px;color:rgba(255,255,255,0.65);max-width:580px;margin:0 auto;}
 .container{max-width:1100px;margin:0 auto;padding:0 24px;}
 .section{padding:72px 24px;}
 .section.light{background:white;}
@@ -38,22 +38,67 @@ nav#arc-nav{position:sticky;top:0;z-index:1000;background:rgba(10,22,40,0.97);ba
 .section-label{font-size:11px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;}
 .section-title{font-size:clamp(24px,3.5vw,36px);font-weight:800;color:var(--navy);letter-spacing:-0.02em;line-height:1.1;margin-bottom:14px;}
 .dark .section-title{color:white;}
-.lead{font-size:16px;color:var(--gray);line-height:1.7;max-width:640px;margin-bottom:32px;}
+.lead{font-size:16px;color:var(--gray);line-height:1.7;max-width:700px;margin-bottom:0;}
+/* ÉTAPES */
+.steps{display:flex;flex-direction:column;gap:0;margin-top:48px;}
+.step-item{display:grid;grid-template-columns:64px 1fr;gap:24px;position:relative;padding-bottom:40px;}
+.step-item:last-child{padding-bottom:0;}
+.step-item::before{content:'';position:absolute;left:31px;top:64px;bottom:0;width:2px;background:linear-gradient(var(--light),transparent);}
+.step-item:last-child::before{display:none;}
+.step-num-wrap{display:flex;flex-direction:column;align-items:center;gap:8px;}
+.step-num{width:64px;height:64px;background:var(--navy);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:var(--gold);letter-spacing:-0.03em;flex-shrink:0;}
+.step-content{padding-top:10px;}
+.step-content h3{font-size:18px;font-weight:800;color:var(--navy);letter-spacing:-0.02em;margin-bottom:6px;}
+.step-content p{font-size:14px;color:var(--gray);line-height:1.7;margin-bottom:12px;}
+.step-tag{display:inline-block;background:rgba(45,107,228,0.08);color:var(--sky);font-size:11px;font-weight:700;padding:3px 10px;border-radius:10px;letter-spacing:0.04em;text-transform:uppercase;}
+.step-tag.gold{background:rgba(200,168,75,0.1);color:var(--gold);}
+/* STATS GRILLE */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:40px;}
+@media(max-width:768px){.stats-grid{grid-template-columns:repeat(2,1fr);}}
+.stat-box{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:22px;text-align:center;}
+.stat-box .n{font-size:36px;font-weight:900;color:var(--gold);letter-spacing:-0.04em;line-height:1;}
+.stat-box .n span{font-size:18px;}
+.stat-box .l{font-size:12px;color:rgba(255,255,255,0.45);text-transform:uppercase;letter-spacing:0.08em;margin-top:5px;}
+/* MATIERES */
+.matieres{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px;}
+@media(max-width:600px){.matieres{grid-template-columns:1fr 1fr;}}
+.matiere{background:var(--cream);border:1px solid var(--light);border-radius:6px;padding:8px 12px;font-size:13px;font-weight:600;color:var(--navy);}
+/* AVIONS */
+.avions-ppl{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:32px;}
+@media(max-width:700px){.avions-ppl{grid-template-columns:1fr;}}
+.avion-ppl{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:10px;overflow:hidden;}
+.avion-ppl img{width:100%;height:140px;object-fit:cover;}
+.avion-ppl.maint img{opacity:0.55;}
+.avion-ppl-body{padding:16px 18px;}
+.avion-ppl-immat{font-size:10px;color:var(--gold);font-weight:700;letter-spacing:0.12em;margin-bottom:3px;}
+.avion-ppl-name{font-size:15px;font-weight:800;color:white;margin-bottom:4px;}
+.avion-ppl-info{font-size:12px;color:rgba(255,255,255,0.45);}
+.avion-ppl-price{font-size:24px;font-weight:900;color:var(--gold);margin-top:8px;letter-spacing:-0.02em;}
+.avion-ppl-price span{font-size:12px;font-weight:400;color:rgba(255,255,255,0.35);}
+.maint-tag{display:inline-block;background:rgba(239,68,68,0.15);color:rgba(239,68,68,0.9);font-size:11px;font-weight:700;padding:3px 8px;border-radius:4px;margin-top:6px;}
+/* LAPL vs PPL */
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:32px;}
+@media(max-width:600px){.compare{grid-template-columns:1fr;}}
+.compare-card{border-radius:10px;padding:24px;}
+.compare-card.lapl{background:var(--cream);border:1px solid var(--light);}
+.compare-card.ppl{background:var(--navy);border:1px solid rgba(200,168,75,0.2);}
+.compare-card h3{font-size:16px;font-weight:800;margin-bottom:12px;}
+.compare-card.lapl h3{color:var(--navy);}
+.compare-card.ppl h3{color:var(--gold);}
+.compare-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(0,0,0,0.05);font-size:13px;}
+.compare-card.ppl .compare-row{border-color:rgba(255,255,255,0.06);}
+.compare-row:last-child{border-bottom:none;}
+.compare-row .k{color:var(--gray);font-size:12px;}
+.compare-card.ppl .compare-row .k{color:rgba(255,255,255,0.4);}
+.compare-row .v{font-weight:700;color:var(--navy);}
+.compare-card.ppl .compare-row .v{color:white;}
+/* AIDES */
+.aides{display:flex;flex-direction:column;gap:12px;margin-top:20px;}
+.aide{display:flex;gap:14px;align-items:flex-start;background:white;border:1px solid var(--light);border-radius:8px;padding:14px 16px;}
+.aide h4{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:2px;}
+.aide p{font-size:13px;color:var(--gray);}
 .btn-primary{display:inline-flex;align-items:center;gap:8px;background:var(--gold);color:var(--navy);padding:13px 28px;border-radius:4px;font-weight:700;font-size:14px;transition:background 0.2s;}
 .btn-primary:hover{background:#e0b94a;}
-.step{display:flex;gap:20px;align-items:flex-start;margin-bottom:28px;}
-.step-num{width:40px;height:40px;background:var(--sky);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:white;flex-shrink:0;}
-.step h3{font-size:15px;font-weight:700;color:var(--navy);margin-bottom:4px;}
-.step p{font-size:13px;color:var(--gray);line-height:1.6;}
-.price-card{background:var(--navy);border-radius:12px;padding:32px;color:white;text-align:center;}
-.price-card .amount{font-size:56px;font-weight:900;color:var(--gold);letter-spacing:-0.04em;line-height:1;}
-.price-card .unit{font-size:16px;color:rgba(255,255,255,0.5);margin-top:4px;}
-.price-card .desc{font-size:14px;color:rgba(255,255,255,0.6);margin-top:12px;line-height:1.6;}
-.tw-box{background:rgba(45,107,228,0.06);border:1px solid rgba(45,107,228,0.15);border-radius:10px;padding:24px 28px;margin-top:32px;}
-.tw-box h3{font-size:16px;font-weight:700;color:var(--navy);margin-bottom:8px;}
-.tw-box p{font-size:14px;color:var(--gray);line-height:1.6;}
-.two-col{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start;}
-@media(max-width:768px){.two-col{grid-template-columns:1fr;}}
 footer{background:var(--navy);padding:40px 24px;text-align:center;border-top:1px solid rgba(255,255,255,0.08);}
 footer p{color:rgba(255,255,255,0.35);font-size:13px;line-height:1.8;}
 footer a{color:var(--gold);}
@@ -87,114 +132,197 @@ footer a{color:var(--gold);}
 <div class="page-hero">
   <p class="eyebrow">Brevet de Pilote Privé — PPL(A)</p>
   <h1>Formation PPL</h1>
-  <p class="sub">Obtenez votre licence de pilote privé sur Jodel — qualification Tailwheel incluse, 45 heures minimum, à 30 minutes de Paris.</p>
+  <p class="sub">De zéro à pilote breveté sur Jodel — qualification Tailwheel incluse, à 30 min de Paris. Le parcours le plus formateur d'Île-de-France.</p>
 </div>
 
-<!-- PARCOURS -->
+<!-- LES 5 ÉTAPES -->
 <div class="section light">
   <div class="container">
-    <div class="two-col">
-      <div>
-        <p class="section-label">Le parcours PPL à l'ARC</p>
-        <h2 class="section-title">De zéro à pilote breveté</h2>
-        <p class="lead">La formation PPL(A) à l'ARC suit le programme EASA. Elle débute sur le Jodel D112 (65cv) pour les premières heures d'instruction, puis progresse vers le D113 ou le DR1050.</p>
-        <div class="step">
-          <div class="step-num">1</div>
-          <div><h3>Vol de découverte</h3><p>30 minutes avec un instructeur pour découvrir le pilotage et l'aérodrome de Chavenay. À partir de 100 €.</p></div>
-        </div>
-        <div class="step">
-          <div class="step-num">2</div>
-          <div><h3>Phase sol</h3><p>Formation théorique aux 9 matières ATPL/PPL : météo, navigation, réglementation, performances, mécanique du vol…</p></div>
-        </div>
-        <div class="step">
-          <div class="step-num">3</div>
-          <div><h3>Instruction en double commande</h3><p>Minimum 25 heures avec instructeur qualifié FI(A). Décollages, atterrissages, navigation, procédures d'urgence.</p></div>
-        </div>
-        <div class="step">
-          <div class="step-num">4</div>
-          <div><h3>Vol solo</h3><p>Minimum 10 heures en solo dont le lâcher, le cross-country solo et la navigation de 270 km.</p></div>
-        </div>
-        <div class="step">
-          <div class="step-num">5</div>
-          <div><h3>Examens théoriques + pratique</h3><p>9 épreuves théoriques DGAC, puis examen pratique en vol avec un examinateur agréé FE(A).</p></div>
-        </div>
-        <div class="tw-box">
-          <h3>🏅 Qualification Tailwheel incluse</h3>
-          <p>En formant sur Jodel (train classique), vous obtenez automatiquement la qualification TW avec votre PPL. Cette qualification est valorisée dans toute la communauté des pilotes et ouvre l'accès à des appareils rares et de caractère.</p>
+    <p class="section-label">Le parcours PPL à l'ARC</p>
+    <h2 class="section-title">De zéro à pilote breveté</h2>
+    <p class="lead">La formation PPL(A) à l'ARC suit le programme EASA. Elle débute sur le Jodel D112 (65cv) pour les premières heures d'instruction, puis progresse vers le D113 et le DH251.</p>
+
+    <div class="steps">
+
+      <div class="step-item">
+        <div class="step-num-wrap"><div class="step-num">1</div></div>
+        <div class="step-content">
+          <h3>Vol de découverte</h3>
+          <p>30 minutes avec un instructeur pour découvrir le pilotage et l'aérodrome de Chavenay. Le moment de vérifier que l'aviation est faite pour vous — en prenant les commandes dès les premières minutes. <strong style="color:var(--navy);">À partir de 100 €.</strong></p>
+          <span class="step-tag">Accès immédiat · Aucun prérequis</span>
         </div>
       </div>
+
+      <div class="step-item">
+        <div class="step-num-wrap"><div class="step-num">2</div></div>
+        <div class="step-content">
+          <h3>Phase sol & médical</h3>
+          <p>En parallèle de vos premiers vols : obtention du <strong style="color:var(--navy);">certificat médical de classe 2</strong> (délivré par un médecin agréé DGAC) — indispensable pour valider le PPL. Formation théorique aux <strong style="color:var(--navy);">9 matières EASA</strong> :</p>
+          <div class="matieres" style="margin-top:10px;margin-bottom:12px;">
+            <div class="matiere">Droit aérien</div>
+            <div class="matiere">Connaissance aéronef</div>
+            <div class="matiere">Performances & prep.</div>
+            <div class="matiere">Principes de vol</div>
+            <div class="matiere">Procédures opérat.</div>
+            <div class="matiere">Communications VFR</div>
+            <div class="matiere">Navigation</div>
+            <div class="matiere">Météorologie</div>
+            <div class="matiere">Facteurs humains</div>
+          </div>
+          <span class="step-tag">QCM informatisé DGAC · 75% requis par matière</span>
+        </div>
+      </div>
+
+      <div class="step-item">
+        <div class="step-num-wrap"><div class="step-num">3</div></div>
+        <div class="step-content">
+          <h3>Instruction en double commande</h3>
+          <p>Minimum <strong style="color:var(--navy);">25 heures</strong> avec un instructeur qualifié FI(A). Tenue de trajectoire, virages, montées/descentes, tours de piste, approches et atterrissages, procédures d'urgence, pannes simulées, décrochage. La progression se fait sur D112 puis D113 ou DH251 selon votre avancement.</p>
+          <span class="step-tag">25h double commande minimum</span>
+        </div>
+      </div>
+
+      <div class="step-item">
+        <div class="step-num-wrap"><div class="step-num">4</div></div>
+        <div class="step-content">
+          <h3>Vol solo — le lâcher ✈️</h3>
+          <p>Minimum <strong style="color:var(--navy);">10 heures en solo</strong> dont le lâcher, les navigations locales progressives et le <strong style="color:var(--navy);">cross-country de 270 km</strong> avec atterrissages sur 2 aérodromes différents. Le lâcher, quand l'instructeur te laisse partir seul pour la première fois, est un moment inoubliable.</p>
+          <span class="step-tag gold">10h solo · dont 5h nav solo · 270 km cross-country</span>
+        </div>
+      </div>
+
+      <div class="step-item">
+        <div class="step-num-wrap"><div class="step-num">5</div></div>
+        <div class="step-content">
+          <h3>Examens théoriques + Skill Test</h3>
+          <p><strong style="color:var(--navy);">9 épreuves théoriques</strong> DGAC (QCM), puis l'examen pratique — le <em>Skill Test</em> — avec un examinateur agréé FE(A) : briefing, préparation de vol, partie locale (maniabilité, pannes), partie navigation, atterrissages de précision. À la fin : débriefing et validation. Votre licence est ensuite délivrée par la DGAC.</p>
+          <span class="step-tag gold">PPL(A) reconnu OACI · Valable dans le monde entier</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- CHIFFRES CLÉS -->
+<div class="section dark">
+  <div class="container">
+    <p class="section-label">En chiffres</p>
+    <h2 class="section-title">Le PPL(A) à l'ARC</h2>
+    <div class="stats-grid">
+      <div class="stat-box"><div class="n">45<span>h</span></div><div class="l">Heures de vol minimum</div></div>
+      <div class="stat-box"><div class="n">25<span>h</span></div><div class="l">Double commande</div></div>
+      <div class="stat-box"><div class="n">10<span>h</span></div><div class="l">Vol solo</div></div>
+      <div class="stat-box"><div class="n">~6500<span>€</span></div><div class="l">Coût estimatif</div></div>
+    </div>
+    <p style="font-size:13px;color:rgba(255,255,255,0.3);margin-top:12px;">Estimation indicative. Le coût réel dépend du rythme de progression et des heures effectuées.</p>
+
+    <!-- AVIONS PPL -->
+    <p class="section-label" style="margin-top:48px;">Avions disponibles pour la formation</p>
+    <div class="avions-ppl">
+      <div class="avion-ppl">
+        <img src="https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69cbab6c28af42b04cd6e7c8_QJ%20POUF%20IL.jpeg" alt="D112">
+        <div class="avion-ppl-body">
+          <div class="avion-ppl-immat">F-PZRF</div>
+          <div class="avion-ppl-name">Jodel D112</div>
+          <div class="avion-ppl-info">Continental A65 — 65 cv · Initiation</div>
+          <div class="avion-ppl-price">95 <span>€/h</span></div>
+        </div>
+      </div>
+      <div class="avion-ppl">
+        <img src="https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69cbab6e340ea9481bdae6e9_PPM_Juin2025_p5_xref82_3380x1882.jpeg" alt="D113">
+        <div class="avion-ppl-body">
+          <div class="avion-ppl-immat">F-PJIL</div>
+          <div class="avion-ppl-name">Jodel D113</div>
+          <div class="avion-ppl-info">Rolls-Royce Continental O-200 — 100 cv</div>
+          <div class="avion-ppl-price">120 <span>€/h</span></div>
+        </div>
+      </div>
+      <div class="avion-ppl">
+        <img src="https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69cbab6c280e4445e394b652_PHOTO-2025-08-09-23-46-13%20(2).jpeg" alt="DH251">
+        <div class="avion-ppl-body">
+          <div class="avion-ppl-immat">F-POUF</div>
+          <div class="avion-ppl-name">Jodel DH 251</div>
+          <div class="avion-ppl-info">Lycoming O-235 — 115 cv · Voyage</div>
+          <div class="avion-ppl-price">140 <span>€/h</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:28px;background:rgba(200,168,75,0.06);border:1px solid rgba(200,168,75,0.15);border-radius:10px;padding:20px 24px;display:flex;gap:16px;">
+      <span style="font-size:24px;flex-shrink:0;">🏅</span>
       <div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:24px;">
-          <div class="price-card">
-            <div class="amount">45</div>
-            <div class="unit">heures minimum</div>
-            <div class="desc">25h double commande<br>10h solo<br>+ phases prépa</div>
-          </div>
-          <div class="price-card">
-            <div class="amount">~6500</div>
-            <div class="unit">€ estimé</div>
-            <div class="desc">Hors licence FFA<br>et frais d'examen<br>(estimatif)</div>
-          </div>
-        </div>
-        <div style="background:var(--cream);border-radius:10px;padding:24px;border:1px solid var(--light);">
-          <p style="font-size:11px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--gold);margin-bottom:12px;">Aides disponibles</p>
-          <div style="display:flex;flex-direction:column;gap:10px;">
-            <div style="display:flex;gap:12px;align-items:flex-start;">
-              <span style="font-size:18px;flex-shrink:0;">🎓</span>
-              <div><div style="font-size:13px;font-weight:700;color:var(--navy);">Aide FFA — Lâcher solo</div><div style="font-size:12px;color:var(--gray);">335 € pour les moins de 21 ans</div></div>
-            </div>
-            <div style="display:flex;gap:12px;align-items:flex-start;">
-              <span style="font-size:18px;flex-shrink:0;">🏅</span>
-              <div><div style="font-size:13px;font-weight:700;color:var(--navy);">Aide FFA — Brevet PPL</div><div style="font-size:12px;color:var(--gray);">670 € pour les moins de 21 ans</div></div>
-            </div>
-            <div style="display:flex;gap:12px;align-items:flex-start;">
-              <span style="font-size:18px;flex-shrink:0;">💳</span>
-              <div><div style="font-size:13px;font-weight:700;color:var(--navy);">Compte Personnel de Formation</div><div style="font-size:12px;color:var(--gray);">Renseignez-vous auprès du club</div></div>
-            </div>
-          </div>
-        </div>
-        <div style="margin-top:20px;background:rgba(200,168,75,0.06);border:1px solid rgba(200,168,75,0.2);border-radius:8px;padding:16px 20px;">
-          <p style="font-size:13px;font-style:italic;color:var(--navy);line-height:1.6;">"Apprendre sur train classique, c'est plus difficile — et c'est précisément pour ça que ça forge les meilleurs pilotes."</p>
-        </div>
-        <div style="margin-top:24px;display:flex;gap:12px;flex-wrap:wrap;">
-          <a href="/tarifs" class="btn-primary">S'inscrire au club →</a>
-          <a href="/contact" style="display:inline-flex;align-items:center;gap:8px;background:var(--navy);color:white;padding:13px 28px;border-radius:4px;font-weight:700;font-size:14px;">Nous contacter</a>
-        </div>
+        <p style="font-size:14px;font-weight:700;color:white;margin-bottom:4px;">Qualification Tailwheel incluse</p>
+        <p style="font-size:13px;color:rgba(255,255,255,0.5);line-height:1.6;">En formant sur Jodel (train classique), vous obtenez automatiquement la qualification TW avec votre PPL. Cette qualification est valorisée dans toute la communauté des pilotes et ouvre l'accès à des appareils rares et de caractère.</p>
       </div>
     </div>
   </div>
 </div>
 
-<!-- TARIFS AVIONS -->
-<div class="section dark">
-  <div class="container">
-    <p class="section-label">Tarifs de vol</p>
-    <h2 class="section-title">Avions disponibles pour la formation</h2>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:32px;">
-      <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:24px;text-align:center;">
-        <img src="https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69cbab6c28af42b04cd6e7c8_QJ%20POUF%20IL.jpeg" style="width:100%;height:140px;object-fit:cover;border-radius:6px;margin-bottom:14px;" alt="D112">
-        <div style="font-size:11px;color:var(--gold);font-weight:700;letter-spacing:0.1em;margin-bottom:4px;">F-PZRF</div>
-        <div style="font-size:16px;font-weight:800;color:white;margin-bottom:6px;">Jodel D112</div>
-        <div style="font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:12px;">Continental A65 — 65 cv</div>
-        <div style="font-size:28px;font-weight:900;color:var(--gold);">95 <span style="font-size:14px;font-weight:500;color:rgba(255,255,255,0.5);">€/h</span></div>
+<!-- AIDES + LAPL/PPL -->
+<div class="section cream">
+  <div class="container" style="display:grid;grid-template-columns:1fr 1fr;gap:48px;">
+    <div>
+      <p class="section-label">Aides financières</p>
+      <h2 class="section-title">Financer sa formation</h2>
+      <div class="aides">
+        <div class="aide">
+          <span style="font-size:24px;flex-shrink:0;">🎓</span>
+          <div><h4>Aide FFA — Lâcher solo</h4><p><strong>335 €</strong> pour les moins de 21 ans sur présentation du lâcher.</p></div>
+        </div>
+        <div class="aide">
+          <span style="font-size:24px;flex-shrink:0;">🏅</span>
+          <div><h4>Aide FFA — Brevet PPL</h4><p><strong>670 €</strong> pour les moins de 21 ans à l'obtention du PPL.</p></div>
+        </div>
+        <div class="aide">
+          <span style="font-size:24px;flex-shrink:0;">💳</span>
+          <div><h4>Compte Personnel de Formation</h4><p>Renseignez-vous auprès du club pour la prise en charge CPF.</p></div>
+        </div>
       </div>
-      <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:24px;text-align:center;">
-        <img src="https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69cbab6e340ea9481bdae6e9_PPM_Juin2025_p5_xref82_3380x1882.jpeg" style="width:100%;height:140px;object-fit:cover;border-radius:6px;margin-bottom:14px;" alt="D113">
-        <div style="font-size:11px;color:var(--gold);font-weight:700;letter-spacing:0.1em;margin-bottom:4px;">F-PJIL</div>
-        <div style="font-size:16px;font-weight:800;color:white;margin-bottom:6px;">Jodel D113</div>
-        <div style="font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:12px;">Lycoming O-200 — 100 cv</div>
-        <div style="font-size:28px;font-weight:900;color:var(--gold);">120 <span style="font-size:14px;font-weight:500;color:rgba(255,255,255,0.5);">€/h</span></div>
+    </div>
+    <div>
+      <p class="section-label">Quel brevet choisir ?</p>
+      <h2 class="section-title">LAPL(A) vs PPL(A)</h2>
+      <div class="compare">
+        <div class="compare-card lapl">
+          <h3>LAPL(A)</h3>
+          <div class="compare-row"><span class="k">Heures min.</span><span class="v">30 h</span></div>
+          <div class="compare-row"><span class="k">Solo</span><span class="v">6 h</span></div>
+          <div class="compare-row"><span class="k">Médical</span><span class="v">LAPL</span></div>
+          <div class="compare-row"><span class="k">Passagers max</span><span class="v">3</span></div>
+          <div class="compare-row"><span class="k">Avions</span><span class="v">≤ 2 000 kg</span></div>
+          <div class="compare-row"><span class="k">Reconnaissance</span><span class="v">Europe</span></div>
+        </div>
+        <div class="compare-card ppl">
+          <h3>PPL(A) ✓</h3>
+          <div class="compare-row"><span class="k">Heures min.</span><span class="v">45 h</span></div>
+          <div class="compare-row"><span class="k">Solo</span><span class="v">10 h</span></div>
+          <div class="compare-row"><span class="k">Médical</span><span class="v">Classe 2</span></div>
+          <div class="compare-row"><span class="k">Passagers max</span><span class="v">Illimité</span></div>
+          <div class="compare-row"><span class="k">Avions</span><span class="v">≤ 5 700 kg</span></div>
+          <div class="compare-row"><span class="k">Reconnaissance</span><span class="v">Mondiale OACI</span></div>
+        </div>
       </div>
-      <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:24px;text-align:center;">
-        <img src="https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69cbab6c280e4445e394b652_PHOTO-2025-08-09-23-46-13%20(2).jpeg" style="width:100%;height:140px;object-fit:cover;border-radius:6px;margin-bottom:14px;" alt="DH251">
-        <div style="font-size:11px;color:var(--gold);font-weight:700;letter-spacing:0.1em;margin-bottom:4px;">F-POUF</div>
-        <div style="font-size:16px;font-weight:800;color:white;margin-bottom:6px;">Jodel DH 251</div>
-        <div style="font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:12px;">Lycoming O-235 — 115 cv</div>
-        <div style="font-size:28px;font-weight:900;color:var(--gold);">140 <span style="font-size:14px;font-weight:500;color:rgba(255,255,255,0.5);">€/h</span></div>
-      </div>
+      <p style="font-size:12px;color:var(--gray);margin-top:10px;">L'ARC recommande le PPL(A) — plus complet, reconnu mondialement et seule voie vers CPL/IFR/ATPL.</p>
+    </div>
+  </div>
+</div>
+
+<!-- CTA -->
+<div style="background:var(--navy);padding:64px 24px;text-align:center;">
+  <div style="max-width:520px;margin:0 auto;">
+    <p style="font-size:11px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;">Prêt à vous lancer ?</p>
+    <h2 style="font-size:clamp(24px,3.5vw,36px);font-weight:800;color:white;letter-spacing:-0.02em;margin-bottom:12px;">Rejoignez l'ARC pour 2026</h2>
+    <p style="font-size:15px;color:rgba(255,255,255,0.55);margin-bottom:28px;line-height:1.6;">Commencez par un vol de découverte ou adhérez directement au club pour accéder à la formation PPL.</p>
+    <div style="display:flex;gap:14px;flex-wrap:wrap;justify-content:center;">
+      <a href="/tarifs" class="btn-primary">Adhésion 2026 →</a>
+      <a href="/contact" style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.08);color:white;padding:13px 28px;border-radius:4px;font-weight:600;font-size:14px;border:1.5px solid rgba(255,255,255,0.2);">Nous contacter</a>
     </div>
   </div>
 </div>
 
 <footer>
-  <p>© 2026 Aéroclub A.R.C. — <a href="/statuts">Statuts</a> — <a href="/reglement">Règlement intérieur</a> — <a href="/cdn-cgi/l/email-protection#4627233429252a332427342506212b272f2a6825292b"><span class="__cf_email__" data-cfemail="620307100d010e1700031
+  <p>© 2026 Aéroclub A.R.C. — <a href="/statuts">Statuts</a> · <a href="/reglement">Règlement intérieur</a> · <a href="mailto:aeroclubarc@gmail.com">aeroclubarc@gmail.com</a> · <a href="tel:+33134623075">01 34 62 30 75</a></p>
+</footer>
+</body>
+</html>

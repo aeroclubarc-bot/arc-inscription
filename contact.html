@@ -3,16 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact — Aéroclub A.R.C. LFPX</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 :root{--navy:#0a1628;--blue:#1a3a6b;--sky:#2d6be4;--gold:#c8a84b;--cream:#f8f5f0;--white:#fff;--gray:#6b7280;--light:#e8e4dd;}
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Inter',sans-serif;background:var(--cream);color:var(--navy);-webkit-font-smoothing:antialiased;}
 a{text-decoration:none;color:inherit;}
-img{max-width:100%;height:auto;}
 nav#arc-nav{position:sticky;top:0;z-index:1000;background:rgba(10,22,40,0.97);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.08);}
 .arc-nav-inner{max-width:1200px;margin:0 auto;padding:0 24px;height:64px;display:flex;align-items:center;justify-content:space-between;gap:24px;}
-.arc-nav-logo img{display:block;height:40px;width:auto;}
+.arc-nav-logo img{display:block;height:52px;width:auto;filter:brightness(1.1);}
 .arc-nav-links{list-style:none;display:flex;align-items:center;gap:4px;margin:0;padding:0;}
 .arc-nav-links a{color:rgba(255,255,255,0.75);font-size:13px;font-weight:500;padding:6px 12px;border-radius:4px;transition:all 0.15s;white-space:nowrap;}
 .arc-nav-links a:hover,.arc-nav-links a.active{color:white;background:rgba(255,255,255,0.08);}
@@ -25,38 +25,52 @@ nav#arc-nav{position:sticky;top:0;z-index:1000;background:rgba(10,22,40,0.97);ba
 .arc-nav-cta-mobile{color:#c8a84b !important;font-weight:700;}
 #arc-nav.open .arc-nav-mobile{display:block;}
 @media(max-width:900px){.arc-nav-links,.arc-nav-cta{display:none;}.arc-nav-burger{display:flex;}}
-.page-hero{background:linear-gradient(135deg,var(--navy) 0%,var(--blue) 100%);padding:72px 24px 56px;text-align:center;}
-.page-hero .eyebrow{font-size:11px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:12px;}
-.page-hero h1{font-size:clamp(32px,5vw,56px);font-weight:900;color:white;letter-spacing:-0.03em;line-height:1.05;margin-bottom:14px;}
-.page-hero .sub{font-size:16px;color:rgba(255,255,255,0.6);max-width:560px;margin:0 auto;}
+.page-hero{background:linear-gradient(135deg,var(--navy) 0%,var(--blue) 100%);padding:64px 24px 48px;text-align:center;}
+.page-hero .eyebrow{font-size:11px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;}
+.page-hero h1{font-size:clamp(30px,5vw,52px);font-weight:900;color:white;letter-spacing:-0.03em;line-height:1.05;margin-bottom:12px;}
+.page-hero .sub{font-size:15px;color:rgba(255,255,255,0.6);max-width:480px;margin:0 auto;}
 .container{max-width:1100px;margin:0 auto;padding:0 24px;}
-.section{padding:72px 24px;}
+.section{padding:64px 24px;}
 .section.light{background:white;}
 .section.cream{background:var(--cream);}
-.section.dark{background:var(--navy);}
-.section-label{font-size:11px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;}
-.section-title{font-size:clamp(24px,3.5vw,36px);font-weight:800;color:var(--navy);letter-spacing:-0.02em;line-height:1.1;margin-bottom:14px;}
-.dark .section-title,.dark .section-label{color:white;}
-.dark .section-label{color:var(--gold);}
-.lead{font-size:16px;color:var(--gray);line-height:1.7;max-width:640px;margin-bottom:32px;}
-.btn-primary{display:inline-flex;align-items:center;gap:8px;background:var(--gold);color:var(--navy);padding:13px 28px;border-radius:4px;font-weight:700;font-size:14px;transition:background 0.2s;}
-.btn-primary:hover{background:#e0b94a;}
-.btn-outline{display:inline-flex;align-items:center;gap:8px;background:transparent;color:white;border:1.5px solid rgba(255,255,255,0.3);padding:13px 28px;border-radius:4px;font-weight:600;font-size:14px;transition:all 0.2s;}
-.btn-outline:hover{border-color:white;}
-.btn-navy{display:inline-flex;align-items:center;gap:8px;background:var(--navy);color:white;padding:13px 28px;border-radius:4px;font-weight:700;font-size:14px;transition:background 0.2s;}
-.btn-navy:hover{background:var(--blue);}
-footer{background:var(--navy);padding:48px 24px 32px;border-top:1px solid rgba(255,255,255,0.08);}
-.footer-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr 1fr;gap:40px;}
-.footer-brand img{height:48px;margin-bottom:12px;}
-.footer-brand p{font-size:13px;color:rgba(255,255,255,0.4);line-height:1.6;}
-.footer-col h4{font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:14px;}
-.footer-col ul{list-style:none;}
-.footer-col ul li{margin-bottom:8px;}
-.footer-col ul li a{font-size:13px;color:rgba(255,255,255,0.5);transition:color 0.15s;}
-.footer-col ul li a:hover{color:white;}
-.footer-bottom{max-width:1100px;margin:32px auto 0;padding-top:24px;border-top:1px solid rgba(255,255,255,0.08);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;}
-.footer-bottom p{font-size:12px;color:rgba(255,255,255,0.3);}
-@media(max-width:768px){.footer-inner{grid-template-columns:1fr;gap:28px;}}
+.two-col{display:grid;grid-template-columns:1fr 1.4fr;gap:48px;align-items:start;}
+@media(max-width:768px){.two-col{grid-template-columns:1fr;}}
+.contact-item{display:flex;gap:16px;align-items:flex-start;padding:18px 0;border-bottom:1px solid var(--light);}
+.contact-item:last-child{border-bottom:none;}
+.contact-icon{width:42px;height:42px;background:var(--navy);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.contact-item h3{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:3px;letter-spacing:0.02em;text-transform:uppercase;}
+.contact-item p,.contact-item a{font-size:14px;color:var(--gray);line-height:1.5;}
+.contact-item a{color:var(--sky);font-weight:600;}
+/* FORM */
+.form-wrap{background:var(--navy);border-radius:14px;padding:36px 32px;}
+.form-wrap h2{font-size:20px;font-weight:800;color:white;letter-spacing:-0.02em;margin-bottom:4px;}
+.form-wrap p{font-size:14px;color:rgba(255,255,255,0.5);margin-bottom:24px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+@media(max-width:540px){.form-row{grid-template-columns:1fr;}}
+.form-group{margin-bottom:14px;}
+.form-group label{display:block;font-size:12px;font-weight:700;color:rgba(255,255,255,0.5);margin-bottom:5px;letter-spacing:0.06em;text-transform:uppercase;}
+.form-group input,.form-group select,.form-group textarea{
+  width:100%;padding:11px 14px;
+  background:rgba(255,255,255,0.06);
+  border:1.5px solid rgba(255,255,255,0.12);
+  border-radius:6px;
+  font-size:14px;font-family:'Inter',sans-serif;
+  color:white;outline:none;
+  transition:border-color 0.15s;
+}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--gold);}
+.form-group input::placeholder,.form-group textarea::placeholder{color:rgba(255,255,255,0.25);}
+.form-group select{color:rgba(255,255,255,0.7);}
+.form-group select option{background:#0a1628;color:white;}
+.form-group textarea{resize:vertical;min-height:110px;}
+.form-submit{width:100%;padding:14px;background:var(--gold);color:var(--navy);border:none;border-radius:6px;font-size:15px;font-weight:800;cursor:pointer;font-family:'Inter',sans-serif;letter-spacing:-0.01em;transition:background 0.2s;margin-top:4px;}
+.form-submit:hover{background:#e0b94a;}
+.form-submit:disabled{background:rgba(200,168,75,0.4);cursor:not-allowed;}
+.form-success{display:none;text-align:center;padding:24px;background:rgba(46,125,50,0.15);border:1px solid rgba(46,125,50,0.3);border-radius:8px;margin-top:16px;}
+.form-success p{color:#4caf50;font-weight:600;font-size:15px;}
+footer{background:var(--navy);padding:40px 24px;text-align:center;border-top:1px solid rgba(255,255,255,0.08);}
+footer p{color:rgba(255,255,255,0.35);font-size:13px;line-height:1.8;}
+footer a{color:var(--gold);}
 </style>
 </head>
 <body>
@@ -84,132 +98,176 @@ footer{background:var(--navy);padding:48px 24px 32px;border-top:1px solid rgba(2
     <li><a href="/tarifs" class="arc-nav-cta-mobile">Adhésion 2026</a></li>
   </ul>
 </nav>
-<title>Contact — Aéroclub A.R.C. LFPX</title>
-</head>
-<body>
 <div class="page-hero">
-  <p class="eyebrow">Aéroclub A.R.C.</p>
+  <p class="eyebrow">Aéroclub A.R.C. — Chavenay LFPX</p>
   <h1>Contactez-nous</h1>
-  <p class="sub">Une question sur la formation, les tarifs ou le club ? Nous vous répondons rapidement.</p>
+  <p class="sub">Une question sur la formation, les tarifs ou le club ? Réponse sous 48h.</p>
 </div>
 
-<style>
-.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start;}
-@media(max-width:768px){.contact-grid{grid-template-columns:1fr;}}
-.contact-card{background:white;border-radius:12px;padding:32px;border:1px solid var(--light);margin-bottom:16px;display:flex;gap:20px;align-items:flex-start;transition:box-shadow 0.2s;}
-.contact-card:hover{box-shadow:0 8px 32px rgba(10,22,40,0.1);}
-.contact-card .icon{width:48px;height:48px;background:var(--navy);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
-.contact-card h3{font-size:15px;font-weight:700;color:var(--navy);margin-bottom:4px;}
-.contact-card p{font-size:14px;color:var(--gray);line-height:1.6;}
-.contact-card a{color:var(--sky);font-weight:600;}
-.form-group{margin-bottom:20px;}
-.form-group label{display:block;font-size:13px;font-weight:600;color:var(--navy);margin-bottom:6px;}
-.form-group input,.form-group select,.form-group textarea{width:100%;padding:11px 14px;border:1.5px solid var(--light);border-radius:6px;font-size:14px;font-family:'Inter',sans-serif;background:white;color:var(--navy);transition:border-color 0.15s;outline:none;}
-.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--sky);}
-.form-group textarea{resize:vertical;min-height:120px;}
-.form-submit{width:100%;padding:14px;background:var(--gold);color:var(--navy);border:none;border-radius:6px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:background 0.2s;}
-.form-submit:hover{background:#e0b94a;}
-</style>
-
-<div class="section cream">
+<div class="section light">
   <div class="container">
-    <div class="contact-grid">
+    <div class="two-col">
 
-      <!-- COORDS -->
+      <!-- COORDONNÉES -->
       <div>
-        <p class="section-label">Coordonnées</p>
-        <h2 class="section-title">Venez nous voir à Chavenay</h2>
-        <p class="lead">Le meilleur moyen de découvrir le club ? Venir un samedi ou dimanche matin et partager un café avec les pilotes.</p>
+        <p style="font-size:11px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:20px;">Coordonnées</p>
 
-        <a href="tel:+33134623075" class="contact-card" style="display:flex;text-decoration:none;">
-          <div class="icon">📞</div>
+        <div class="contact-item">
+          <div class="contact-icon">📞</div>
           <div>
             <h3>Téléphone</h3>
-            <p>01 34 62 30 75<br><span style="font-size:12px;color:var(--gray);">Disponible pendant les horaires d'ouverture</span></p>
-          </div>
-        </a>
-
-        <a href="/cdn-cgi/l/email-protection#d0b1b5a2bfb3bca5b2b1a2b390b7bdb1b9bcfeb3bfbd" class="contact-card" style="display:flex;text-decoration:none;">
-          <div class="icon">✉️</div>
-          <div>
-            <h3>Email</h3>
-            <p><span class="__cf_email__" data-cfemail="dbbabea9b4b8b7aeb9baa9b89bbcb6bab2b7f5b8b4b6">[email&#160;protected]</span><br><span style="font-size:12px;color:var(--gray);">Réponse sous 48h en semaine</span></p>
-          </div>
-        </a>
-
-        <div class="contact-card">
-          <div class="icon">📍</div>
-          <div>
-            <h3>Adresse</h3>
-            <p>Aérodrome de Chavenay<br>78450 Villepreux<br><a href="https://maps.google.com/?q=Aerodrome+Chavenay+LFPX" target="_blank">Voir sur Google Maps →</a></p>
+            <a href="tel:+33134623075">01 34 62 30 75</a>
+            <p style="font-size:12px;margin-top:2px;">Sam/Dim : 9h–18h · En semaine sur RDV</p>
           </div>
         </div>
 
-        <div class="contact-card">
-          <div class="icon">🕐</div>
+        <div class="contact-item">
+          <div class="contact-icon">✉️</div>
+          <div>
+            <h3>Email</h3>
+            <a href="mailto:aeroclubarc@gmail.com">aeroclubarc@gmail.com</a>
+            <p style="font-size:12px;margin-top:2px;">Réponse sous 48h en semaine</p>
+          </div>
+        </div>
+
+        <div class="contact-item">
+          <div class="contact-icon">📍</div>
+          <div>
+            <h3>Adresse</h3>
+            <p>Aérodrome de Chavenay<br>Route de Villepreux<br>78450 Chavenay</p>
+            <a href="https://maps.google.com/?q=Aerodrome+Chavenay+LFPX" target="_blank" style="font-size:13px;display:inline-block;margin-top:4px;">Voir sur Maps →</a>
+          </div>
+        </div>
+
+        <div class="contact-item">
+          <div class="contact-icon">🕐</div>
           <div>
             <h3>Horaires d'accueil</h3>
-            <p>Samedi & Dimanche : 9h–18h<br>En semaine : sur rendez-vous<br><span style="font-size:12px;color:var(--gray);">Jours fériés selon météo</span></p>
+            <p>Samedi & Dimanche : 9h–18h<br>En semaine : sur rendez-vous<br>Jours fériés selon météo</p>
           </div>
+        </div>
+
+        <div style="margin-top:24px;border-radius:10px;overflow:hidden;">
+          <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2625!2d1.966!3d48.970!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDjCsDU4JzEyLjAiTiAwMcKwNTgnMDAuMCJF!5e0!3m2!1sfr!2sfr!4v1700000000000" width="100%" height="200" style="border:0;display:block;" allowfullscreen loading="lazy"></iframe>
         </div>
       </div>
 
       <!-- FORMULAIRE -->
-      <div>
-        <p class="section-label">Formulaire de contact</p>
-        <h2 class="section-title">Envoyez-nous un message</h2>
-        <form action="mailto:aeroclubarc@gmail.com" method="GET" enctype="text/plain">
-          <div class="form-group">
-            <label>Votre nom</label>
-            <input type="text" name="name" placeholder="Prénom Nom" required>
+      <div class="form-wrap">
+        <h2>Envoyez un message</h2>
+        <p>Nous vous répondons dans les 48h.</p>
+
+        <form id="contact-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Prénom *</label>
+              <input type="text" id="f-prenom" placeholder="Jean" required>
+            </div>
+            <div class="form-group">
+              <label>Nom *</label>
+              <input type="text" id="f-nom" placeholder="Dupont" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Email *</label>
+              <input type="email" id="f-email" placeholder="jean@email.fr" required>
+            </div>
+            <div class="form-group">
+              <label>Téléphone</label>
+              <input type="tel" id="f-tel" placeholder="06 XX XX XX XX">
+            </div>
           </div>
           <div class="form-group">
-            <label>Votre email</label>
-            <input type="email" name="email" placeholder="votre@email.fr" required>
-          </div>
-          <div class="form-group">
-            <label>Sujet</label>
-            <select name="subject">
+            <label>Sujet *</label>
+            <select id="f-sujet" required>
+              <option value="">Choisir un sujet...</option>
               <option value="Formation PPL">Formation PPL</option>
-              <option value="Adhésion">Adhésion au club</option>
-              <option value="Baptême de l'air">Baptême de l'air</option>
-              <option value="Tarifs">Tarifs & disponibilités</option>
-              <option value="Autre">Autre question</option>
+              <option value="Initiation au pilotage">Initiation au pilotage</option>
+              <option value="Adhésion au club">Adhésion au club</option>
+              <option value="Post-PPL / Qualifications">Post-PPL / Qualifications</option>
+              <option value="Tarifs et disponibilités">Tarifs et disponibilités</option>
+              <option value="Visite de l'aérodrome">Visite de l'aérodrome</option>
+              <option value="Autre question">Autre question</option>
             </select>
           </div>
           <div class="form-group">
-            <label>Votre message</label>
-            <textarea name="body" placeholder="Bonjour, je souhaite..."></textarea>
+            <label>Message *</label>
+            <textarea id="f-message" placeholder="Bonjour, je souhaite obtenir des informations sur..." required></textarea>
           </div>
-          <button type="submit" class="form-submit">Envoyer le message →</button>
+          <button type="button" class="form-submit" id="form-btn" onclick="sendMessage()">
+            Envoyer le message →
+          </button>
+          <div class="form-success" id="form-success">
+            <p>✅ Message envoyé ! Nous vous répondons sous 48h.</p>
+          </div>
         </form>
-        <p style="font-size:12px;color:var(--gray);margin-top:12px;text-align:center;">Ou rejoignez-nous directement pour un vol d'initiation — <a href="/tarifs" style="color:var(--sky);">voir l'adhésion</a></p>
       </div>
 
     </div>
   </div>
 </div>
+
 <footer>
-  <div class="footer-inner">
-    <div class="footer-brand">
-      <img src="https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69c8ee72f60e3ec233a5a847_Logo%20ARC%20II%20FR.png" alt="ARC">
-      <p>Aéroclub A.R.C.<br>Aérodrome de Chavenay — LFPX<br>78450 Villepreux</p>
-    </div>
-    <div class="footer-col">
-      <h4>Navigation</h4>
-      <ul>
-        <li><a href="/">Le Club</a></li>
-        <li><a href="/la-flotte">La Flotte</a></li>
-        <li><a href="/formation">Formation PPL</a></li>
-        <li><a href="/post-ppl">Post-PPL</a></li>
-        <li><a href="/aerodrome">Aérodrome</a></li>
-        <li><a href="/tarifs">Adhésion 2026</a></li>
-      </ul>
-    </div>
-    <div class="footer-col">
-      <h4>Contact</h4>
-      <ul>
-        <li><a href="tel:+33134623075">01 34 62 30 75</a></li>
-        <li><a href="/cdn-cgi/l/email-protection#b1d0d4c3ded2ddc4d3d0c3d2f1d6dcd0d8dd9fd2dedc"><span class="__cf_email__" data-cfemail="48292d3a272b243d2a293a2b082f25292124662b2725">[email&#160;protected]</span></a></li>
-        <li><a href="/statuts">Statuts</a></li>
-        <li><a href="/reglement">Règlement intérieur</a
+  <p>© 2026 Aéroclub A.R.C. — <a href="/statuts">Statuts</a> · <a href="/reglement">Règlement intérieur</a> · <a href="mailto:aeroclubarc@gmail.com">aeroclubarc@gmail.com</a> · <a href="tel:+33134623075">01 34 62 30 75</a></p>
+</footer>
+
+<script>
+async function sendMessage(){
+  var btn=document.getElementById('form-btn');
+  var prenom=document.getElementById('f-prenom').value.trim();
+  var nom=document.getElementById('f-nom').value.trim();
+  var email=document.getElementById('f-email').value.trim();
+  var tel=document.getElementById('f-tel').value.trim();
+  var sujet=document.getElementById('f-sujet').value;
+  var message=document.getElementById('f-message').value.trim();
+
+  if(!prenom||!nom||!email||!sujet||!message){
+    alert('Veuillez remplir tous les champs obligatoires (*).');
+    return;
+  }
+  if(!/\S+@\S+\.\S+/.test(email)){
+    alert('Adresse email invalide.');
+    return;
+  }
+
+  btn.disabled=true;
+  btn.innerText='Envoi en cours...';
+
+  var body='Nouveau message de contact — Aéroclub ARC\n\n'
+    +'Nom : '+prenom+' '+nom+'\n'
+    +'Email : '+email+'\n'
+    +(tel?'Téléphone : '+tel+'\n':'')
+    +'Sujet : '+sujet+'\n\n'
+    +'Message :\n'+message;
+
+  try{
+    // Envoi via Formspree (remplacer YOUR_FORM_ID par l'ID Formspree du club)
+    var res=await fetch('https://formspree.io/f/aeroclubarc',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Accept':'application/json'},
+      body:JSON.stringify({email:email,name:prenom+' '+nom,sujet:sujet,message:message,telephone:tel||'Non renseigné'})
+    });
+    if(res.ok){
+      document.getElementById('form-success').style.display='block';
+      document.getElementById('contact-form').style.opacity='0.4';
+      btn.innerText='Message envoyé ✅';
+    }else{
+      throw new Error('Erreur');
+    }
+  }catch(e){
+    // Fallback mailto si Formspree non configuré
+    var mailto='mailto:aeroclubarc@gmail.com'
+      +'?subject='+encodeURIComponent('[Site ARC] '+sujet)
+      +'&body='+encodeURIComponent(body);
+    window.location.href=mailto;
+    btn.disabled=false;
+    btn.innerText='Envoyer le message →';
+  }
+}
+document.getElementById('contact-form').addEventListener('keydown',function(e){
+  if(e.key==='Enter'&&e.target.tagName!=='TEXTAREA')e.preventDefault();
+});
+</script>
+</body>
+</html>
