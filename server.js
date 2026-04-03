@@ -7,16 +7,19 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// CORS headers pour toutes les routes
+// CORS headers
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "Content-Type");
   next();
 });
 
-app.use(express.static(path.join(__dirname)));
+// ── REDIRECT / avant express.static ──────────────────────────────────
+// CRITIQUE : doit être AVANT app.use(express.static(...))
+// sinon express.static trouve index.html et le sert sur / directement
+app.get("/", (req, res) => res.redirect(301, "/home-arc"));
 
-// ── PROXY PPV (évite le problème CORS Railway→Railway) ──────────────
+// ── PROXY PPV ─────────────────────────────────────────────────────────
 app.get("/api/ppv/total", async (req, res) => {
   try {
     const r = await fetch("https://ppv-production.up.railway.app/total");
@@ -37,8 +40,10 @@ app.get("/api/ppv/today", async (req, res) => {
   }
 });
 
-// ── PAGES ────────────────────────────────────────────────────────────
-app.get("/", (req, res) => res.redirect(301, "/home-arc"));
+// ── STATIC FILES ──────────────────────────────────────────────────────
+app.use(express.static(path.join(__dirname)));
+
+// ── PAGES ─────────────────────────────────────────────────────────────
 app.get("/home-arc", (req, res) => res.sendFile(path.join(__dirname, "home.html")));
 app.get("/accueil", (req, res) => res.sendFile(path.join(__dirname, "accueil.html")));
 app.get("/leclub", (req, res) => res.sendFile(path.join(__dirname, "leclub.html")));
