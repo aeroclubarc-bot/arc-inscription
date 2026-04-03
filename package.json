@@ -1,8 +1,7 @@
 {
   "name": "arc-inscription",
   "version": "1.0.0",
-  "description": "Formulaire d'adhésion Aéroclub ARC 2026",
-  "main": "server.js",
+  "type": "module",
   "scripts": {
     "start": "node server.js"
   },
