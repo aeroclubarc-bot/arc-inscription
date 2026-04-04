@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aéroclub Vert — Production solaire LFPX</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0a1628;--blue:#1a3a6b;--gold:#c8a84b;--cream:#f8f5f0;--green:#2e7d32;--green-light:#4caf50;--white:#fff;--gray:#6b7280;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:var(--navy);color:var(--white);-webkit-font-smoothing:antialiased;min-height:100vh;}
+a{text-decoration:none;color:inherit;}
+
+/* NAV */
+nav#arc-nav{position:sticky;top:0;z-index:1000;background:rgba(10,22,40,0.97);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.08);}
+.arc-nav-inner{max-width:1200px;margin:0 auto;padding:0 24px;height:64px;display:flex;align-items:center;justify-content:space-between;gap:24px;}
+.arc-nav-logo img{display:block;height:52px;width:auto;filter:brightness(1.1);}
+.arc-nav-links{list-style:none;display:flex;align-items:center;gap:4px;margin:0;padding:0;}
+.arc-nav-links a{color:rgba(255,255,255,0.75);font-size:13px;font-weight:500;padding:6px 12px;border-radius:4px;transition:all 0.15s;white-space:nowrap;}
+.arc-nav-links a:hover{color:white;background:rgba(255,255,255,0.08);}
+.arc-nav-cta{background:#c8a84b;color:#0a1628;padding:8px 18px;border-radius:4px;font-size:13px;font-weight:700;white-space:nowrap;transition:background 0.2s;flex-shrink:0;}
+.arc-nav-cta:hover{background:#e0b94a;}
+.arc-nav-burger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:6px;}
+.arc-nav-burger span{display:block;width:22px;height:2px;background:white;border-radius:2px;}
+.arc-nav-mobile{display:none;list-style:none;padding:0 24px 16px;margin:0;border-top:1px solid rgba(255,255,255,0.08);}
+.arc-nav-mobile a{display:block;color:rgba(255,255,255,0.8);font-size:14px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.06);}
+.arc-nav-cta-mobile{color:#c8a84b!important;font-weight:700;}
+#arc-nav.open .arc-nav-mobile{display:block;}
+@media(max-width:900px){.arc-nav-links,.arc-nav-cta{display:none;}.arc-nav-burger{display:flex;}}
+
+/* PAGE */
+.ppv-page{max-width:680px;margin:0 auto;padding:40px 20px 60px;}
+
+/* HEADER */
+.ppv-header{text-align:center;margin-bottom:36px;}
+.ppv-header .eyebrow{font-size:11px;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;}
+.ppv-header h1{font-size:clamp(28px,7vw,44px);font-weight:900;letter-spacing:-0.03em;line-height:1.05;margin-bottom:8px;}
+.ppv-header h1 span{color:var(--green-light);}
+.ppv-header p{font-size:14px;color:rgba(255,255,255,0.45);line-height:1.6;}
+
+/* STATUS DOT */
+.ppv-status{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:32px;}
+.ppv-dot{width:10px;height:10px;border-radius:50%;background:#9e9e9e;transition:all 0.4s;flex-shrink:0;}
+.ppv-dot.on{background:var(--green-light);box-shadow:0 0 10px var(--green-light);}
+.ppv-status-text{font-size:13px;font-weight:600;color:rgba(255,255,255,0.5);transition:color 0.3s;}
+.ppv-status-text.on{color:var(--green-light);}
+
+/* JAUGE PRINCIPALE */
+.ppv-gauge-wrap{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:28px 24px 20px;margin-bottom:16px;text-align:center;}
+.ppv-gauge-label{font-size:11px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:16px;}
+.ppv-gauge-canvas-wrap{position:relative;display:inline-block;}
+canvas#ppv-gauge{display:block;margin:0 auto;}
+.ppv-gauge-center{position:absolute;bottom:12%;left:50%;transform:translateX(-50%);text-align:center;white-space:nowrap;}
+.ppv-gauge-kw{font-size:clamp(28px,6vw,40px);font-weight:900;color:var(--green-light);letter-spacing:-0.04em;line-height:1;}
+.ppv-gauge-kw-unit{font-size:14px;font-weight:400;color:rgba(255,255,255,0.35);}
+.ppv-gauge-max{font-size:11px;color:rgba(255,255,255,0.2);margin-top:6px;}
+
+/* STATS GRILLE */
+.ppv-stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
+@media(max-width:400px){.ppv-stats{grid-template-columns:1fr;}}
+.ppv-stat{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:20px 18px;}
+.ppv-stat-label{font-size:10px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:8px;}
+.ppv-stat-value{font-size:clamp(22px,5vw,30px);font-weight:900;letter-spacing:-0.03em;line-height:1;color:var(--white);}
+.ppv-stat-value span{font-size:13px;font-weight:400;color:rgba(255,255,255,0.3);}
+.ppv-stat.green .ppv-stat-value{color:var(--green-light);}
+.ppv-stat.gold .ppv-stat-value{color:var(--gold);}
+
+/* ÉQUIVALENCES */
+.ppv-equiv{background:rgba(46,125,50,0.08);border:1px solid rgba(46,125,50,0.18);border-radius:12px;padding:20px 18px;margin-bottom:16px;}
+.ppv-equiv-title{font-size:11px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:rgba(46,125,50,0.7);margin-bottom:14px;}
+.ppv-equiv-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);}
+.ppv-equiv-row:last-child{border-bottom:none;}
+.ppv-equiv-row .k{font-size:13px;color:rgba(255,255,255,0.45);}
+.ppv-equiv-row .v{font-size:14px;font-weight:700;color:var(--green-light);}
+
+/* BARRE PROGRESSION */
+.ppv-bar-wrap{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:18px;}
+.ppv-bar-label{font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:10px;display:flex;justify-content:space-between;}
+.ppv-bar-track{background:rgba(255,255,255,0.06);border-radius:4px;height:8px;overflow:hidden;}
+.ppv-bar-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--green),var(--green-light));transition:width 1.2s cubic-bezier(.4,0,.2,1);}
+
+/* FOOTER */
+.ppv-footer{text-align:center;margin-top:28px;font-size:12px;color:rgba(255,255,255,0.2);line-height:1.8;}
+.ppv-footer a{color:var(--gold);}
+.ppv-refresh{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.5);font-size:12px;font-weight:600;padding:7px 14px;border-radius:6px;cursor:pointer;margin-bottom:12px;transition:all 0.2s;font-family:'Inter',sans-serif;}
+.ppv-refresh:hover{background:rgba(255,255,255,0.1);color:white;}
+
+/* RESPONSIVE */
+@media(max-width:480px){
+  .ppv-page{padding:28px 16px 48px;}
+  .ppv-gauge-wrap{padding:20px 16px 16px;}
+}
+</style>
+</head>
+<body>
+<nav id="arc-nav">
+  <div class="arc-nav-inner">
+    <a href="/accueil" class="arc-nav-logo"><img src="https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69c8ee72f60e3ec233a5a847_Logo%20ARC%20II%20FR.png" alt="ARC" height="52" style="filter:brightness(1.1);"></a>
+    <ul class="arc-nav-links">
+      <li><a href="/leclub">Le Club</a></li>
+      <li><a href="/la-flotte">La Flotte</a></li>
+      <li><a href="/formation">Formation PPL</a></li>
+      <li><a href="/post-ppl">Post-PPL</a></li>
+      <li><a href="/aerodrome">Aérodrome</a></li>
+      <li><a href="https://enviedepiloter.fr/commander-un-passeport/?code_fna=04158" target="_blank">Initiation au Pilotage</a></li>
+      <li><a href="/tarifs">Inscription</a></li>
+    </ul>
+    <a href="/tarifs" class="arc-nav-cta">Adhésion 2026</a>
+    <button class="arc-nav-burger" onclick="document.getElementById('arc-nav').classList.toggle('open')"><span></span><span></span><span></span></button>
+  </div>
+  <ul class="arc-nav-mobile">
+    <li><a href="/leclub">Le Club</a></li>
+    <li><a href="/la-flotte">La Flotte</a></li>
+    <li><a href="/formation">Formation PPL</a></li>
+    <li><a href="/post-ppl">Post-PPL</a></li>
+    <li><a href="/aerodrome">Aérodrome</a></li>
+    <li><a href="https://enviedepiloter.fr/commander-un-passeport/?code_fna=04158" target="_blank">Initiation au Pilotage</a></li>
+    <li><a href="/tarifs">Inscription</a></li>
+    <li><a href="/tarifs" class="arc-nav-cta-mobile">Adhésion 2026</a></li>
+  </ul>
+</nav>
+
+<div class="ppv-page">
+
+  <div class="ppv-header">
+    <p class="eyebrow">Aéroclub A.R.C. — LFPX Chavenay</p>
+    <h1>☀️ Aéroclub <span>Vert</span></h1>
+    <p>Production solaire en temps réel — centrale photovoltaïque inaugurée le 26 août 2025</p>
+  </div>
+
+  <div class="ppv-status">
+    <div class="ppv-dot" id="ppv-dot"></div>
+    <span class="ppv-status-text" id="ppv-status-text">Chargement...</span>
+  </div>
+
+  <!-- JAUGE PUISSANCE -->
+  <div class="ppv-gauge-wrap">
+    <div class="ppv-gauge-label">Puissance instantanée</div>
+    <div class="ppv-gauge-canvas-wrap">
+      <canvas id="ppv-gauge" width="280" height="160"></canvas>
+      <div class="ppv-gauge-center">
+        <div class="ppv-gauge-kw"><span id="ppv-kw">--</span> <span class="ppv-gauge-kw-unit">kW</span></div>
+        <div class="ppv-gauge-max">/ 13,5 kW crête</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="ppv-stats">
+    <div class="ppv-stat green">
+      <div class="ppv-stat-label">Aujourd'hui</div>
+      <div class="ppv-stat-value"><span id="ppv-today">--</span> <span>kWh</span></div>
+    </div>
+    <div class="ppv-stat gold">
+      <div class="ppv-stat-label">Production totale</div>
+      <div class="ppv-stat-value"><span id="ppv-total">--</span> <span>kWh</span></div>
+    </div>
+  </div>
+
+  <!-- ÉQUIVALENCES -->
+  <div class="ppv-equiv">
+    <div class="ppv-equiv-title">🌍 Équivalences environnementales</div>
+    <div class="ppv-equiv-row">
+      <span class="k">CO₂ économisé (total)</span>
+      <span class="v" id="ppv-co2">-- kg</span>
+    </div>
+    <div class="ppv-equiv-row">
+      <span class="k">Heures de vol neutralisées</span>
+      <span class="v" id="ppv-hours">-- h</span>
+    </div>
+    <div class="ppv-equiv-row">
+      <span class="k">Litres d'Avgas équivalent</span>
+      <span class="v" id="ppv-avgas">-- L</span>
+    </div>
+  </div>
+
+  <!-- BARRE PROGRESSION JOURNALIÈRE -->
+  <div class="ppv-bar-wrap">
+    <div class="ppv-bar-label">
+      <span>Objectif journalier (30 kWh)</span>
+      <span id="ppv-bar-pct">--%</span>
+    </div>
+    <div class="ppv-bar-track">
+      <div class="ppv-bar-fill" id="ppv-bar" style="width:0%"></div>
+    </div>
+  </div>
+
+  <div style="text-align:center;margin-top:20px;">
+    <button class="ppv-refresh" onclick="loadPPV()">↻ Actualiser</button>
+  </div>
+
+  <div class="ppv-footer">
+    Mise à jour automatique toutes les 2 minutes<br>
+    <a href="/home-arc">← Retour à l'accueil</a> · <a href="/contact">Nous contacter</a>
+  </div>
+
+</div>
+
+<script>
+function drawGauge(power){
+  var c=document.getElementById('ppv-gauge');
+  if(!c)return;
+  var ctx=c.getContext('2d');
+  var W=c.width,H=c.height;
+  var cx=W/2,cy=H*0.72,r=W*0.42;
+  var max=13.5,ratio=Math.min(power/max,1);
+  var startA=Math.PI,endA=2*Math.PI;
+  ctx.clearRect(0,0,W,H);
+  // Track
+  ctx.beginPath();ctx.arc(cx,cy,r,startA,endA);
+  ctx.lineWidth=W*0.06;ctx.strokeStyle='rgba(255,255,255,0.07)';ctx.lineCap='round';ctx.stroke();
+  // Fill
+  if(ratio>0){
+    var fillEnd=startA+ratio*Math.PI;
+    var grad=ctx.createLinearGradient(cx-r,cy,cx+r,cy);
+    grad.addColorStop(0,'#2e7d32');grad.addColorStop(1,'#66bb6a');
+    ctx.beginPath();ctx.arc(cx,cy,r,startA,fillEnd);
+    ctx.lineWidth=W*0.06;ctx.strokeStyle=grad;ctx.lineCap='round';ctx.stroke();
+  }
+  // Ticks
+  for(var i=0;i<=6;i++){
+    var a=Math.PI+i*(Math.PI/6);
+    var x1=cx+Math.cos(a)*(r+8),y1=cy+Math.sin(a)*(r+8);
+    var x2=cx+Math.cos(a)*(r+14),y2=cy+Math.sin(a)*(r+14);
+    ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);
+    ctx.lineWidth=1.5;ctx.strokeStyle='rgba(255,255,255,0.15)';ctx.stroke();
+  }
+}
+
+async function loadPPV(){
+  try{
+    // Total + puissance
+    var r1=await fetch('/api/ppv/total?t='+Date.now());
+    var t1=await r1.text();
+    if(r1.ok&&t1.trim().charAt(0)==='{'){
+      var d=JSON.parse(t1);
+      var total=parseFloat(d.total_kwh)||0;
+      var kw=(d.current_power_w||0)/1000;
+      var co2=total*0.42;
+      var h=co2/66.9;
+      var avgas=h*20;
+      var on=kw>0.2;
+
+      // Statut
+      var dot=document.getElementById('ppv-dot');
+      var txt=document.getElementById('ppv-status-text');
+      if(dot){dot.classList.toggle('on',on);}
+      if(txt){txt.textContent=on?'● Centrale en production':'● Centrale au repos';txt.className='ppv-status-text'+(on?' on':'');}
+
+      // Jauge
+      drawGauge(kw);
+      var el;
+      el=document.getElementById('ppv-kw');if(el)el.textContent=kw.toFixed(2);
+      el=document.getElementById('ppv-total');if(el)el.textContent=total.toLocaleString('fr-FR',{maximumFractionDigits:0});
+      el=document.getElementById('ppv-co2');if(el)el.textContent=co2.toLocaleString('fr-FR',{maximumFractionDigits:0})+' kg';
+      el=document.getElementById('ppv-hours');if(el)el.textContent=h.toLocaleString('fr-FR',{minimumFractionDigits:1,maximumFractionDigits:1})+' h';
+      el=document.getElementById('ppv-avgas');if(el)el.textContent=Math.round(avgas)+' L';
+    }
+
+    // Aujourd'hui
+    var r2=await fetch('/api/ppv/today?t='+Date.now());
+    var t2=await r2.text();
+    if(r2.ok&&t2.trim().charAt(0)==='{'){
+      var d2=JSON.parse(t2);
+      var today=parseFloat(d2.today_kwh)||0;
+      var el2;
+      el2=document.getElementById('ppv-today');if(el2)el2.textContent=today.toLocaleString('fr-FR',{minimumFractionDigits:1,maximumFractionDigits:1});
+      // Barre progression (objectif 30 kWh/jour)
+      var pct=Math.min(today/30*100,100);
+      el2=document.getElementById('ppv-bar');if(el2)el2.style.width=pct.toFixed(1)+'%';
+      el2=document.getElementById('ppv-bar-pct');if(el2)el2.textContent=pct.toFixed(0)+'%';
+    }
+  }catch(e){}
+}
+
+// Init
+drawGauge(0);
+loadPPV();
+setInterval(loadPPV,120000);
+</script>
+</body>
+</html>

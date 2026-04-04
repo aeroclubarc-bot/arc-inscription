@@ -492,13 +492,16 @@ footer a{color:var(--gold);}
 </footer>
 <script>
 (function(){
-  var API="https://ppv-production.up.railway.app/total";
-  var API2="https://ppv-production.up.railway.app/stats/today";
+  var API="/api/ppv/total";
+  var API2="/api/ppv/today";
   function drawGauge(id,power){var c=document.getElementById(id);if(!c)return;var ctx=c.getContext("2d");var max=13.5;var a=(power/max)*Math.PI;ctx.clearRect(0,0,c.width,c.height);var cx=c.width/2,cy=c.height/2,r=cx*0.77;ctx.beginPath();ctx.arc(cx,cy,r,Math.PI,2*Math.PI);ctx.lineWidth=c.width*0.055;ctx.strokeStyle="#c8e6c9";ctx.stroke();ctx.save();ctx.translate(cx,cy);ctx.rotate(Math.PI+a);ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(r*0.86,0);ctx.lineWidth=c.width*0.022;ctx.strokeStyle="#1b5e20";ctx.stroke();ctx.restore();ctx.beginPath();ctx.arc(cx,cy,c.width*0.038,0,2*Math.PI);ctx.fillStyle="#1b5e20";ctx.fill();}
   async function update(){
     try{
-      var res=await fetch("/api/ppv/total?t="+Date.now());
-      var d=await res.json();
+      var res=await fetch(API+"?t="+Date.now());
+      // Protection triple : vérifier content-type, statut, et début du texte
+      var text=await res.text();
+      if(!res.ok||text.trim().charAt(0)!=='{'){return;}
+      var d=JSON.parse(text);
       var total=parseFloat(d.total_kwh)||0,kw=(d.current_power_w||0)/1000,co2=total*0.42,h=co2/66.9,on=kw>0.2;
       var dots=document.querySelectorAll(".ppv-pill-dot");dots.forEach(function(dot){dot.classList.toggle("on",on);});
       var el;
@@ -519,8 +522,18 @@ footer a{color:var(--gold);}
       var plane=document.getElementById("modal-plane");if(plane)plane.style.transform="translateX("+Math.min(h*5,480)+"px)";
     }catch(e){}
   }
-  async function updateToday(){try{var res=await fetch("/api/ppv/today?t="+Date.now());var d=await res.json();var el=document.getElementById("modal-today");if(el)el.innerText=Number(d.today_kwh||0).toLocaleString("fr-FR",{minimumFractionDigits:1});}catch(e){}}
-  update();updateToday();setInterval(update,120000);setInterval(updateToday,120000);
+  async function updateToday(){
+    try{
+      var res=await fetch(API2+"?t="+Date.now());
+      var text=await res.text();
+      if(!res.ok||text.trim().charAt(0)!=='{')return;
+      var d=JSON.parse(text);
+      var el=document.getElementById("modal-today");
+      if(el)el.innerText=Number(d.today_kwh||0).toLocaleString("fr-FR",{minimumFractionDigits:1});
+    }catch(e){}
+  }
+  update();updateToday();
+  setInterval(update,120000);setInterval(updateToday,120000);
 })();
 </script>
 </body>

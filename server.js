@@ -62,6 +62,7 @@ app.use(express.static(path.join(__dirname)));
 
 // ── PAGES ─────────────────────────────────────────────────────────────
 app.get("/home-arc", (req, res) => res.sendFile(path.join(__dirname, "home.html")));
+app.get("/ppv", (req, res) => res.sendFile(path.join(__dirname, "ppv.html")));
 app.get("/accueil", (req, res) => res.sendFile(path.join(__dirname, "accueil.html")));
 app.get("/leclub", (req, res) => res.sendFile(path.join(__dirname, "leclub.html")));
 app.get("/le-club", (req, res) => res.sendFile(path.join(__dirname, "leclub.html")));

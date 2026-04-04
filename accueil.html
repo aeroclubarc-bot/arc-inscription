@@ -340,28 +340,16 @@ footer a{color:var(--gold);}
 (function(){
   var API="/api/ppv/total";
   var API2="/api/ppv/today";
-  function drawGauge(canvasId,power){
-    var c=document.getElementById(canvasId);if(!c)return;
-    var ctx=c.getContext("2d");var max=13.5;var a=(power/max)*Math.PI;
-    ctx.clearRect(0,0,c.width,c.height);
-    var cx=c.width/2,cy=c.height/2,r=cx*0.77;
-    ctx.beginPath();ctx.arc(cx,cy,r,Math.PI,2*Math.PI);ctx.lineWidth=c.width*0.055;ctx.strokeStyle="#c8e6c9";ctx.stroke();
-    ctx.save();ctx.translate(cx,cy);ctx.rotate(Math.PI+a);
-    ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(r*0.86,0);ctx.lineWidth=c.width*0.022;ctx.strokeStyle="#1b5e20";ctx.stroke();
-    ctx.restore();
-    ctx.beginPath();ctx.arc(cx,cy,c.width*0.038,0,2*Math.PI);ctx.fillStyle="#1b5e20";ctx.fill();
-  }
+  function drawGauge(id,power){var c=document.getElementById(id);if(!c)return;var ctx=c.getContext("2d");var max=13.5;var a=(power/max)*Math.PI;ctx.clearRect(0,0,c.width,c.height);var cx=c.width/2,cy=c.height/2,r=cx*0.77;ctx.beginPath();ctx.arc(cx,cy,r,Math.PI,2*Math.PI);ctx.lineWidth=c.width*0.055;ctx.strokeStyle="#c8e6c9";ctx.stroke();ctx.save();ctx.translate(cx,cy);ctx.rotate(Math.PI+a);ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(r*0.86,0);ctx.lineWidth=c.width*0.022;ctx.strokeStyle="#1b5e20";ctx.stroke();ctx.restore();ctx.beginPath();ctx.arc(cx,cy,c.width*0.038,0,2*Math.PI);ctx.fillStyle="#1b5e20";ctx.fill();}
   async function update(){
     try{
       var res=await fetch(API+"?t="+Date.now());
-      var d=await res.json();
-      var total=parseFloat(d.total_kwh)||0;
-      var kw=(d.current_power_w||0)/1000;
-      var co2=total*0.42;
-      var h=co2/66.9;
-      var on=kw>0.2;
-      var dots=document.querySelectorAll(".ppv-pill-dot");
-      dots.forEach(function(dot){dot.classList.toggle("on",on);});
+      // Protection triple : vérifier content-type, statut, et début du texte
+      var text=await res.text();
+      if(!res.ok||text.trim().charAt(0)!=='{'){return;}
+      var d=JSON.parse(text);
+      var total=parseFloat(d.total_kwh)||0,kw=(d.current_power_w||0)/1000,co2=total*0.42,h=co2/66.9,on=kw>0.2;
+      var dots=document.querySelectorAll(".ppv-pill-dot");dots.forEach(function(dot){dot.classList.toggle("on",on);});
       var el;
       el=document.getElementById("ppv-pill-kw");if(el)el.innerText=kw.toFixed(2)+" kW";
       el=document.getElementById("ppv-pill-total");if(el)el.innerText=total.toLocaleString("fr-FR",{maximumFractionDigits:0})+" kWh";
@@ -370,7 +358,7 @@ footer a{color:var(--gold);}
       var dot2=document.getElementById("ppv-dot-hero");if(dot2){dot2.style.background=on?"#4caf50":"#9e9e9e";dot2.style.boxShadow=on?"0 0 6px #66bb6a":"none";}
       el=document.getElementById("ppv-total");if(el)el.innerText=total.toLocaleString("fr-FR",{maximumFractionDigits:0});
       el=document.getElementById("ppv-power");if(el)el.innerText=kw.toFixed(2);
-      el=document.getElementById("ppv-hours");if(el)el.innerText=(h).toFixed(1);
+      el=document.getElementById("ppv-hours");if(el)el.innerText=h.toFixed(1);
       var dot3=document.getElementById("ppv-dot");if(dot3)dot3.classList.toggle("active",on);
       el=document.getElementById("modal-odometer");if(el)el.innerText=total.toLocaleString("fr-FR",{minimumFractionDigits:1});
       el=document.getElementById("modal-co2");if(el)el.innerText=co2.toLocaleString("fr-FR",{maximumFractionDigits:0});
@@ -378,11 +366,14 @@ footer a{color:var(--gold);}
       el=document.getElementById("modal-power");if(el)el.innerText=kw.toFixed(2);
       drawGauge("modal-gauge",kw);
       var plane=document.getElementById("modal-plane");if(plane)plane.style.transform="translateX("+Math.min(h*5,480)+"px)";
-    }catch(e){console.log("PPV:",e);}
+    }catch(e){}
   }
   async function updateToday(){
     try{
-      var res=await fetch(API2+"?t="+Date.now());var d=await res.json();
+      var res=await fetch(API2+"?t="+Date.now());
+      var text=await res.text();
+      if(!res.ok||text.trim().charAt(0)!=='{')return;
+      var d=JSON.parse(text);
       var el=document.getElementById("modal-today");
       if(el)el.innerText=Number(d.today_kwh||0).toLocaleString("fr-FR",{minimumFractionDigits:1});
     }catch(e){}

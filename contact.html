@@ -376,100 +376,29 @@ footer a{color:var(--gold);}
   <p>© 2026 Aéroclub A.R.C. — <a href="/statuts">Statuts</a> · <a href="/reglement">Règlement intérieur</a> · <a href="/contact" style="color:var(--gold);">Nous contacter</a> · <a href="tel:+33134623075">01 34 62 30 75</a></p>
 </footer>
 <script>
-// Formspree contact form — ID xeepzeyq
-async function sendMessage(){
-  var btn=document.getElementById('form-btn');
-  var prenom=document.getElementById('f-prenom').value.trim();
-  var nom=document.getElementById('f-nom').value.trim();
-  var email=document.getElementById('f-email').value.trim();
-  var tel=document.getElementById('f-tel').value.trim();
-  var sujet=document.getElementById('f-sujet').value;
-  var message=document.getElementById('f-message').value.trim();
-
-  if(!prenom||!nom||!email||!sujet||!message){
-    alert('Veuillez remplir tous les champs obligatoires (*).');
-    return;
-  }
-  if(!/\S+@\S+\.\S+/.test(email)){
-    alert('Adresse email invalide.');
-    return;
-  }
-
-  btn.disabled=true;
-  btn.innerText='Envoi en cours...';
-
-  try{
-    var res=await fetch('https://formspree.io/f/xeepzeyq',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','Accept':'application/json'},
-      body:JSON.stringify({
-        name: prenom+' '+nom,
-        email: email,
-        telephone: tel||'Non renseigné',
-        sujet: sujet,
-        message: message
-      })
-    });
-    if(res.ok){
-      document.getElementById('form-success').style.display='block';
-      document.getElementById('contact-form').style.opacity='0.4';
-      document.getElementById('contact-form').style.pointerEvents='none';
-      btn.innerText='Message envoyé ✅';
-    }else{
-      var data=await res.json();
-      throw new Error(data.error||'Erreur Formspree');
-    }
-  }catch(e){
-    console.error('Formspree error:',e);
-    btn.disabled=false;
-    btn.innerText='Envoyer le message →';
-    alert('Erreur lors de l\'envoi. Veuillez réessayer ou nous contacter directement à aeroclubarc@gmail.com');
-  }
-}
-document.addEventListener('DOMContentLoaded',function(){
-  var form=document.getElementById('contact-form');
-  if(form){
-    form.addEventListener('keydown',function(e){
-      if(e.key==='Enter'&&e.target.tagName!=='TEXTAREA')e.preventDefault();
-    });
-  }
-});
-</script>
-<script>
 (function(){
   var API="/api/ppv/total";
   var API2="/api/ppv/today";
-  function drawGauge(canvasId,power){
-    var c=document.getElementById(canvasId);if(!c)return;
-    var ctx=c.getContext("2d");var max=13.5;var a=(power/max)*Math.PI;
-    ctx.clearRect(0,0,c.width,c.height);
-    var cx=c.width/2,cy=c.height/2,r=cx*0.77;
-    ctx.beginPath();ctx.arc(cx,cy,r,Math.PI,2*Math.PI);ctx.lineWidth=c.width*0.055;ctx.strokeStyle="#c8e6c9";ctx.stroke();
-    ctx.save();ctx.translate(cx,cy);ctx.rotate(Math.PI+a);
-    ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(r*0.86,0);ctx.lineWidth=c.width*0.022;ctx.strokeStyle="#1b5e20";ctx.stroke();
-    ctx.restore();
-    ctx.beginPath();ctx.arc(cx,cy,c.width*0.038,0,2*Math.PI);ctx.fillStyle="#1b5e20";ctx.fill();
-  }
+  function drawGauge(id,power){var c=document.getElementById(id);if(!c)return;var ctx=c.getContext("2d");var max=13.5;var a=(power/max)*Math.PI;ctx.clearRect(0,0,c.width,c.height);var cx=c.width/2,cy=c.height/2,r=cx*0.77;ctx.beginPath();ctx.arc(cx,cy,r,Math.PI,2*Math.PI);ctx.lineWidth=c.width*0.055;ctx.strokeStyle="#c8e6c9";ctx.stroke();ctx.save();ctx.translate(cx,cy);ctx.rotate(Math.PI+a);ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(r*0.86,0);ctx.lineWidth=c.width*0.022;ctx.strokeStyle="#1b5e20";ctx.stroke();ctx.restore();ctx.beginPath();ctx.arc(cx,cy,c.width*0.038,0,2*Math.PI);ctx.fillStyle="#1b5e20";ctx.fill();}
   async function update(){
     try{
       var res=await fetch(API+"?t="+Date.now());
-      var d=await res.json();
-      var total=parseFloat(d.total_kwh)||0;
-      var kw=(d.current_power_w||0)/1000;
-      var co2=total*0.42;
-      var h=co2/66.9;
-      var on=kw>0.2;
-      // Pastille hero sur toutes les pages
-      var dots=document.querySelectorAll(".ppv-pill-dot");
-      dots.forEach(function(dot){dot.classList.toggle("on",on);});
+      // Protection triple : vérifier content-type, statut, et début du texte
+      var text=await res.text();
+      if(!res.ok||text.trim().charAt(0)!=='{'){return;}
+      var d=JSON.parse(text);
+      var total=parseFloat(d.total_kwh)||0,kw=(d.current_power_w||0)/1000,co2=total*0.42,h=co2/66.9,on=kw>0.2;
+      var dots=document.querySelectorAll(".ppv-pill-dot");dots.forEach(function(dot){dot.classList.toggle("on",on);});
       var el;
       el=document.getElementById("ppv-pill-kw");if(el)el.innerText=kw.toFixed(2)+" kW";
       el=document.getElementById("ppv-pill-total");if(el)el.innerText=total.toLocaleString("fr-FR",{maximumFractionDigits:0})+" kWh";
-      // Home — badge hero
       el=document.getElementById("badge-power");if(el)el.innerText=kw.toFixed(2)+" kW";
       el=document.getElementById("badge-total");if(el)el.innerText=total.toLocaleString("fr-FR",{maximumFractionDigits:0})+" kWh";
       var dot2=document.getElementById("ppv-dot-hero");if(dot2){dot2.style.background=on?"#4caf50":"#9e9e9e";dot2.style.boxShadow=on?"0 0 6px #66bb6a":"none";}
-      // Modal
+      el=document.getElementById("ppv-total");if(el)el.innerText=total.toLocaleString("fr-FR",{maximumFractionDigits:0});
+      el=document.getElementById("ppv-power");if(el)el.innerText=kw.toFixed(2);
+      el=document.getElementById("ppv-hours");if(el)el.innerText=h.toFixed(1);
+      var dot3=document.getElementById("ppv-dot");if(dot3)dot3.classList.toggle("active",on);
       el=document.getElementById("modal-odometer");if(el)el.innerText=total.toLocaleString("fr-FR",{minimumFractionDigits:1});
       el=document.getElementById("modal-co2");if(el)el.innerText=co2.toLocaleString("fr-FR",{maximumFractionDigits:0});
       el=document.getElementById("modal-avgas");if(el)el.innerText=h.toLocaleString("fr-FR",{minimumFractionDigits:1});
@@ -480,7 +409,10 @@ document.addEventListener('DOMContentLoaded',function(){
   }
   async function updateToday(){
     try{
-      var res=await fetch(API2+"?t="+Date.now());var d=await res.json();
+      var res=await fetch(API2+"?t="+Date.now());
+      var text=await res.text();
+      if(!res.ok||text.trim().charAt(0)!=='{')return;
+      var d=JSON.parse(text);
       var el=document.getElementById("modal-today");
       if(el)el.innerText=Number(d.today_kwh||0).toLocaleString("fr-FR",{minimumFractionDigits:1});
     }catch(e){}
