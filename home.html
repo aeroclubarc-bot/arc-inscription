@@ -265,6 +265,138 @@ a{text-decoration:none;color:inherit;}
 .ppv-section{background:white;padding:32px 24px;}
 .ppv-wrapper{max-width:1100px;margin:0 auto;}
 </style>
+
+<style id="arc-responsive">
+/* ═══════════════════════════════════════════
+   RESPONSIVE MOBILE — iPhone optimisé
+   Breakpoints: 768px tablet, 480px mobile
+═══════════════════════════════════════════ */
+@media(max-width:768px){
+
+  /* NAV */
+  .arc-nav-links,.arc-nav-cta{display:none!important;}
+  .arc-nav-burger{display:flex!important;}
+
+  /* HERO HOME — 2 colonnes → 1 colonne */
+  .hero-content{grid-template-columns:1fr!important;gap:24px!important;}
+  .hero-content>div:last-child{display:none!important;}
+  .hero h1{font-size:clamp(34px,9vw,56px)!important;}
+  .hero{min-height:auto!important;padding:80px 20px 48px!important;}
+  .hero-stats{gap:20px!important;flex-wrap:wrap!important;}
+  .stat-num{font-size:clamp(28px,7vw,42px)!important;}
+
+  /* HERO PAGES */
+  .page-hero{padding:56px 20px 40px!important;}
+  .page-hero h1{font-size:clamp(28px,8vw,48px)!important;}
+  .hero-club{padding:64px 20px 48px!important;}
+  .hero-club h1{font-size:clamp(36px,10vw,60px)!important;}
+
+  /* SECTIONS */
+  .section{padding:48px 20px!important;}
+  .container{padding:0 20px!important;}
+
+  /* GRILLES 2 colonnes → 1 */
+  .two-col,
+  .aero-grid,
+  .flotte-intro,
+  [style*="grid-template-columns:1fr 1fr"],
+  [style*="grid-template-columns: 1fr 1fr"]{
+    grid-template-columns:1fr!important;
+    gap:28px!important;
+  }
+
+  /* GRILLES 3 colonnes → 1 */
+  .info-grid,
+  .valeurs-grid,
+  .matieres,
+  .stats-grid,
+  .avions-ppl,
+  [style*="grid-template-columns:repeat(3"],
+  [style*="grid-template-columns: repeat(3"]{
+    grid-template-columns:1fr!important;
+    gap:14px!important;
+  }
+
+  /* GRILLES 4 colonnes → 2 */
+  .bureau-grid,
+  [style*="grid-template-columns:repeat(4"],
+  [style*="grid-template-columns:repeat(5"]{
+    grid-template-columns:1fr 1fr!important;
+    gap:12px!important;
+  }
+
+  /* FLOTTE */
+  .flotte-grid{grid-template-columns:1fr!important;}
+  .avion-full{grid-template-columns:1fr!important;min-height:auto!important;}
+  .avion-full-img img{min-height:200px!important;height:200px!important;}
+  .avion-full-body{padding:20px!important;}
+  .avion-full-specs{grid-template-columns:1fr 1fr!important;}
+
+  /* STEPS PPL */
+  .steps{gap:0!important;}
+  .step-item{grid-template-columns:48px 1fr!important;gap:16px!important;}
+  .step-num{width:48px!important;height:48px!important;font-size:18px!important;}
+
+  /* COMPARE LAPL/PPL */
+  .compare{grid-template-columns:1fr!important;}
+
+  /* CAMERA + WINDY */
+  [style*="flex:1.6"],[style*="flex:1.6;"]{flex:1 1 100%!important;min-width:0!important;}
+  [style*="flex:1"]{flex:1 1 100%!important;min-width:0!important;}
+  [style*="display:flex;gap:16px;flex-wrap:wrap"]{flex-direction:column!important;}
+
+  /* CONTACT */
+  .two-col.contact-grid,
+  .contact-grid{grid-template-columns:1fr!important;}
+  .form-row{grid-template-columns:1fr!important;}
+
+  /* PPV BADGE */
+  .hero-badge{font-size:11px!important;padding:5px 10px!important;flex-wrap:wrap!important;gap:4px!important;}
+
+  /* FOOTER */
+  .footer-inner{grid-template-columns:1fr!important;gap:24px!important;}
+
+  /* ACCUEIL QUICK LINKS */
+  .ql-grid{grid-template-columns:1fr 1fr!important;}
+  .accueil-stats{gap:24px!important;}
+
+  /* LECLUB PHOTOS */
+  .photos-grid{grid-template-columns:1fr 1fr!important;}
+  .photos-grid img:first-child{grid-column:span 2!important;height:180px!important;}
+  .photos-grid img{height:140px!important;}
+
+  /* TIMELINE */
+  .timeline{padding-left:24px!important;}
+
+  /* AIDES */
+  .aides{gap:10px!important;}
+
+  /* PPV STRIP */
+  .ppv-strip{gap:12px!important;padding:10px 16px!important;font-size:12px!important;}
+
+  /* CTA BUTTONS */
+  .accueil-ctas{flex-direction:column!important;align-items:center!important;}
+  .cta-buttons,[style*="display:flex;gap:14px"]{flex-direction:column!important;align-items:stretch!important;}
+
+  /* WINDY IFRAME */
+  iframe[src*="windy"]{height:220px!important;}
+}
+
+@media(max-width:480px){
+  /* iPhone SE / mini */
+  .hero h1{font-size:32px!important;}
+  .ql-grid{grid-template-columns:1fr!important;}
+  .bureau-grid{grid-template-columns:1fr!important;}
+  .avion-full-specs{grid-template-columns:1fr!important;}
+  .identite-grid{grid-template-columns:1fr!important;}
+  .photos-grid{grid-template-columns:1fr!important;}
+  .photos-grid img:first-child{grid-column:span 1!important;}
+  .hero-stats{gap:14px!important;}
+  .stat-num{font-size:28px!important;}
+  .arc-nav-inner{padding:0 16px!important;}
+  .section{padding:40px 16px!important;}
+}
+</style>
 </head>
 <body>
 
@@ -907,91 +1039,6 @@ a{text-decoration:none;color:inherit;}
         </div>
       </div>
       <a href="/tarifs" class="btn-primary">Rejoindre l'ARC & le CAP</a>
-    </div>
-  </div>
-</div>
-
-<!-- TARIFS RAPIDES -->
-<div class="section light">
-  <div class="container">
-    <p class="section-label">Tarifs 2026</p>
-    <h2 class="section-title">Transparence totale</h2>
-    <p class="section-lead">Tous nos tarifs sont affichés clairement. Pas de frais cachés.</p>
-    <div class="tarifs-grid">
-      <div class="tarif-card">
-        <div class="label">Adhésion ARC</div>
-        <div class="price">200 <span>€/an</span></div>
-        <div class="desc">Accès flotte complète + réseau CAP</div>
-      </div>
-      <div class="tarif-card">
-        <div class="label">Heure de vol D112</div>
-        <div class="price">130 <span>€/h</span></div>
-        <div class="desc">Carburant et assurance inclus</div>
-      </div>
-      <div class="tarif-card">
-        <div class="label">Heure de vol Robin</div>
-        <div class="price">155 <span>€/h</span></div>
-        <div class="desc">4 places — idéal voyage</div>
-      </div>
-      <div class="tarif-card">
-        <div class="label">Baptême de l'air</div>
-        <div class="price">100 <span>€</span></div>
-        <div class="desc">30 min — découverte en famille</div>
-      </div>
-    </div>
-    <div style="text-align:center;margin-top:28px;">
-      <a href="/tarifs" class="btn-primary">Voir tous les tarifs & s'inscrire</a>
-    </div>
-  </div>
-</div>
-
-<!-- AÉRODROME -->
-<div class="aero-section">
-  <div class="container">
-    <div class="aero-grid">
-      <div>
-        <p class="section-label">Nous trouver</p>
-        <h2 class="section-title">Aérodrome de<br>Chavenay LFPX</h2>
-        <p style="color:var(--gray);font-size:15px;line-height:1.6;margin-bottom:24px;">À 10 km de Versailles et 30 km de Paris par l'A13. Ouvert 7j/7 aux élèves et pilotes.</p>
-        <div class="info-list">
-          <div class="info-row">
-            <span class="ico">📍</span>
-            <div class="content">
-              <h4>Adresse</h4>
-              <p>Aérodrome de Chavenay-Villepreux, 78450 Chavenay</p>
-            </div>
-          </div>
-          <div class="info-row">
-            <span class="ico">📞</span>
-            <div class="content">
-              <h4>Téléphone</h4>
-              <p>01 34 62 30 75</p>
-            </div>
-          </div>
-          <div class="info-row">
-            <span class="ico">✉️</span>
-            <div class="content">
-              <h4>Email</h4>
-              <p><a href="/contact" style="color:var(--gold);">Nous contacter</a></p>
-            </div>
-          </div>
-          <div class="info-row">
-            <span class="ico">🕐</span>
-            <div class="content">
-              <h4>Ouverture</h4>
-              <p>7 jours sur 7 — Selon activité et météo</p>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div>
-        <div class="map-embed">
-          <iframe
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2628.7!2d1.9661!3d48.9702!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47e68b2f4b5c3a1d%3A0x1!2sA%C3%A9rodrome+de+Chavenay-Villepreux!5e0!3m2!1sfr!2sfr!4v1"
-            width="100%" height="360" style="border:0;display:block;" allowfullscreen loading="lazy">
-          </iframe>
-        </div>
-      </div>
     </div>
   </div>
 </div>

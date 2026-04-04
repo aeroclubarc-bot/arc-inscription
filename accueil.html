@@ -80,6 +80,138 @@ footer{background:var(--navy);padding:40px 24px;text-align:center;border-top:1px
 footer p{color:rgba(255,255,255,0.35);font-size:13px;line-height:1.8;}
 footer a{color:var(--gold);}
 </style>
+
+<style id="arc-responsive">
+/* ═══════════════════════════════════════════
+   RESPONSIVE MOBILE — iPhone optimisé
+   Breakpoints: 768px tablet, 480px mobile
+═══════════════════════════════════════════ */
+@media(max-width:768px){
+
+  /* NAV */
+  .arc-nav-links,.arc-nav-cta{display:none!important;}
+  .arc-nav-burger{display:flex!important;}
+
+  /* HERO HOME — 2 colonnes → 1 colonne */
+  .hero-content{grid-template-columns:1fr!important;gap:24px!important;}
+  .hero-content>div:last-child{display:none!important;}
+  .hero h1{font-size:clamp(34px,9vw,56px)!important;}
+  .hero{min-height:auto!important;padding:80px 20px 48px!important;}
+  .hero-stats{gap:20px!important;flex-wrap:wrap!important;}
+  .stat-num{font-size:clamp(28px,7vw,42px)!important;}
+
+  /* HERO PAGES */
+  .page-hero{padding:56px 20px 40px!important;}
+  .page-hero h1{font-size:clamp(28px,8vw,48px)!important;}
+  .hero-club{padding:64px 20px 48px!important;}
+  .hero-club h1{font-size:clamp(36px,10vw,60px)!important;}
+
+  /* SECTIONS */
+  .section{padding:48px 20px!important;}
+  .container{padding:0 20px!important;}
+
+  /* GRILLES 2 colonnes → 1 */
+  .two-col,
+  .aero-grid,
+  .flotte-intro,
+  [style*="grid-template-columns:1fr 1fr"],
+  [style*="grid-template-columns: 1fr 1fr"]{
+    grid-template-columns:1fr!important;
+    gap:28px!important;
+  }
+
+  /* GRILLES 3 colonnes → 1 */
+  .info-grid,
+  .valeurs-grid,
+  .matieres,
+  .stats-grid,
+  .avions-ppl,
+  [style*="grid-template-columns:repeat(3"],
+  [style*="grid-template-columns: repeat(3"]{
+    grid-template-columns:1fr!important;
+    gap:14px!important;
+  }
+
+  /* GRILLES 4 colonnes → 2 */
+  .bureau-grid,
+  [style*="grid-template-columns:repeat(4"],
+  [style*="grid-template-columns:repeat(5"]{
+    grid-template-columns:1fr 1fr!important;
+    gap:12px!important;
+  }
+
+  /* FLOTTE */
+  .flotte-grid{grid-template-columns:1fr!important;}
+  .avion-full{grid-template-columns:1fr!important;min-height:auto!important;}
+  .avion-full-img img{min-height:200px!important;height:200px!important;}
+  .avion-full-body{padding:20px!important;}
+  .avion-full-specs{grid-template-columns:1fr 1fr!important;}
+
+  /* STEPS PPL */
+  .steps{gap:0!important;}
+  .step-item{grid-template-columns:48px 1fr!important;gap:16px!important;}
+  .step-num{width:48px!important;height:48px!important;font-size:18px!important;}
+
+  /* COMPARE LAPL/PPL */
+  .compare{grid-template-columns:1fr!important;}
+
+  /* CAMERA + WINDY */
+  [style*="flex:1.6"],[style*="flex:1.6;"]{flex:1 1 100%!important;min-width:0!important;}
+  [style*="flex:1"]{flex:1 1 100%!important;min-width:0!important;}
+  [style*="display:flex;gap:16px;flex-wrap:wrap"]{flex-direction:column!important;}
+
+  /* CONTACT */
+  .two-col.contact-grid,
+  .contact-grid{grid-template-columns:1fr!important;}
+  .form-row{grid-template-columns:1fr!important;}
+
+  /* PPV BADGE */
+  .hero-badge{font-size:11px!important;padding:5px 10px!important;flex-wrap:wrap!important;gap:4px!important;}
+
+  /* FOOTER */
+  .footer-inner{grid-template-columns:1fr!important;gap:24px!important;}
+
+  /* ACCUEIL QUICK LINKS */
+  .ql-grid{grid-template-columns:1fr 1fr!important;}
+  .accueil-stats{gap:24px!important;}
+
+  /* LECLUB PHOTOS */
+  .photos-grid{grid-template-columns:1fr 1fr!important;}
+  .photos-grid img:first-child{grid-column:span 2!important;height:180px!important;}
+  .photos-grid img{height:140px!important;}
+
+  /* TIMELINE */
+  .timeline{padding-left:24px!important;}
+
+  /* AIDES */
+  .aides{gap:10px!important;}
+
+  /* PPV STRIP */
+  .ppv-strip{gap:12px!important;padding:10px 16px!important;font-size:12px!important;}
+
+  /* CTA BUTTONS */
+  .accueil-ctas{flex-direction:column!important;align-items:center!important;}
+  .cta-buttons,[style*="display:flex;gap:14px"]{flex-direction:column!important;align-items:stretch!important;}
+
+  /* WINDY IFRAME */
+  iframe[src*="windy"]{height:220px!important;}
+}
+
+@media(max-width:480px){
+  /* iPhone SE / mini */
+  .hero h1{font-size:32px!important;}
+  .ql-grid{grid-template-columns:1fr!important;}
+  .bureau-grid{grid-template-columns:1fr!important;}
+  .avion-full-specs{grid-template-columns:1fr!important;}
+  .identite-grid{grid-template-columns:1fr!important;}
+  .photos-grid{grid-template-columns:1fr!important;}
+  .photos-grid img:first-child{grid-column:span 1!important;}
+  .hero-stats{gap:14px!important;}
+  .stat-num{font-size:28px!important;}
+  .arc-nav-inner{padding:0 16px!important;}
+  .section{padding:40px 16px!important;}
+}
+</style>
 </head>
 <body>
 <nav id="arc-nav">
