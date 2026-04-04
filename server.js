@@ -15,28 +15,45 @@ app.use((req, res, next) => {
 });
 
 // ── REDIRECT / avant express.static ──────────────────────────────────
-// CRITIQUE : doit être AVANT app.use(express.static(...))
-// sinon express.static trouve index.html et le sert sur / directement
 app.get("/", (req, res) => res.redirect(301, "/home-arc"));
 
 // ── PROXY PPV ─────────────────────────────────────────────────────────
 app.get("/api/ppv/total", async (req, res) => {
   try {
-    const r = await fetch("https://ppv-production.up.railway.app/total");
+    const r = await fetch("https://ppv-production.up.railway.app/total", {
+      headers: { "Accept": "application/json", "User-Agent": "ARC-Proxy/1.0" }
+    });
+    // Vérifier que la réponse est bien du JSON
+    const contentType = r.headers.get("content-type") || "";
+    if (!r.ok || !contentType.includes("application/json")) {
+      const text = await r.text();
+      console.log("PPV total non-JSON response:", r.status, text.slice(0, 100));
+      return res.json({ total_kwh: 0, current_power_w: 0, error: "upstream_error" });
+    }
     const data = await r.json();
     res.json(data);
   } catch(e) {
-    res.status(502).json({ error: "PPV unavailable", total_kwh: 0, current_power_w: 0 });
+    console.log("PPV total fetch error:", e.message);
+    res.json({ total_kwh: 0, current_power_w: 0, error: e.message });
   }
 });
 
 app.get("/api/ppv/today", async (req, res) => {
   try {
-    const r = await fetch("https://ppv-production.up.railway.app/stats/today");
+    const r = await fetch("https://ppv-production.up.railway.app/stats/today", {
+      headers: { "Accept": "application/json", "User-Agent": "ARC-Proxy/1.0" }
+    });
+    const contentType = r.headers.get("content-type") || "";
+    if (!r.ok || !contentType.includes("application/json")) {
+      const text = await r.text();
+      console.log("PPV today non-JSON response:", r.status, text.slice(0, 100));
+      return res.json({ today_kwh: 0, error: "upstream_error" });
+    }
     const data = await r.json();
     res.json(data);
   } catch(e) {
-    res.status(502).json({ error: "PPV unavailable", today_kwh: 0 });
+    console.log("PPV today fetch error:", e.message);
+    res.json({ today_kwh: 0, error: e.message });
   }
 });
 
