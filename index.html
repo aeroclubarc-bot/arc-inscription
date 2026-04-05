@@ -1401,27 +1401,51 @@ async function payWithStripe() {
 // ── ENVOI DES DONNÉES DU FORMULAIRE AU BUREAU ─────────────────────────
 async function submitInscription(montantPaye, stripePaymentId) {
   try {
-    const getVal = id => { const el = document.getElementById(id); return el ? el.value : ''; };
-    const getChecked = name => [...document.querySelectorAll('input[name="' + name + '"]:checked')].map(i => i.value).join(', ');
+    const getVal = id => { const el = document.getElementById(id); return el ? (el.value || '') : ''; };
+    const getChecked = name => [...document.querySelectorAll('input[name="' + name + '"]:checked')].map(i => i.value).join(', ') || 'Aucun';
     const getRadio = name => { const el = document.querySelector('input[name="' + name + '"]:checked'); return el ? el.value : ''; };
     const ffaCard = document.querySelector('#ffa_grid .coti-card.selected .name');
     const arcCard = document.querySelector('.coti-grid .coti-card.selected .name');
     const optionsSelected = [...document.querySelectorAll('.option-row.selected .opt-name')].map(el => el.textContent).join(', ') || 'Aucune';
 
     const data = {
+      // Identité
       nom: getVal('nom'), prenom: getVal('prenom'),
       date_naissance: getVal('ddn'), lieu_naissance: getVal('lieu_naissance'),
       nationalite: getVal('nationalite'), sexe: getRadio('sexe'),
       profession: getVal('profession'), employeur: getVal('employeur'),
+      // Coordonnées
       adresse: getVal('adresse'), cp: getVal('cp'), ville: getVal('ville'),
       tel: getVal('tel'), mobile: getVal('mobile'), email: getVal('email'),
+      // Urgence
       urgence_nom: getVal('urgence_nom'), urgence_tel: getVal('urgence_tel'),
       beneficiaire_nom: getVal('beneficiaire_nom'), beneficiaire_tel: getVal('beneficiaire_tel'),
+      // Niveau pilote
       statuts: getChecked('statut'),
-      licence_ffa: getVal('licence_ffa'), licence_cpl: getVal('licence_cpl'),
+      qualifications: getChecked('qual'),
+      // Licences
+      licence_ffa: getVal('licence_ffa'),
+      licence_cpl: getVal('licence_cpl'),
       date_obtention: getVal('date_obtention'),
-      cotisation_arc: arcCard ? arcCard.textContent : 'Non sélectionnée',
-      cotisation_ffa: ffaCard ? ffaCard.textContent : 'Non sélectionnée',
+      date_validite: getVal('date_validite'),
+      // Visite médicale
+      medical: getChecked('med'),
+      med_validite: getVal('med_validite'),
+      // TW
+      tw_date: getVal('tw_date'),
+      // Carnet de vol
+      total_dc: getVal('total_dc'),
+      total_cdb: getVal('total_cdb'),
+      total_att: getVal('total_att'),
+      mois_dc: getVal('mois_dc'),
+      mois_cdb: getVal('mois_cdb'),
+      mois_att: getVal('mois_att'),
+      tw_dc: getVal('tw_dc'),
+      tw_cdb: getVal('tw_cdb'),
+      tw_att: getVal('tw_att'),
+      // Cotisations
+      cotisation_arc: arcCard ? arcCard.textContent.trim() : 'Non sélectionnée',
+      cotisation_ffa: ffaCard ? ffaCard.textContent.trim() : 'Non sélectionnée',
       options_ffa: optionsSelected,
       code_promo: activePromo ? activePromo.code + ' (' + activePromo.label + ')' : 'Aucun',
       montant_paye: montantPaye + ' €',

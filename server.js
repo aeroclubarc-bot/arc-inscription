@@ -110,37 +110,66 @@ app.post("/api/inscription/submit", async (req, res) => {
     const d = req.body;
 
     const emailBody = `NOUVELLE ADHÉSION — AÉROCLUB A.R.C.
+════════════════════════════════════════
 Date : ${d.date_inscription}
 Stripe ID : ${d.stripe_payment_id}
-Montant : ${d.montant_paye}
+Montant réglé : ${d.montant_paye}
 Code promo : ${d.code_promo || 'Aucun'}
 
 ══ IDENTITÉ ══
 Nom : ${d.nom} ${d.prenom}
-Naissance : ${d.date_naissance} à ${d.lieu_naissance}
-Nationalité : ${d.nationalite} | Sexe : ${d.sexe}
-Profession : ${d.profession} — ${d.employeur}
+Date de naissance : ${d.date_naissance}
+Lieu de naissance : ${d.lieu_naissance}
+Nationalité : ${d.nationalite}
+Sexe : ${d.sexe}
+Profession : ${d.profession}
+Employeur : ${d.employeur}
 
 ══ COORDONNÉES ══
-${d.adresse}, ${d.cp} ${d.ville}
-Tél : ${d.tel} | Mobile : ${d.mobile}
+Adresse : ${d.adresse}, ${d.cp} ${d.ville}
+Téléphone : ${d.tel}
+Mobile : ${d.mobile}
 Email : ${d.email}
 
-══ URGENCE ══
-${d.urgence_nom} — ${d.urgence_tel}
-Bénéficiaire : ${d.beneficiaire_nom} — ${d.beneficiaire_tel}
+══ CONTACT D'URGENCE ══
+Nom : ${d.urgence_nom} — Tél : ${d.urgence_tel}
+Bénéficiaire assurance : ${d.beneficiaire_nom} — ${d.beneficiaire_tel}
 
-══ STATUT PILOTE ══
-Statuts : ${d.statuts}
-Licence FFA : ${d.licence_ffa}
-Licence CPL/ATPL : ${d.licence_cpl}
-Date obtention : ${d.date_obtention}
+══ NIVEAU PILOTE ══
+Statut(s) : ${d.statuts}
+Qualification(s) : ${d.qualifications}
 
-══ COTISATIONS ══
-ARC : ${d.cotisation_arc}
-FFA : ${d.cotisation_ffa}
-Options : ${d.options_ffa}
-TOTAL PAYÉ : ${d.montant_paye}`;
+══ LICENCES & CERTIFICATS ══
+N° Licence FFA : ${d.licence_ffa || 'Non renseigné'}
+N° Licence CPL/PPL/LAPL : ${d.licence_cpl || 'Non renseigné'}
+Date d'obtention : ${d.date_obtention || 'Non renseignée'}
+Date de validité : ${d.date_validite || 'Non renseignée'}
+
+══ VISITE MÉDICALE ══
+Classe médicale : ${d.medical}
+Validité certificat médical : ${d.med_validite || 'Non renseignée'}
+
+══ QUALIFICATION TW ══
+Date d'obtention TW : ${d.tw_date || 'Non renseignée'}
+
+══ EXPÉRIENCE AÉRONAUTIQUE (CARNET DE VOL) ══
+                  Total      12 mois
+Heures DC :       ${String(d.total_dc||0).padStart(6)}     ${String(d.mois_dc||0).padStart(6)}
+Heures CDB :      ${String(d.total_cdb||0).padStart(6)}     ${String(d.mois_cdb||0).padStart(6)}
+Atterrissages :   ${String(d.total_att||0).padStart(6)}     ${String(d.mois_att||0).padStart(6)}
+
+TW spécifique :
+Heures DC TW :    ${d.tw_dc || 0}
+Heures CDB TW :   ${d.tw_cdb || 0}
+Atterrissages TW : ${d.tw_att || 0}
+
+══ COTISATIONS CHOISIES ══
+Adhésion ARC : ${d.cotisation_arc}
+Formule FFA : ${d.cotisation_ffa}
+Options FFA : ${d.options_ffa}
+Code promo : ${d.code_promo}
+TOTAL RÉGLÉ : ${d.montant_paye}
+════════════════════════════════════════`;
 
     const resendKey = process.env.RESEND_API_KEY;
     const destEmail = process.env.DEST_EMAIL || "aeroclubarc@gmail.com";
