@@ -321,6 +321,32 @@ async function loadPPV(){
   }catch(e){}
 }
 
+// Mise à jour widget sticky nav
+function updateSticky(kw, total, today){
+  var el;
+  var sd=document.getElementById('ppv-s-dot');
+  if(sd){sd.classList.toggle('on',kw>0.2);}
+  el=document.getElementById('ppv-s-kw');if(el)el.innerText=kw.toFixed(2);
+  el=document.getElementById('ppv-s-total');if(el)el.innerText=total.toLocaleString('fr-FR',{maximumFractionDigits:0});
+  if(today!==null){
+    el=document.getElementById('ppv-s-today');if(el)el.innerText=Number(today).toLocaleString('fr-FR',{minimumFractionDigits:1,maximumFractionDigits:1});
+  }
+}
+
+// Patch loadPPV pour alimenter aussi le sticky
+var _origLoadPPV = loadPPV;
+loadPPV = async function(){
+  await _origLoadPPV();
+  // Récupérer les valeurs déjà mises à jour dans le DOM
+  var kwEl = document.getElementById('ppv-kw');
+  var totalEl = document.getElementById('ppv-total');
+  var todayEl = document.getElementById('ppv-today');
+  var kw = kwEl ? parseFloat(kwEl.textContent)||0 : 0;
+  var total = totalEl ? parseFloat((totalEl.textContent||'0').replace(/\s/g,'').replace(',','.'))||0 : 0;
+  var today = todayEl ? parseFloat((todayEl.textContent||'0').replace(',','.'))||0 : null;
+  updateSticky(kw, total, today);
+};
+
 // Init
 drawGauge(0);
 loadPPV();
