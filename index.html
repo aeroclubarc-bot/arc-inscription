@@ -434,6 +434,82 @@
   .btn-next:hover { background: var(--blue); }
   .btn-next:disabled { background: var(--light); color: var(--gray); cursor: not-allowed; }
 
+
+  /* Code promo */
+  .promo-section {
+    margin-bottom: 20px;
+  }
+  .promo-section .section-sub {
+    margin-bottom: 10px;
+  }
+  .promo-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .promo-input {
+    flex: 1;
+    padding: 10px 14px;
+    border: 1.5px solid var(--light);
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: 'Inter', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--navy);
+    background: white;
+    transition: border-color 0.2s;
+    outline: none;
+  }
+  .promo-input:focus { border-color: var(--sky); }
+  .promo-input.valid { border-color: #2e7d32; background: #f1f8f1; }
+  .promo-input.invalid { border-color: #e53e3e; background: #fff5f5; }
+  .promo-btn {
+    padding: 10px 18px;
+    background: var(--navy);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    transition: background 0.2s;
+    white-space: nowrap;
+  }
+  .promo-btn:hover { background: var(--blue); }
+  .promo-feedback {
+    margin-top: 7px;
+    font-size: 12px;
+    font-weight: 600;
+    min-height: 16px;
+  }
+  .promo-feedback.ok { color: #2e7d32; }
+  .promo-feedback.ko { color: #e53e3e; }
+  .promo-applied {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(46,125,50,0.08);
+    border: 1px solid rgba(46,125,50,0.25);
+    border-radius: 4px;
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #2e7d32;
+    margin-top: 6px;
+  }
+  .promo-remove {
+    background: none;
+    border: none;
+    color: #e53e3e;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 0 2px;
+    line-height: 1;
+  }
+
   /* Stripe payment */
   .stripe-section {
     margin-top: 24px;
@@ -937,6 +1013,22 @@
         <div class="total-amount" id="total_display2">0 €</div>
       </div>
 
+      <!-- Code promo -->
+      <div class="promo-section">
+        <div class="section-sub">Code promotionnel</div>
+        <div class="promo-row">
+          <input type="text" class="promo-input" id="promo-input" placeholder="VOTRE CODE" maxlength="20" oninput="this.value=this.value.toUpperCase()">
+          <button class="promo-btn" onclick="applyPromo()">Appliquer</button>
+        </div>
+        <div class="promo-feedback" id="promo-feedback"></div>
+        <div id="promo-tag" style="display:none;">
+          <div class="promo-applied">
+            <span id="promo-tag-label">Code appliqué</span>
+            <button class="promo-remove" onclick="removePromo()" title="Retirer le code">✕</button>
+          </div>
+        </div>
+      </div>
+
       <div class="section-sub">Engagements obligatoires</div>
       <div class="validation-box">
         <div class="validation-check" id="check1_wrap" onclick="toggleValidation('check1')">
@@ -1009,11 +1101,92 @@ function getTotal() {
   return t;
 }
 
+
+// ── CODES PROMO ──────────────────────────────────────────────────────
+// Ajouter / modifier les codes ici
+// Codes promo — s'appliquent UNIQUEMENT sur la cotisation ARC (state.arcAmount)
+// Pas d'effet sur la licence FFA, l'assurance, les options FFA ni la caution
+const PROMO_CODES = {
+  'POUF2026':  { type: 'percent', value: 10,  label: '-10% sur l\'adhésion ARC' },
+  'PILOTE50':  { type: 'fixed',   value: 50,  label: '-50 € sur l\'adhésion ARC' },
+  'FAMILLE':   { type: 'percent', value: 15,  label: '-15% sur l\'adhésion ARC' },
+};
+
+let activePromo = null;
+
+function applyPromo() {
+  const code = document.getElementById('promo-input').value.trim().toUpperCase();
+  const input = document.getElementById('promo-input');
+  const fb = document.getElementById('promo-feedback');
+  const tag = document.getElementById('promo-tag');
+
+  if (!code) {
+    fb.textContent = 'Veuillez saisir un code.';
+    fb.className = 'promo-feedback ko';
+    return;
+  }
+  if (PROMO_CODES[code]) {
+    activePromo = { code, ...PROMO_CODES[code] };
+    input.className = 'promo-input valid';
+    fb.textContent = '✓ Code accepté — ' + PROMO_CODES[code].label;
+    fb.className = 'promo-feedback ok';
+    document.getElementById('promo-tag-label').textContent = code + ' (' + PROMO_CODES[code].label + ')';
+    tag.style.display = 'block';
+    updateTotalDisplay();
+  } else {
+    activePromo = null;
+    input.className = 'promo-input invalid';
+    fb.textContent = '✗ Code invalide ou expiré.';
+    fb.className = 'promo-feedback ko';
+    tag.style.display = 'none';
+    updateTotalDisplay();
+  }
+}
+
+function removePromo() {
+  activePromo = null;
+  const input = document.getElementById('promo-input');
+  input.value = '';
+  input.className = 'promo-input';
+  document.getElementById('promo-feedback').textContent = '';
+  document.getElementById('promo-tag').style.display = 'none';
+  updateTotalDisplay();
+}
+
+function getTotalAfterPromo() {
+  const base = getTotal();
+  if (!activePromo || state.arcAmount <= 0) return base;
+  // La réduction s'applique UNIQUEMENT sur la cotisation ARC (frais d'inscription)
+  // Sont exclus : licence FFA, assurance, options FFA, caution (FIXED_OPTIONS)
+  let arcDiscounted;
+  if (activePromo.type === 'percent') {
+    arcDiscounted = Math.round(state.arcAmount * (1 - activePromo.value / 100));
+  } else {
+    arcDiscounted = Math.max(0, state.arcAmount - activePromo.value);
+  }
+  // Total = cotisation ARC réduite + tout le reste (FFA + options + caution)
+  const rest = base - state.arcAmount;
+  return arcDiscounted + rest;
+}
+
 function updateTotalDisplay() {
-  const t = getTotal();
-  document.getElementById('total_display').textContent = t + ' €';
-  document.getElementById('total_display2').textContent = t + ' €';
-  document.getElementById('stripe_amount').textContent = t + ' €';
+  const base = getTotal();
+  const t = getTotalAfterPromo();
+  const display2 = document.getElementById('total_display2');
+  if (display2) {
+    if (activePromo && t !== base) {
+      const saving = base - t;
+      display2.innerHTML = '<span style="text-decoration:line-through;opacity:0.4;font-size:20px;margin-right:8px;">' + base + ' €</span>'
+        + '<span style="color:var(--gold);">' + t + ' €</span>'
+        + '<span style="display:block;font-size:11px;color:#4caf50;margin-top:3px;">dont ' + saving + ' € de réduction sur l\'adhésion ARC</span>';
+    } else {
+      display2.textContent = t + ' €';
+    }
+  }
+  const display1 = document.getElementById('total_display');
+  if (display1) display1.textContent = t + ' €';
+  const stripeAmt = document.getElementById('stripe_amount');
+  if (stripeAmt) stripeAmt.textContent = t + ' €';
   checkPayPalReady();
 }
 
