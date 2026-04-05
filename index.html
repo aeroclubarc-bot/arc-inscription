@@ -434,23 +434,45 @@
   .btn-next:hover { background: var(--blue); }
   .btn-next:disabled { background: var(--light); color: var(--gray); cursor: not-allowed; }
 
-  /* PayPal button */
-  .paypal-section {
+  /* Stripe payment */
+  .stripe-section {
     margin-top: 24px;
     text-align: center;
   }
-  .paypal-note {
+  .stripe-note {
     font-size: 12px;
     color: var(--gray);
     margin-bottom: 16px;
     line-height: 1.5;
   }
-  .paypal-btn {
+  #stripe-card-element {
+    border: 1.5px solid var(--light);
+    border-radius: 6px;
+    padding: 12px 14px;
+    background: white;
+    margin-bottom: 14px;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+    transition: border-color 0.2s;
+  }
+  #stripe-card-element.StripeElement--focus { border-color: var(--sky); }
+  #stripe-card-element.StripeElement--invalid { border-color: #e53e3e; }
+  #stripe-card-errors {
+    color: #e53e3e;
+    font-size: 12px;
+    margin-bottom: 10px;
+    min-height: 16px;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .stripe-btn {
     display: inline-flex;
     align-items: center;
     gap: 10px;
-    background: #FFC439;
-    color: #003087;
+    background: var(--sky);
+    color: white;
     border: none;
     border-radius: 6px;
     padding: 14px 32px;
@@ -458,13 +480,13 @@
     font-weight: 700;
     cursor: pointer;
     transition: all 0.2s;
-    text-decoration: none;
     width: 100%;
     justify-content: center;
     max-width: 400px;
+    font-family: 'Inter', sans-serif;
   }
-  .paypal-btn:hover { background: #f0b429; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(255,196,57,0.4); }
-  .paypal-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+  .stripe-btn:hover { background: var(--blue); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(45,107,228,0.35); }
+  .stripe-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
   .paypal-logo { font-size: 20px; }
 
   /* Step visibility */
@@ -513,6 +535,7 @@
   }
   .success-icon svg { width: 32px; height: 32px; color: white; }
 </style>
+<script src="https://js.stripe.com/v3/" defer></script>
 </head>
 <body>
 
@@ -940,16 +963,17 @@
         </div>
       </div>
 
-      <div class="paypal-section">
-        <p class="paypal-note">
-          Une fois vos engagements validés, cliquez sur le bouton ci-dessous pour régler votre adhésion via PayPal.<br>
-          Votre adhésion ne sera effective qu'après validation du Bureau directeur.
+      <div class="stripe-section">
+        <p class="stripe-note">
+          Réglez votre adhésion par carte bancaire (Visa, Mastercard, American Express).<br>
+          Paiement 100% sécurisé — sans compte requis. Votre adhésion sera effective après validation du Bureau directeur.
         </p>
-        <button class="paypal-btn" id="paypal_btn" onclick="payWithPayPal()" disabled>
-          <span class="paypal-logo">P</span>
-          Régler avec PayPal — <span id="paypal_amount">0 €</span>
+        <div id="stripe-card-element"></div>
+        <div id="stripe-card-errors"></div>
+        <button class="stripe-btn" id="stripe-pay-btn" onclick="payWithStripe()" disabled>
+          🔒 Régler — <span id="stripe_amount">0 €</span>
         </button>
-        <p class="paypal-note" style="margin-top:12px;">
+        <p class="stripe-note" style="margin-top:12px;">
           Virement possible : IBAN FR76 1751 5006 0008 9428 4831 226 — BIC CEPAFRPP751<br>
           Chèques à l'ordre de l'Aéroclub ARC acceptés également.
         </p>
@@ -989,15 +1013,15 @@ function updateTotalDisplay() {
   const t = getTotal();
   document.getElementById('total_display').textContent = t + ' €';
   document.getElementById('total_display2').textContent = t + ' €';
-  document.getElementById('paypal_amount').textContent = t + ' €';
+  document.getElementById('stripe_amount').textContent = t + ' €';
   checkPayPalReady();
 }
 
 function checkPayPalReady() {
-  const btn = document.getElementById('paypal_btn');
-  if (state.checks.check1 && state.checks.check2 && getTotal() > 0 && state.arcAmount > 0) {
+  const btn = document.getElementById('stripe-pay-btn');
+  if (btn && state.checks.check1 && state.checks.check2 && getTotal() > 0 && state.arcAmount > 0) {
     btn.disabled = false;
-  } else {
+  } else if (btn) {
     btn.disabled = true;
   }
 }
@@ -1114,21 +1138,90 @@ function toggleValidation(id) {
   checkPayPalReady();
 }
 
-// PayPal
-function payWithPayPal() {
+// Stripe — initialisé après chargement complet du DOM et du SDK
+let stripe, cardElement;
+
+function initStripe() {
+  if (typeof Stripe === 'undefined') {
+    setTimeout(initStripe, 100); // Réessayer si Stripe.js pas encore chargé
+    return;
+  }
+  stripe = Stripe('pk_live_51TIsWvFQt7eOzCbraGf6ZOa5Pnhh9jYG2Pxwf2PPmnxAMLaj2f4g7bbHZkQkAfSOcorxxBZAtdsp9BVFwKYGX4ma00Kgh4hobO');
+  const elements = stripe.elements();
+  cardElement = elements.create('card', {
+    style: {
+      base: {
+        fontSize: '15px',
+        fontFamily: 'Inter, sans-serif',
+        color: '#0a1628',
+        '::placeholder': { color: '#9ca3af' }
+      },
+      invalid: { color: '#e53e3e' }
+    },
+    hidePostalCode: true
+  });
+  cardElement.mount('#stripe-card-element');
+  cardElement.on('change', function(e) {
+    const el = document.getElementById('stripe-card-errors');
+    if (el) el.textContent = e.error ? e.error.message : '';
+  });
+}
+
+document.addEventListener('DOMContentLoaded', initStripe);
+
+async function payWithStripe() {
   const total = getTotal();
   if (total === 0) return;
-  const nom = document.getElementById('nom').value || 'Adhérent';
-  const prenom = document.getElementById('prenom').value || '';
-  const desc = encodeURIComponent('Adhésion ARC 2026 - ' + prenom + ' ' + nom);
-  const url = 'https://www.paypal.com/cgi-bin/webscr?cmd=_xclick' +
-    '&business=aeroclubarc%40gmail.com' +
-    '&item_name=' + desc +
-    '&amount=' + total +
-    '&currency_code=EUR' +
-    '&return=' + encodeURIComponent(window.location.href + '?success=1') +
-    '&cancel_return=' + encodeURIComponent(window.location.href);
-  window.open(url, '_blank');
+  const btn = document.getElementById('stripe-pay-btn');
+  btn.disabled = true;
+  btn.textContent = 'Traitement en cours...';
+
+  const nom = (document.getElementById('nom').value || '').trim();
+  const prenom = (document.getElementById('prenom').value || '').trim();
+  const email = (document.getElementById('email').value || '').trim();
+
+  try {
+    // 1. Créer le PaymentIntent côté serveur
+    const resp = await fetch('/api/stripe/create-payment-intent', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        amount: total,
+        email: email,
+        name: prenom + ' ' + nom,
+        description: 'Adhésion ARC 2026 — ' + prenom + ' ' + nom
+      })
+    });
+    const data = await resp.json();
+    if (!resp.ok || !data.clientSecret) throw new Error(data.error || 'Erreur serveur');
+
+    // 2. Confirmer le paiement avec la carte
+    const result = await stripe.confirmCardPayment(data.clientSecret, {
+      payment_method: {
+        card: cardElement,
+        billing_details: { name: prenom + ' ' + nom, email: email }
+      }
+    });
+
+    if (result.error) {
+      const el = document.getElementById('stripe-card-errors');
+      if (el) el.textContent = result.error.message;
+      btn.disabled = false;
+      btn.innerHTML = '🔒 Régler — <span id="stripe_amount">' + total + ' €</span>';
+    } else {
+      // Succès
+      btn.textContent = '✅ Paiement accepté !';
+      btn.style.background = '#2e7d32';
+      setTimeout(() => {
+        alert('✅ Paiement de ' + total + ' € accepté. Votre adhésion sera validée par le Bureau directeur. Un email de confirmation vous sera envoyé à ' + email + '.');
+      }, 300);
+    }
+  } catch(e) {
+    const el = document.getElementById('stripe-card-errors');
+    if (el) el.textContent = 'Erreur : ' + e.message;
+    btn.disabled = false;
+    btn.innerHTML = '🔒 Régler — <span id="stripe_amount">' + total + ' €</span>';
+  }
 }
 
 // Init — AUDACE + Caution toujours dans le total
