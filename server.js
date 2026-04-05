@@ -1,6 +1,7 @@
 import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
+import { Resend } from "resend";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -79,6 +80,28 @@ app.post("/api/stripe/create-payment-intent", async (req, res) => {
   }
 });
 
+
+// ── TEST EMAIL ────────────────────────────────────────────────────────
+// Appeler /api/test-email pour vérifier que Resend fonctionne
+app.get("/api/test-email", async (req, res) => {
+  const resendKey = process.env.RESEND_API_KEY;
+  const destEmail = process.env.DEST_EMAIL || "aeroclubarc@gmail.com";
+  if (!resendKey) return res.json({ error: "RESEND_API_KEY manquante" });
+  try {
+    const resend = new Resend(resendKey);
+    const { data, error } = await resend.emails.send({
+      from: "Test ARC <onboarding@resend.dev>",
+      to: [destEmail],
+      subject: "[ARC] Test email Railway",
+      text: "Test email depuis Railway — si vous recevez ceci, Resend fonctionne correctement.",
+    });
+    if (error) return res.status(400).json({ error: error.message, detail: error });
+    res.json({ ok: true, emailId: data.id, sentTo: destEmail });
+  } catch(e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // ── INSCRIPTION SUBMIT — email récapitulatif au bureau ─────────────────
 // Variable Railway à ajouter : RESEND_API_KEY = re_XXXX...
 // Créer un compte gratuit sur resend.com → API Keys → Create
@@ -120,35 +143,31 @@ Options : ${d.options_ffa}
 TOTAL PAYÉ : ${d.montant_paye}`;
 
     const resendKey = process.env.RESEND_API_KEY;
+    const destEmail = process.env.DEST_EMAIL || "aeroclubarc@gmail.com";
+
+    console.log(`[ARC] Nouvelle adhésion reçue — ${d.prenom} ${d.nom} — Resend key: ${resendKey ? "OK" : "MANQUANTE"} — dest: ${destEmail}`);
 
     if (!resendKey) {
-      // Fallback — log dans les logs Railway si pas de clé
-      console.log("=== NOUVELLE ADHÉSION ===\n" + emailBody);
+      console.log("=== NOUVELLE ADHÉSION (pas de clé Resend) ===\n" + emailBody);
       return res.json({ ok: true, warning: "Email non envoyé — RESEND_API_KEY manquante" });
     }
 
-    const r = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${resendKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        from: "Formulaire ARC <onboarding@resend.dev>",
-        to: ["aeroclubarc@gmail.com"],
-        subject: `[ARC] Adhésion — ${d.prenom} ${d.nom} — ${d.montant_paye}`,
-        text: emailBody,
-      }),
+    const resend = new Resend(resendKey);
+    const { data, error } = await resend.emails.send({
+      from: "Formulaire ARC <onboarding@resend.dev>",
+      to: [destEmail],
+      reply_to: d.email || destEmail,
+      subject: `[ARC] Adhésion — ${d.prenom} ${d.nom} — ${d.montant_paye}`,
+      text: emailBody,
     });
 
-    const result = await r.json();
-    if (!r.ok) {
-      console.error("Resend error:", result);
-      return res.status(500).json({ error: result.message || "Erreur Resend" });
+    if (error) {
+      console.error("Resend error:", error);
+      return res.status(500).json({ error: error.message || "Erreur Resend" });
     }
 
-    console.log(`Email envoyé pour ${d.prenom} ${d.nom} — ID: ${result.id}`);
-    res.json({ ok: true, emailId: result.id });
+    console.log(`Email envoyé pour ${d.prenom} ${d.nom} — ID: ${data.id}`);
+    res.json({ ok: true, emailId: data.id });
   } catch(e) {
     console.error("Erreur inscription submit:", e.message);
     res.status(500).json({ error: e.message });
