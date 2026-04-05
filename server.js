@@ -311,6 +311,8 @@ app.get("/contact", (req, res) => res.sendFile(path.join(__dirname, "contact.htm
 app.get("/tarifs", (req, res) => res.sendFile(path.join(__dirname, "index.html")));
 app.get("/adhesion", (req, res) => res.sendFile(path.join(__dirname, "index.html")));
 app.get("/inscription", (req, res) => res.sendFile(path.join(__dirname, "index.html")));
+app.get("/sitemap.xml", (req, res) => { res.setHeader("Content-Type", "application/xml"); res.sendFile(path.join(__dirname, "sitemap.xml")); });
+app.get("/robots.txt", (req, res) => { res.setHeader("Content-Type", "text/plain"); res.send("User-agent: *\nAllow: /\nDisallow: /tarifs\nDisallow: /inscription\nDisallow: /adhesion\nSitemap: https://www.aeroclub-arc.fr/sitemap.xml\n"); });
 app.get("/statuts", (req, res) => res.sendFile(path.join(__dirname, "statuts.html")));
 app.get("/reglement", (req, res) => res.sendFile(path.join(__dirname, "reglement.html")));
 
