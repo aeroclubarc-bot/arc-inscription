@@ -212,11 +212,47 @@ footer a{color:var(--gold);}
   .section{padding:40px 16px!important;}
 }
 </style>
+
+<style id="ppv-sticky-style">
+#ppv-sticky{
+  position:sticky;
+  top:64px; /* hauteur de la navbar */
+  z-index:999;
+  background:rgba(27,94,32,0.92);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid rgba(255,255,255,0.08);
+  padding:6px 24px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:16px;
+  cursor:pointer;
+  transition:background 0.2s;
+  font-family:'Inter',sans-serif;
+  text-decoration:none;
+  flex-wrap:wrap;
+}
+#ppv-sticky:hover{background:rgba(27,94,32,1);}
+.ppv-s-dot{
+  width:7px;height:7px;border-radius:50%;
+  background:#9e9e9e;flex-shrink:0;transition:all 0.3s;
+}
+.ppv-s-dot.on{background:#a5d6a7;box-shadow:0 0 6px #81c784;}
+.ppv-s-label{font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.6);}
+.ppv-s-val{font-size:13px;font-weight:700;color:white;}
+.ppv-s-sep{color:rgba(255,255,255,0.2);font-size:12px;}
+.ppv-s-link{font-size:11px;color:rgba(255,255,255,0.4);margin-left:4px;}
+@media(max-width:480px){
+  #ppv-sticky{gap:8px;padding:5px 16px;}
+  .ppv-s-label{display:none;}
+  .ppv-s-link{display:none;}
+}
+</style>
 </head>
 <body>
 <nav id="arc-nav">
   <div class="arc-nav-inner">
-    <a href="/home-arc" class="arc-nav-logo"><img src="https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69c8ee72f60e3ec233a5a847_Logo%20ARC%20II%20FR.png" alt="ARC" height="52" style="filter:brightness(1.1);"></a>
+    <a href="/home-arc" class="arc-nav-logo" style="display:flex;align-items:center;background:rgba(255,255,255,0.95);border-radius:6px;padding:3px 8px;"><img src="https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69c8ee72f60e3ec233a5a847_Logo%20ARC%20II%20FR.png" alt="Aéroclub ARC" height="46" style="display:block;"></a>
     <ul class="arc-nav-links">
       <li><a href="/leclub">Le Club</a></li>
       <li><a href="/la-flotte">La Flotte</a></li>
@@ -240,6 +276,18 @@ footer a{color:var(--gold);}
     <li><a href="/tarifs" class="arc-nav-cta-mobile">Adhésion 2026</a></li>
   </ul>
 </nav>
+
+<a id="ppv-sticky" href="/ppv" title="Production solaire en direct — cliquer pour le détail">
+  <span class="ppv-s-dot" id="ppv-s-dot"></span>
+  <span class="ppv-s-label">☀️ Aéroclub Vert</span>
+  <span class="ppv-s-sep">·</span>
+  <span class="ppv-s-val"><span id="ppv-s-kw">--</span> kW</span>
+  <span class="ppv-s-sep">·</span>
+  <span class="ppv-s-val"><span id="ppv-s-total">--</span> kWh total</span>
+  <span class="ppv-s-sep">·</span>
+  <span class="ppv-s-val">Aujourd'hui : <span id="ppv-s-today">--</span> kWh</span>
+  <span class="ppv-s-link">Voir le détail →</span>
+</a>
 
 <!-- BANDEAU PPV -->
 <div class="ppv-strip" onclick="window.location.href='/'">
@@ -356,6 +404,11 @@ footer a{color:var(--gold);}
       el=document.getElementById("badge-power");if(el)el.innerText=kw.toFixed(2)+" kW";
       el=document.getElementById("badge-total");if(el)el.innerText=total.toLocaleString("fr-FR",{maximumFractionDigits:0})+" kWh";
       var dot2=document.getElementById("ppv-dot-hero");if(dot2){dot2.style.background=on?"#4caf50":"#9e9e9e";dot2.style.boxShadow=on?"0 0 6px #66bb6a":"none";}
+      // Widget sticky nav
+      var sd=document.getElementById("ppv-s-dot");
+      if(sd){sd.classList.toggle("on",on);}
+      el=document.getElementById("ppv-s-kw");if(el)el.innerText=kw.toFixed(2);
+      el=document.getElementById("ppv-s-total");if(el)el.innerText=total.toLocaleString("fr-FR",{maximumFractionDigits:0});
       el=document.getElementById("ppv-total");if(el)el.innerText=total.toLocaleString("fr-FR",{maximumFractionDigits:0});
       el=document.getElementById("ppv-power");if(el)el.innerText=kw.toFixed(2);
       el=document.getElementById("ppv-hours");if(el)el.innerText=h.toFixed(1);
@@ -376,6 +429,7 @@ footer a{color:var(--gold);}
       var d=JSON.parse(text);
       var el=document.getElementById("modal-today");
       if(el)el.innerText=Number(d.today_kwh||0).toLocaleString("fr-FR",{minimumFractionDigits:1});
+            el=document.getElementById("ppv-s-today");if(el)el.innerText=Number(d.today_kwh||0).toLocaleString("fr-FR",{minimumFractionDigits:1,maximumFractionDigits:1});
     }catch(e){}
   }
   update();updateToday();

@@ -405,13 +405,49 @@ a{text-decoration:none;color:inherit;}
   .section{padding:40px 16px!important;}
 }
 </style>
+
+<style id="ppv-sticky-style">
+#ppv-sticky{
+  position:sticky;
+  top:64px; /* hauteur de la navbar */
+  z-index:999;
+  background:rgba(27,94,32,0.92);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid rgba(255,255,255,0.08);
+  padding:6px 24px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:16px;
+  cursor:pointer;
+  transition:background 0.2s;
+  font-family:'Inter',sans-serif;
+  text-decoration:none;
+  flex-wrap:wrap;
+}
+#ppv-sticky:hover{background:rgba(27,94,32,1);}
+.ppv-s-dot{
+  width:7px;height:7px;border-radius:50%;
+  background:#9e9e9e;flex-shrink:0;transition:all 0.3s;
+}
+.ppv-s-dot.on{background:#a5d6a7;box-shadow:0 0 6px #81c784;}
+.ppv-s-label{font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.6);}
+.ppv-s-val{font-size:13px;font-weight:700;color:white;}
+.ppv-s-sep{color:rgba(255,255,255,0.2);font-size:12px;}
+.ppv-s-link{font-size:11px;color:rgba(255,255,255,0.4);margin-left:4px;}
+@media(max-width:480px){
+  #ppv-sticky{gap:8px;padding:5px 16px;}
+  .ppv-s-label{display:none;}
+  .ppv-s-link{display:none;}
+}
+</style>
 </head>
 <body>
 
 <!-- NAVBAR -->
 <nav id="arc-nav">
   <div class="arc-nav-inner">
-    <a href="/home-arc" class="arc-nav-logo"><img src="https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69c8ee72f60e3ec233a5a847_Logo%20ARC%20II%20FR.png" alt="ARC" height="52" style="filter:brightness(1.1);"></a>
+    <a href="/home-arc" class="arc-nav-logo" style="display:flex;align-items:center;background:rgba(255,255,255,0.95);border-radius:6px;padding:3px 8px;"><img src="https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69c8ee72f60e3ec233a5a847_Logo%20ARC%20II%20FR.png" alt="Aéroclub ARC" height="46" style="display:block;"></a>
     <ul class="arc-nav-links">
       <li><a href="/leclub">Le Club</a></li>
       <li><a href="/la-flotte">La Flotte</a></li>
@@ -435,6 +471,18 @@ a{text-decoration:none;color:inherit;}
     <li><a href="/tarifs" class="arc-nav-cta-mobile">Adhésion 2026</a></li>
   </ul>
 </nav>
+
+<a id="ppv-sticky" href="/ppv" title="Production solaire en direct — cliquer pour le détail">
+  <span class="ppv-s-dot" id="ppv-s-dot"></span>
+  <span class="ppv-s-label">☀️ Aéroclub Vert</span>
+  <span class="ppv-s-sep">·</span>
+  <span class="ppv-s-val"><span id="ppv-s-kw">--</span> kW</span>
+  <span class="ppv-s-sep">·</span>
+  <span class="ppv-s-val"><span id="ppv-s-total">--</span> kWh total</span>
+  <span class="ppv-s-sep">·</span>
+  <span class="ppv-s-val">Aujourd'hui : <span id="ppv-s-today">--</span> kWh</span>
+  <span class="ppv-s-link">Voir le détail →</span>
+</a>
 <style>
 #arc-nav{position:sticky;top:0;z-index:1000;background:rgba(10,22,40,0.97);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.08);font-family:'Inter',sans-serif;}
 .arc-nav-inner{max-width:1200px;margin:0 auto;padding:0 24px;height:64px;display:flex;align-items:center;justify-content:space-between;gap:24px;}
@@ -766,16 +814,16 @@ a{text-decoration:none;color:inherit;}
 </div>
 
 <!-- CAMERA LIVE + MÉTÉO -->
-<div style="background:#0a1628;padding:56px 24px;">
-  <div style="max-width:1200px;margin:0 auto;">
+<div style="background:#0a1628;padding:32px 24px;">
+  <div style="max-width:900px;margin:0 auto;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
-      <div style="font-size:18px;font-weight:800;color:white;letter-spacing:-0.01em;font-family:'Inter',sans-serif;">✈️ LIVE — Piste LFPX</div>
+      <div style="font-size:18px;font-weight:800;color:white;letter-spacing:-0.01em;font-family:'Inter',sans-serif;">✈️ LIVE — HANGAR ARC</div>
       <div id="live-badge" style="font-weight:700;font-size:13px;color:#9ca3af;transition:color .3s;font-family:monospace;">● CONNEXION...</div>
     </div>
     <div style="display:flex;gap:16px;flex-wrap:wrap;">
       <!-- VIDÉO -->
       <div style="flex:1.6;background:#0f172a;border-radius:12px;padding:10px;min-width:280px;">
-        <div id="arc-video-wrap" style="position:relative;background:black;border-radius:10px;overflow:hidden;min-height:240px;">
+        <div id="arc-video-wrap" style="position:relative;background:black;border-radius:10px;overflow:hidden;min-height:160px;">
           <div id="arc-loader" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,.85);z-index:10;gap:12px;transition:opacity .5s;">
             <div style="width:36px;height:36px;border:3px solid rgba(255,255,255,.15);border-top-color:#22c55e;border-radius:50%;animation:spin .8s linear infinite;"></div>
             <div id="arc-loader-text" style="color:rgba(255,255,255,.6);font-size:12px;letter-spacing:.05em;font-family:monospace;">Connexion au flux live...</div>
@@ -792,7 +840,7 @@ a{text-decoration:none;color:inherit;}
         <div style="color:rgba(255,255,255,.8);font-size:13px;font-weight:700;margin-bottom:10px;padding:4px 0;font-family:monospace;">🌬️ Météo LFPX en direct</div>
         <iframe
           src="https://embed.windy.com/embed2.html?lat=48.970&lon=1.966&detailLat=48.970&detailLon=1.966&width=650&height=450&zoom=10&level=surface&overlay=wind&product=ecmwf&menu=&message=true&marker=true&calendar=now&pressure=&type=map&location=coordinates&detail=true&metricWind=km%2Fh&metricTemp=%C2%B0C&radarRange=-1"
-          width="100%" height="320" frameborder="0"
+          width="100%" height="200" frameborder="0"
           style="border-radius:8px;display:block;"
           title="Météo LFPX Chavenay — Windy">
         </iframe>
@@ -1112,6 +1160,11 @@ a{text-decoration:none;color:inherit;}
       el=document.getElementById("badge-power");if(el)el.innerText=kw.toFixed(2)+" kW";
       el=document.getElementById("badge-total");if(el)el.innerText=total.toLocaleString("fr-FR",{maximumFractionDigits:0})+" kWh";
       var dot2=document.getElementById("ppv-dot-hero");if(dot2){dot2.style.background=on?"#4caf50":"#9e9e9e";dot2.style.boxShadow=on?"0 0 6px #66bb6a":"none";}
+      // Widget sticky nav
+      var sd=document.getElementById("ppv-s-dot");
+      if(sd){sd.classList.toggle("on",on);}
+      el=document.getElementById("ppv-s-kw");if(el)el.innerText=kw.toFixed(2);
+      el=document.getElementById("ppv-s-total");if(el)el.innerText=total.toLocaleString("fr-FR",{maximumFractionDigits:0});
       el=document.getElementById("ppv-total");if(el)el.innerText=total.toLocaleString("fr-FR",{maximumFractionDigits:0});
       el=document.getElementById("ppv-power");if(el)el.innerText=kw.toFixed(2);
       el=document.getElementById("ppv-hours");if(el)el.innerText=h.toFixed(1);
@@ -1132,6 +1185,7 @@ a{text-decoration:none;color:inherit;}
       var d=JSON.parse(text);
       var el=document.getElementById("modal-today");
       if(el)el.innerText=Number(d.today_kwh||0).toLocaleString("fr-FR",{minimumFractionDigits:1});
+            el=document.getElementById("ppv-s-today");if(el)el.innerText=Number(d.today_kwh||0).toLocaleString("fr-FR",{minimumFractionDigits:1,maximumFractionDigits:1});
     }catch(e){}
   }
   update();updateToday();
