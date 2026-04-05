@@ -447,9 +447,9 @@ async function sendMessage(){
   btn.innerText='Envoi en cours...';
 
   try{
-    var res=await fetch('https://formspree.io/f/xeepzeyq',{
+    var res=await fetch('/api/contact/submit',{
       method:'POST',
-      headers:{'Content-Type':'application/json','Accept':'application/json'},
+      headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
         name: prenom+' '+nom,
         email: email,
@@ -458,18 +458,19 @@ async function sendMessage(){
         message: message
       })
     });
-    if(res.ok){
+    var data=await res.json();
+    if(res.ok&&data.ok){
       document.getElementById('form-success').style.display='block';
       document.getElementById('contact-form').style.opacity='0.4';
       document.getElementById('contact-form').style.pointerEvents='none';
       btn.innerText='Message envoyé ✅';
     }else{
-      throw new Error('Erreur Formspree');
+      throw new Error(data.error||'Erreur serveur');
     }
   }catch(e){
     btn.disabled=false;
     btn.innerText='Envoyer le message →';
-    alert('Erreur lors de l\'envoi. Veuillez réessayer ou nous contacter directement.');
+    alert('Erreur lors de l\'envoi. Veuillez réessayer ou nous écrire directement à aeroclubarc@gmail.com');
   }
 }
 document.addEventListener('DOMContentLoaded',function(){

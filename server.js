@@ -102,6 +102,56 @@ app.get("/api/test-email", async (req, res) => {
   }
 });
 
+// ── CONTACT SUBMIT — formulaire de contact ────────────────────────────
+app.post("/api/contact/submit", async (req, res) => {
+  try {
+    const { name, email, telephone, sujet, message } = req.body;
+    if (!name || !email || !sujet || !message) {
+      return res.status(400).json({ error: "Champs manquants" });
+    }
+
+    const resendKey = process.env.RESEND_API_KEY;
+    const destEmail = process.env.DEST_EMAIL || "aeroclubarc@gmail.com";
+
+    const emailBody = `NOUVEAU MESSAGE — FORMULAIRE DE CONTACT
+════════════════════════════════════════
+De : ${name}
+Email : ${email}
+Téléphone : ${telephone || 'Non renseigné'}
+Sujet : ${sujet}
+
+Message :
+${message}
+════════════════════════════════════════
+Répondre à : ${email}`;
+
+    if (!resendKey) {
+      console.log("=== CONTACT ===\n" + emailBody);
+      return res.json({ ok: true, warning: "Email non envoyé — RESEND_API_KEY manquante" });
+    }
+
+    const resend = new Resend(resendKey);
+    const { data, error } = await resend.emails.send({
+      from: "Contact ARC <onboarding@resend.dev>",
+      to: [destEmail],
+      reply_to: email,
+      subject: `[ARC Contact] ${sujet} — ${name}`,
+      text: emailBody,
+    });
+
+    if (error) {
+      console.error("Resend contact error:", error);
+      return res.status(500).json({ error: error.message });
+    }
+
+    console.log(`Contact envoyé de ${name} (${email}) — ID: ${data.id}`);
+    res.json({ ok: true });
+  } catch(e) {
+    console.error("Erreur contact submit:", e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // ── INSCRIPTION SUBMIT — email récapitulatif au bureau ─────────────────
 // Variable Railway à ajouter : RESEND_API_KEY = re_XXXX...
 // Créer un compte gratuit sur resend.com → API Keys → Create
