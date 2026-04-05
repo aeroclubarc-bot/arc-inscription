@@ -1,7 +1,6 @@
 import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
-import nodemailer from "nodemailer";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -81,12 +80,11 @@ app.post("/api/stripe/create-payment-intent", async (req, res) => {
 });
 
 // ── INSCRIPTION SUBMIT — email récapitulatif au bureau ─────────────────
-// Variables Railway : GMAIL_USER + GMAIL_PASS (mot de passe d'application Gmail)
+// Variable Railway à ajouter : RESEND_API_KEY = re_XXXX...
+// Créer un compte gratuit sur resend.com → API Keys → Create
 app.post("/api/inscription/submit", async (req, res) => {
   try {
     const d = req.body;
-    const gmailUser = process.env.GMAIL_USER;
-    const gmailPass = process.env.GMAIL_PASS;
 
     const emailBody = `NOUVELLE ADHÉSION — AÉROCLUB A.R.C.
 Date : ${d.date_inscription}
@@ -121,25 +119,36 @@ FFA : ${d.cotisation_ffa}
 Options : ${d.options_ffa}
 TOTAL PAYÉ : ${d.montant_paye}`;
 
-    if (!gmailUser || !gmailPass) {
-      console.log("=== ADHÉSION (email non configuré) ===\n" + emailBody);
-      return res.json({ ok: true, warning: "Email non envoyé — GMAIL_USER/GMAIL_PASS manquants" });
+    const resendKey = process.env.RESEND_API_KEY;
+
+    if (!resendKey) {
+      // Fallback — log dans les logs Railway si pas de clé
+      console.log("=== NOUVELLE ADHÉSION ===\n" + emailBody);
+      return res.json({ ok: true, warning: "Email non envoyé — RESEND_API_KEY manquante" });
     }
 
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: { user: gmailUser, pass: gmailPass }
+    const r = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${resendKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from: "Formulaire ARC <onboarding@resend.dev>",
+        to: ["aeroclubarc@gmail.com"],
+        subject: `[ARC] Adhésion — ${d.prenom} ${d.nom} — ${d.montant_paye}`,
+        text: emailBody,
+      }),
     });
 
-    await transporter.sendMail({
-      from: `"Formulaire ARC" <${gmailUser}>`,
-      to: gmailUser,
-      subject: `[ARC] Adhésion — ${d.prenom} ${d.nom} — ${d.montant_paye}`,
-      text: emailBody,
-    });
+    const result = await r.json();
+    if (!r.ok) {
+      console.error("Resend error:", result);
+      return res.status(500).json({ error: result.message || "Erreur Resend" });
+    }
 
-    console.log(`Email envoyé pour ${d.prenom} ${d.nom}`);
-    res.json({ ok: true });
+    console.log(`Email envoyé pour ${d.prenom} ${d.nom} — ID: ${result.id}`);
+    res.json({ ok: true, emailId: result.id });
   } catch(e) {
     console.error("Erreur inscription submit:", e.message);
     res.status(500).json({ error: e.message });
