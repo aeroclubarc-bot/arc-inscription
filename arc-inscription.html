@@ -1,0 +1,1231 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Adhésion 2026 — Aéroclub A.R.C.</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0a1628;
+    --blue: #1a3a6b;
+    --sky: #2d6be4;
+    --gold: #c8a84b;
+    --cream: #f8f5f0;
+    --white: #ffffff;
+    --gray: #6b7280;
+    --light: #e8e4dd;
+    --error: #dc2626;
+    --success: #16a34a;
+    --radius: 4px;
+    --shadow: 0 2px 20px rgba(10,22,40,0.10);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--navy);
+    min-height: 100vh;
+    padding: 40px 16px 80px;
+  }
+
+  .form-wrapper {
+    max-width: 760px;
+    margin: 0 auto;
+  }
+
+  /* Header */
+  .form-header {
+    text-align: center;
+    margin-bottom: 48px;
+    padding-bottom: 32px;
+    border-bottom: 2px solid var(--light);
+  }
+  .form-header .eyebrow {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 12px;
+  }
+  .form-header h1 {
+    font-family: 'Libre Baskerville', serif;
+    font-size: clamp(26px, 4vw, 38px);
+    color: var(--navy);
+    line-height: 1.2;
+    margin-bottom: 10px;
+  }
+  .form-header p {
+    color: var(--gray);
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  /* Progress */
+  .progress-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin-bottom: 40px;
+  }
+  .step-indicator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    position: relative;
+  }
+  .step-indicator .dot {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--light);
+    border: 2px solid var(--light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--gray);
+    transition: all 0.3s ease;
+    z-index: 1;
+  }
+  .step-indicator.active .dot {
+    background: var(--sky);
+    border-color: var(--sky);
+    color: white;
+  }
+  .step-indicator.done .dot {
+    background: var(--success);
+    border-color: var(--success);
+    color: white;
+  }
+  .step-indicator .label {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    color: var(--gray);
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .step-indicator.active .label { color: var(--sky); }
+  .step-indicator.done .label { color: var(--success); }
+  .step-line {
+    flex: 1;
+    height: 2px;
+    background: var(--light);
+    margin: 0 4px;
+    margin-bottom: 22px;
+    max-width: 80px;
+    transition: background 0.3s;
+  }
+  .step-line.done { background: var(--success); }
+
+  /* Card */
+  .form-card {
+    background: var(--white);
+    border: 1px solid var(--light);
+    border-radius: 8px;
+    padding: 36px 40px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
+  }
+  @media (max-width: 600px) {
+    .form-card { padding: 24px 20px; }
+  }
+
+  .section-title {
+    font-family: 'Libre Baskerville', serif;
+    font-size: 18px;
+    color: var(--navy);
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--light);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-title span.tag {
+    background: var(--sky);
+    color: white;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 20px;
+  }
+
+  /* Fields */
+  .field-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .field-grid.three { grid-template-columns: 1fr 1fr 1fr; }
+  .field-grid.full { grid-template-columns: 1fr; }
+  @media (max-width: 600px) {
+    .field-grid, .field-grid.three { grid-template-columns: 1fr; }
+  }
+
+  .field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .field-group.span2 { grid-column: span 2; }
+  @media (max-width: 600px) { .field-group.span2 { grid-column: span 1; } }
+
+  label {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--navy);
+  }
+  label .req { color: var(--error); margin-left: 2px; }
+
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="date"],
+  input[type="number"],
+  select, textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid var(--light);
+    border-radius: var(--radius);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--navy);
+    background: var(--cream);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+    -webkit-appearance: none;
+  }
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--sky);
+    box-shadow: 0 0 0 3px rgba(45,107,228,0.10);
+    background: white;
+  }
+  textarea { resize: vertical; min-height: 72px; }
+
+  /* Radio / Checkbox groups */
+  .radio-group, .check-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 4px;
+  }
+  .radio-option, .check-option {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--navy);
+    padding: 7px 13px;
+    border: 1.5px solid var(--light);
+    border-radius: 20px;
+    background: var(--cream);
+    transition: all 0.2s;
+    user-select: none;
+  }
+  .radio-option:hover, .check-option:hover { border-color: var(--sky); }
+  .radio-option input, .check-option input { display: none; }
+  .radio-option.selected, .check-option.selected {
+    background: var(--sky);
+    border-color: var(--sky);
+    color: white;
+  }
+
+  /* Cotisation cards */
+  .coti-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  @media (max-width: 500px) { .coti-grid { grid-template-columns: 1fr; } }
+
+  .coti-card {
+    border: 2px solid var(--light);
+    border-radius: 6px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--cream);
+    position: relative;
+  }
+  .coti-card:hover { border-color: var(--sky); }
+  .coti-card.selected {
+    border-color: var(--sky);
+    background: rgba(45,107,228,0.05);
+  }
+  .coti-card input[type="radio"], .coti-card input[type="checkbox"] { display: none; }
+  .coti-card .name {
+    font-weight: 600;
+    font-size: 13px;
+    margin-bottom: 4px;
+    color: var(--navy);
+  }
+  .coti-card .desc {
+    font-size: 11px;
+    color: var(--gray);
+    line-height: 1.4;
+    margin-bottom: 8px;
+  }
+  .coti-card .price {
+    font-family: 'Libre Baskerville', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--sky);
+  }
+  .coti-card .price span { font-size: 13px; color: var(--gray); }
+  .coti-card .check-mark {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--sky);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 11px;
+  }
+  .coti-card.selected .check-mark { display: flex; }
+
+  /* Options */
+  .option-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px;
+    border: 1.5px solid var(--light);
+    border-radius: var(--radius);
+    margin-bottom: 8px;
+    cursor: pointer;
+    background: var(--cream);
+    transition: all 0.2s;
+  }
+  .option-row:hover { border-color: var(--sky); }
+  .option-row.selected { border-color: var(--sky); background: rgba(45,107,228,0.04); }
+  .option-row input { display: none; }
+  .option-row .opt-left { display: flex; flex-direction: column; gap: 2px; }
+  .option-row .opt-name { font-size: 13px; font-weight: 600; color: var(--navy); }
+  .option-row .opt-desc { font-size: 11px; color: var(--gray); }
+  .option-row .opt-price { font-weight: 700; color: var(--sky); font-size: 15px; white-space: nowrap; }
+
+  /* Total */
+  .total-box {
+    background: var(--navy);
+    color: white;
+    border-radius: 6px;
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 20px;
+  }
+  .total-box .total-label {
+    font-size: 13px;
+    font-weight: 500;
+    opacity: 0.7;
+  }
+  .total-box .total-amount {
+    font-family: 'Libre Baskerville', serif;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--gold);
+  }
+  .total-lines {
+    margin-top: 12px;
+    border-top: 1px solid var(--light);
+    padding-top: 12px;
+  }
+  .total-line {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--gray);
+    padding: 3px 0;
+  }
+  .total-line.main { font-weight: 600; color: var(--navy); font-size: 13px; }
+
+  /* Validation */
+  .validation-box {
+    border: 2px solid var(--light);
+    border-radius: 6px;
+    padding: 20px;
+    background: var(--cream);
+  }
+  .validation-check {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px;
+    border: 1.5px solid var(--light);
+    border-radius: var(--radius);
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: white;
+  }
+  .validation-check:hover { border-color: var(--sky); }
+  .validation-check.checked { border-color: var(--success); background: rgba(22,163,74,0.04); }
+  .validation-check input { display: none; }
+  .custom-check {
+    width: 20px;
+    height: 20px;
+    min-width: 20px;
+    border: 2px solid var(--light);
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    margin-top: 1px;
+  }
+  .validation-check.checked .custom-check {
+    background: var(--success);
+    border-color: var(--success);
+  }
+  .custom-check svg { display: none; }
+  .validation-check.checked .custom-check svg { display: block; }
+  .check-text { font-size: 13px; line-height: 1.5; color: var(--navy); }
+  .check-text strong { font-weight: 600; }
+
+  /* Buttons */
+  .btn-row {
+    display: flex;
+    gap: 12px;
+    margin-top: 28px;
+    justify-content: flex-end;
+  }
+  .btn {
+    padding: 12px 28px;
+    border-radius: var(--radius);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    letter-spacing: 0.02em;
+  }
+  .btn-back {
+    background: transparent;
+    color: var(--gray);
+    border: 1.5px solid var(--light);
+  }
+  .btn-back:hover { border-color: var(--navy); color: var(--navy); }
+  .btn-next {
+    background: var(--sky);
+    color: white;
+  }
+  .btn-next:hover { background: var(--blue); }
+  .btn-next:disabled { background: var(--light); color: var(--gray); cursor: not-allowed; }
+
+  /* Stripe payment */
+  .stripe-section {
+    margin-top: 24px;
+    text-align: center;
+  }
+  .stripe-note {
+    font-size: 12px;
+    color: var(--gray);
+    margin-bottom: 16px;
+    line-height: 1.5;
+  }
+  #stripe-card-element {
+    border: 1.5px solid var(--light);
+    border-radius: 6px;
+    padding: 12px 14px;
+    background: white;
+    margin-bottom: 14px;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+    transition: border-color 0.2s;
+  }
+  #stripe-card-element.StripeElement--focus { border-color: var(--sky); }
+  #stripe-card-element.StripeElement--invalid { border-color: #e53e3e; }
+  #stripe-card-errors {
+    color: #e53e3e;
+    font-size: 12px;
+    margin-bottom: 10px;
+    min-height: 16px;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .stripe-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--sky);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 14px 32px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%;
+    justify-content: center;
+    max-width: 400px;
+    font-family: 'Inter', sans-serif;
+  }
+  .stripe-btn:hover { background: var(--blue); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(45,107,228,0.35); }
+  .stripe-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+  .paypal-logo { font-size: 20px; }
+
+  /* Step visibility */
+  .form-step { display: none; }
+  .form-step.active { display: block; }
+
+  /* Divider */
+  .field-divider {
+    grid-column: 1 / -1;
+    height: 1px;
+    background: var(--light);
+    margin: 8px 0;
+  }
+
+  .info-note {
+    font-size: 12px;
+    color: var(--gray);
+    font-style: italic;
+    margin-top: 4px;
+    line-height: 1.4;
+  }
+
+  .section-sub {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin: 20px 0 12px;
+  }
+
+  /* Success */
+  .success-box {
+    text-align: center;
+    padding: 48px 24px;
+  }
+  .success-icon {
+    width: 64px;
+    height: 64px;
+    background: var(--success);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+  }
+  .success-icon svg { width: 32px; height: 32px; color: white; }
+</style>
+<script src="https://js.stripe.com/v3/" defer></script>
+</head>
+<body>
+
+<div class="form-wrapper">
+
+  <div class="form-header">
+    <p class="eyebrow">Aéroclub A.R.C. — Chavenay LFPX</p>
+    <h1>Adhésion 2026</h1>
+    <p>Complétez le formulaire ci-dessous. Votre adhésion sera effective après validation du Bureau directeur.</p>
+  </div>
+
+  <!-- Progress -->
+  <div class="progress-bar">
+    <div class="step-indicator active" id="si1">
+      <div class="dot">1</div>
+      <div class="label">Identité</div>
+    </div>
+    <div class="step-line" id="sl1"></div>
+    <div class="step-indicator" id="si2">
+      <div class="dot">2</div>
+      <div class="label">Aéronautique</div>
+    </div>
+    <div class="step-line" id="sl2"></div>
+    <div class="step-indicator" id="si3">
+      <div class="dot">3</div>
+      <div class="label">Cotisations</div>
+    </div>
+    <div class="step-line" id="sl3"></div>
+    <div class="step-indicator" id="si4">
+      <div class="dot">4</div>
+      <div class="label">Validation</div>
+    </div>
+  </div>
+
+  <!-- STEP 1 : Identité -->
+  <div class="form-step active" id="step1">
+    <div class="form-card">
+      <div class="section-title">Renseignements généraux</div>
+      <div class="field-grid">
+        <div class="field-group">
+          <label>Nom <span class="req">*</span></label>
+          <input type="text" id="nom" placeholder="DUPONT" required>
+        </div>
+        <div class="field-group">
+          <label>Prénom <span class="req">*</span></label>
+          <input type="text" id="prenom" placeholder="Jean" required>
+        </div>
+        <div class="field-group">
+          <label>Date de naissance <span class="req">*</span></label>
+          <input type="date" id="ddn" required>
+        </div>
+        <div class="field-group">
+          <label>Lieu de naissance</label>
+          <input type="text" id="lieu_naissance" placeholder="Paris (75)">
+        </div>
+        <div class="field-group">
+          <label>Nationalité</label>
+          <input type="text" id="nationalite" placeholder="Française">
+        </div>
+        <div class="field-group">
+          <label>Sexe</label>
+          <div class="radio-group">
+            <label class="radio-option" onclick="selectRadio(this,'sexe','M')">
+              <input type="radio" name="sexe" value="M"> Masculin
+            </label>
+            <label class="radio-option" onclick="selectRadio(this,'sexe','F')">
+              <input type="radio" name="sexe" value="F"> Féminin
+            </label>
+          </div>
+        </div>
+        <div class="field-group">
+          <label>Profession</label>
+          <input type="text" id="profession" placeholder="Ingénieur">
+        </div>
+        <div class="field-group">
+          <label>Employeur</label>
+          <input type="text" id="employeur" placeholder="Société X">
+        </div>
+        <div class="field-group span2">
+          <label>Adresse <span class="req">*</span></label>
+          <input type="text" id="adresse" placeholder="12 rue des Fleurs" required>
+        </div>
+        <div class="field-group">
+          <label>Code postal</label>
+          <input type="text" id="cp" placeholder="75001">
+        </div>
+        <div class="field-group">
+          <label>Ville</label>
+          <input type="text" id="ville" placeholder="Paris">
+        </div>
+        <div class="field-group">
+          <label>Téléphone</label>
+          <input type="tel" id="tel" placeholder="01 23 45 67 89">
+        </div>
+        <div class="field-group">
+          <label>Mobile <span class="req">*</span></label>
+          <input type="tel" id="mobile" placeholder="06 12 34 56 78" required>
+        </div>
+        <div class="field-group span2">
+          <label>Email <span class="req">*</span></label>
+          <input type="email" id="email" placeholder="jean.dupont@email.com" required>
+        </div>
+      </div>
+
+      <div class="section-sub" style="margin-top:28px;">Personne à prévenir en cas d'accident</div>
+      <div class="field-grid">
+        <div class="field-group">
+          <label>Nom & Prénom</label>
+          <input type="text" id="urgence_nom" placeholder="Marie Dupont">
+        </div>
+        <div class="field-group">
+          <label>Téléphone</label>
+          <input type="tel" id="urgence_tel" placeholder="06 98 76 54 32">
+        </div>
+      </div>
+
+      <div class="section-sub" style="margin-top:24px;">Bénéficiaire de l'assurance FFA (en cas de décès)</div>
+      <div class="field-grid">
+        <div class="field-group">
+          <label>Nom & Prénom</label>
+          <input type="text" id="beneficiaire_nom" placeholder="Marie Dupont">
+        </div>
+        <div class="field-group">
+          <label>Téléphone</label>
+          <input type="tel" id="beneficiaire_tel" placeholder="06 98 76 54 32">
+        </div>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-next" onclick="goToStep(2)">Continuer →</button>
+    </div>
+  </div>
+
+  <!-- STEP 2 : Statut aéronautique -->
+  <div class="form-step" id="step2">
+    <div class="form-card">
+      <div class="section-title">Statut aéronautique <span class="tag">Fiche ARC + FFA</span></div>
+
+      <div class="section-sub">Niveau pilote</div>
+      <div class="check-group" id="statut_group">
+        <label class="check-option" onclick="toggleCheck(this)"><input type="checkbox" name="statut" value="Élève Pilote"> Élève Pilote</label>
+        <label class="check-option" onclick="toggleCheck(this)"><input type="checkbox" name="statut" value="LAPL"> LAPL</label>
+        <label class="check-option" onclick="toggleCheck(this)"><input type="checkbox" name="statut" value="PPL"> PPL</label>
+        <label class="check-option" onclick="toggleCheck(this)"><input type="checkbox" name="statut" value="CPL"> CPL</label>
+        <label class="check-option" onclick="toggleCheck(this)"><input type="checkbox" name="statut" value="ATPL"> ATPL</label>
+        <label class="check-option" onclick="toggleCheck(this)"><input type="checkbox" name="statut" value="Reçu examen théorique"> Reçu examen théorique</label>
+      </div>
+
+      <div class="section-sub" style="margin-top:20px;">Qualifications</div>
+      <div class="check-group">
+        <label class="check-option" onclick="toggleCheck(this)"><input type="checkbox" name="qual" value="VFR Nuit"> VFR Nuit</label>
+        <label class="check-option" onclick="toggleCheck(this)"><input type="checkbox" name="qual" value="IFR"> IFR</label>
+        <label class="check-option" onclick="toggleCheck(this)"><input type="checkbox" name="qual" value="Montagne"> Montagne</label>
+        <label class="check-option" onclick="toggleCheck(this)"><input type="checkbox" name="qual" value="Voltige"> Voltige</label>
+        <label class="check-option" onclick="toggleCheck(this)"><input type="checkbox" name="qual" value="Largage"> Largage</label>
+        <label class="check-option" onclick="toggleCheck(this)"><input type="checkbox" name="qual" value="Remorquage"> Remorquage</label>
+        <label class="check-option" onclick="toggleCheck(this)"><input type="checkbox" name="qual" value="BIA"> BIA</label>
+        <label class="check-option" onclick="toggleCheck(this)"><input type="checkbox" name="qual" value="TW (Train classique)"> TW (Train classique)</label>
+      </div>
+
+      <div class="field-grid" style="margin-top:20px;">
+        <div class="field-group">
+          <label>N° Licence FFA</label>
+          <input type="text" id="licence_ffa" placeholder="_ _ _ _ _ _ _">
+        </div>
+        <div class="field-group">
+          <label>N° Licence CPL/PPL/LAPL</label>
+          <input type="text" id="licence_cpl" placeholder="_ _ _ _ _ _ _ _ _ _ _ _">
+        </div>
+        <div class="field-group">
+          <label>Date d'obtention</label>
+          <input type="date" id="date_obtention">
+        </div>
+        <div class="field-group">
+          <label>Date de validité</label>
+          <input type="date" id="date_validite">
+        </div>
+        <div class="field-group">
+          <label>Visite médicale</label>
+          <div class="radio-group">
+            <label class="radio-option" onclick="selectRadio(this,'med','Classe 1')">
+              <input type="radio" name="med" value="Classe 1"> Classe 1
+            </label>
+            <label class="radio-option" onclick="selectRadio(this,'med','Classe 2')">
+              <input type="radio" name="med" value="Classe 2"> Classe 2
+            </label>
+            <label class="radio-option" onclick="selectRadio(this,'med','LAPL')">
+              <input type="radio" name="med" value="LAPL"> LAPL(A)
+            </label>
+          </div>
+        </div>
+        <div class="field-group">
+          <label>Validité certificat médical</label>
+          <input type="date" id="med_validite">
+        </div>
+        <div class="field-group">
+          <label>Date obtention TW</label>
+          <input type="date" id="tw_date">
+        </div>
+      </div>
+
+      <div class="section-sub" style="margin-top:24px;">Expérience aéronautique (carnet de vol)</div>
+      <div class="field-grid three">
+        <div class="field-group"><label>Total Heures DC</label><input type="number" id="total_dc" placeholder="0" min="0"></div>
+        <div class="field-group"><label>Total Heures CDB</label><input type="number" id="total_cdb" placeholder="0" min="0"></div>
+        <div class="field-group"><label>Total Atterrissages</label><input type="number" id="total_att" placeholder="0" min="0"></div>
+        <div class="field-group"><label>12 mois — DC</label><input type="number" id="mois_dc" placeholder="0" min="0"></div>
+        <div class="field-group"><label>12 mois — CDB</label><input type="number" id="mois_cdb" placeholder="0" min="0"></div>
+        <div class="field-group"><label>12 mois — Att.</label><input type="number" id="mois_att" placeholder="0" min="0"></div>
+        <div class="field-group"><label>TW — DC</label><input type="number" id="tw_dc" placeholder="0" min="0"></div>
+        <div class="field-group"><label>TW — CDB</label><input type="number" id="tw_cdb" placeholder="0" min="0"></div>
+        <div class="field-group"><label>TW — Att.</label><input type="number" id="tw_att" placeholder="0" min="0"></div>
+      </div>
+
+      <div class="section-sub" style="margin-top:24px;">Licence FFA 2026</div>
+      <div class="coti-grid" id="ffa_grid">
+        <div class="coti-card" onclick="selectFFA(this, 145)" id="ffa1">
+          <input type="radio" name="ffa" value="145">
+          <div class="name">Formule 1 — Pack Complet</div>
+          <div class="desc">Licence FFA + Assurance de base (15 000€) + INFO-PILOTE 1 an</div>
+          <div class="price">145 <span>€</span></div>
+          <div class="check-mark">✓</div>
+        </div>
+        <div class="coti-card" onclick="selectFFA(this, 96)" id="ffa2">
+          <input type="radio" name="ffa" value="96">
+          <div class="name">Formule 2 — Licence seule</div>
+          <div class="desc">Licence FFA + Assurance de base (15 000€) sans magazine</div>
+          <div class="price">96 <span>€</span></div>
+          <div class="check-mark">✓</div>
+        </div>
+      </div>
+
+      <div class="section-sub">Options assurance FFA (facultatif)</div>
+      <div id="ffa_options">
+        <p class="info-note" style="margin-bottom:10px;">Options ouvertes à tous les membres :</p>
+        <div class="option-row" onclick="toggleOption(this, 90, 'ffa_opt_a')">
+          <input type="checkbox" id="ffa_opt_a">
+          <div class="opt-left">
+            <div class="opt-name">FFA PLUS Option A</div>
+            <div class="opt-desc">Capital décès/invalidité 50 000€</div>
+          </div>
+          <div class="opt-price">+90 €</div>
+        </div>
+        <div class="option-row" onclick="toggleOption(this, 170, 'ffa_opt_b')">
+          <input type="checkbox" id="ffa_opt_b">
+          <div class="opt-left">
+            <div class="opt-name">FFA PLUS Option B</div>
+            <div class="opt-desc">Capital décès/invalidité 100 000€</div>
+          </div>
+          <div class="opt-price">+170 €</div>
+        </div>
+        <div class="option-row" onclick="toggleOption(this, 220, 'ffa_opt_c')">
+          <input type="checkbox" id="ffa_opt_c">
+          <div class="opt-left">
+            <div class="opt-name">FFA PLUS Option C</div>
+            <div class="opt-desc">Capital décès/invalidité 150 000€</div>
+          </div>
+          <div class="opt-price">+220 €</div>
+        </div>
+        <div class="option-row" onclick="toggleOption(this, 270, 'ffa_opt_d')">
+          <input type="checkbox" id="ffa_opt_d">
+          <div class="opt-left">
+            <div class="opt-name">FFA PLUS Option D</div>
+            <div class="opt-desc">Capital décès/invalidité 200 000€</div>
+          </div>
+          <div class="opt-price">+270 €</div>
+        </div>
+        <div class="option-row" onclick="toggleOption(this, 340, 'ffa_opt_e')">
+          <input type="checkbox" id="ffa_opt_e">
+          <div class="opt-left">
+            <div class="opt-name">FFA PLUS Option E</div>
+            <div class="opt-desc">Capital décès/invalidité 250 000€</div>
+          </div>
+          <div class="opt-price">+340 €</div>
+        </div>
+        <div class="option-row" onclick="toggleOption(this, 440, 'ffa_opt_f')">
+          <input type="checkbox" id="ffa_opt_f">
+          <div class="opt-left">
+            <div class="opt-name">FFA PLUS Option F</div>
+            <div class="opt-desc">Capital décès/invalidité 300 000€</div>
+          </div>
+          <div class="opt-price">+440 €</div>
+        </div>
+
+        <p class="info-note" style="margin: 16px 0 10px;">Options réservées aux FI/FE (instructeurs) :</p>
+        <div class="option-row" onclick="toggleOption(this, 35, 'ffa_opt_fi_acc')">
+          <input type="checkbox" id="ffa_opt_fi_acc">
+          <div class="opt-left">
+            <div class="opt-name">Individuelle Accidents FI/FE</div>
+            <div class="opt-desc">Capital 30 000€ + assistance complète FI/FE</div>
+          </div>
+          <div class="opt-price">+35 €</div>
+        </div>
+        <div class="option-row" onclick="toggleOption(this, 108, 'ffa_opt_fi_rc')">
+          <input type="checkbox" id="ffa_opt_fi_rc">
+          <div class="opt-left">
+            <div class="opt-name">Responsabilité Civile personnelle FI/FE</div>
+            <div class="opt-desc">RC personnelle en qualité d'instructeur</div>
+          </div>
+          <div class="opt-price">+108 €</div>
+        </div>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-back" onclick="goToStep(1)">← Retour</button>
+      <button class="btn btn-next" onclick="goToStep(3)">Continuer →</button>
+    </div>
+  </div>
+
+  <!-- STEP 3 : Cotisations ARC -->
+  <div class="form-step" id="step3">
+    <div class="form-card">
+      <div class="section-title">Cotisations ARC 2026</div>
+
+      <div class="section-sub">Adhésion</div>
+      <div class="coti-grid">
+        <div class="coti-card" onclick="selectARC(this, 200)" id="arc1">
+          <input type="radio" name="arc" value="200">
+          <div class="name">Adhésion ARC</div>
+          <div class="desc">Tarif standard, tous pilotes</div>
+          <div class="price">200 <span>€</span></div>
+          <div class="check-mark">✓</div>
+        </div>
+        <div class="coti-card" onclick="selectARC(this, 100)" id="arc2">
+          <input type="radio" name="arc" value="100">
+          <div class="name">ARC Jeunes (-25 ans)</div>
+          <div class="desc">Tarif réduit pour les moins de 25 ans</div>
+          <div class="price">100 <span>€</span></div>
+          <div class="check-mark">✓</div>
+        </div>
+      </div>
+
+      <div class="section-sub">Options</div>
+
+      <!-- DC : auto-obligatoire selon statut pilote -->
+      <div class="option-row" id="opt_dc_row" style="opacity:0.6;cursor:default;">
+        <input type="checkbox" id="opt_dc" checked disabled>
+        <div class="opt-left">
+          <div class="opt-name">Forfait Double Commande (DC)
+            <span id="dc_badge" style="display:none;background:#2d6be4;color:white;font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px;margin-left:6px;letter-spacing:0.05em;">OBLIGATOIRE</span>
+          </div>
+          <div class="opt-desc" id="dc_desc">Sélectionnez votre statut pilote à l'étape 2 pour déterminer si ce forfait s'applique.</div>
+        </div>
+        <div class="opt-price">+50 €</div>
+      </div>
+
+      <!-- AUDACE : obligatoire -->
+      <div class="option-row selected" style="cursor:default;opacity:0.85;">
+        <input type="checkbox" id="opt_audace" checked disabled>
+        <div class="opt-left">
+          <div class="opt-name">AUDACE
+            <span style="background:#c8a84b;color:white;font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px;margin-left:6px;letter-spacing:0.05em;">OBLIGATOIRE</span>
+          </div>
+          <div class="opt-desc">Cotisation obligatoire AUDACE</div>
+        </div>
+        <div class="opt-price">+5 €</div>
+      </div>
+
+      <!-- Caution permanence : obligatoire -->
+      <div class="option-row selected" style="cursor:default;opacity:0.85;">
+        <input type="checkbox" id="opt_caution" checked disabled>
+        <div class="opt-left">
+          <div class="opt-name">Caution permanence
+            <span style="background:#c8a84b;color:white;font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px;margin-left:6px;letter-spacing:0.05em;">OBLIGATOIRE</span>
+          </div>
+          <div class="opt-desc">Remboursée une fois la permanence effectuée</div>
+        </div>
+        <div class="opt-price">+35 €</div>
+      </div>
+
+      <p class="info-note" style="margin-top:12px;">Le forfait DC est automatiquement ajouté pour tout pilote breveté (PPL, CPL, ATPL, LAPL, ABL). AUDACE et la caution de permanence sont obligatoires pour tous les membres.</p>
+
+      <!-- Récap total -->
+      <div class="total-lines" id="total_lines"></div>
+      <div class="total-box">
+        <div>
+          <div class="total-label">Total à régler</div>
+          <div style="font-size:11px;opacity:0.5;margin-top:2px;">Toutes formules incluses</div>
+        </div>
+        <div class="total-amount" id="total_display">0 €</div>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-back" onclick="goToStep(2)">← Retour</button>
+      <button class="btn btn-next" onclick="goToStep(4)">Continuer →</button>
+    </div>
+  </div>
+
+  <!-- STEP 4 : Validation -->
+  <div class="form-step" id="step4">
+    <div class="form-card">
+      <div class="section-title">Validation & Paiement</div>
+
+      <!-- Récap -->
+      <div class="total-box" style="margin-bottom:24px;">
+        <div>
+          <div class="total-label">Montant total</div>
+        </div>
+        <div class="total-amount" id="total_display2">0 €</div>
+      </div>
+
+      <div class="section-sub">Engagements obligatoires</div>
+      <div class="validation-box">
+        <div class="validation-check" id="check1_wrap" onclick="toggleValidation('check1')">
+          <input type="checkbox" id="check1">
+          <div class="custom-check">
+            <svg viewBox="0 0 12 9" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M1 4L4.5 7.5L11 1" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="check-text">
+            <strong>Je certifie que les informations fournies sont exactes</strong> et complètes. Je comprends que toute fausse déclaration peut entraîner l'annulation de mon adhésion.
+          </div>
+        </div>
+        <div class="validation-check" id="check2_wrap" onclick="toggleValidation('check2')">
+          <input type="checkbox" id="check2">
+          <div class="custom-check">
+            <svg viewBox="0 0 12 9" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M1 4L4.5 7.5L11 1" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="check-text">
+            <strong>J'accepte le règlement intérieur du club et adhère aux statuts sans réserve.</strong> Je m'engage à effectuer une permanence d'une demi-journée par an (pilotes brevetés) et à restituer les avions propres après chaque vol.
+          </div>
+        </div>
+      </div>
+
+      <div class="stripe-section">
+        <p class="stripe-note">
+          Réglez votre adhésion par carte bancaire (Visa, Mastercard, American Express).<br>
+          Paiement 100% sécurisé — sans compte requis. Votre adhésion sera effective après validation du Bureau directeur.
+        </p>
+        <div id="stripe-card-element"></div>
+        <div id="stripe-card-errors"></div>
+        <button class="stripe-btn" id="stripe-pay-btn" onclick="payWithStripe()" disabled>
+          🔒 Régler — <span id="stripe_amount">0 €</span>
+        </button>
+        <p class="stripe-note" style="margin-top:12px;">
+          Virement possible : IBAN FR76 1751 5006 0008 9428 4831 226 — BIC CEPAFRPP751<br>
+          Chèques à l'ordre de l'Aéroclub ARC acceptés également.
+        </p>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-back" onclick="goToStep(3)">← Retour</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// Statuts qui déclenchent le forfait DC obligatoire
+const DC_TRIGGER_STATUTS = ['PPL', 'CPL', 'ATPL', 'LAPL', 'ABL'];
+
+// State
+let state = {
+  arcAmount: 0,
+  ffaAmount: 0,
+  ffaOptions: {},
+  dcRequired: false,
+  checks: { check1: false, check2: false }
+};
+
+// AUDACE (5€) et Caution (35€) toujours inclus
+const FIXED_OPTIONS = 5 + 35; // AUDACE + Caution
+
+function getTotal() {
+  let t = state.arcAmount + state.ffaAmount + FIXED_OPTIONS;
+  Object.values(state.ffaOptions).forEach(v => t += v);
+  if (state.dcRequired) t += 50;
+  return t;
+}
+
+function updateTotalDisplay() {
+  const t = getTotal();
+  document.getElementById('total_display').textContent = t + ' €';
+  document.getElementById('total_display2').textContent = t + ' €';
+  document.getElementById('stripe_amount').textContent = t + ' €';
+  checkPayPalReady();
+}
+
+function checkPayPalReady() {
+  const btn = document.getElementById('stripe-pay-btn');
+  if (btn && state.checks.check1 && state.checks.check2 && getTotal() > 0 && state.arcAmount > 0) {
+    btn.disabled = false;
+  } else if (btn) {
+    btn.disabled = true;
+  }
+}
+
+// Vérifier si le DC doit être obligatoire selon les statuts cochés à l'étape 2
+function updateDCRequirement() {
+  const checked = [...document.querySelectorAll('input[name="statut"]:checked')].map(i => i.value);
+  // DC obligatoire si au moins un statut breveté est coché (et pas seulement élève/exam théorique)
+  const brevetStatuts = checked.filter(s => DC_TRIGGER_STATUTS.includes(s));
+  const onlyNonBrevet = checked.length > 0 && brevetStatuts.length === 0;
+  
+  state.dcRequired = brevetStatuts.length > 0;
+  
+  const row = document.getElementById('opt_dc_row');
+  const badge = document.getElementById('dc_badge');
+  const desc = document.getElementById('dc_desc');
+
+  if (state.dcRequired) {
+    row.classList.add('selected');
+    row.style.opacity = '0.85';
+    badge.style.display = 'inline';
+    desc.textContent = 'Obligatoire pour les pilotes brevetés — inclus automatiquement.';
+  } else if (checked.length > 0 && !state.dcRequired) {
+    row.classList.remove('selected');
+    row.style.opacity = '0.5';
+    badge.style.display = 'none';
+    desc.textContent = 'Non applicable pour les élèves pilotes et candidats à l\'examen théorique.';
+  } else {
+    row.classList.remove('selected');
+    row.style.opacity = '0.6';
+    badge.style.display = 'none';
+    desc.textContent = 'Sélectionnez votre statut pilote à l\'étape 2 pour déterminer si ce forfait s\'applique.';
+  }
+  updateTotalDisplay();
+}
+
+// Step navigation
+function goToStep(n) {
+  document.querySelectorAll('.form-step').forEach(s => s.classList.remove('active'));
+  document.getElementById('step' + n).classList.add('active');
+  updateProgress(n);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  updateTotalDisplay();
+}
+
+function updateProgress(current) {
+  for (let i = 1; i <= 4; i++) {
+    const si = document.getElementById('si' + i);
+    si.classList.remove('active', 'done');
+    if (i < current) si.classList.add('done');
+    else if (i === current) si.classList.add('active');
+  }
+  for (let i = 1; i <= 3; i++) {
+    const sl = document.getElementById('sl' + i);
+    if (sl) sl.classList.toggle('done', i < current);
+  }
+}
+
+// Radio
+function selectRadio(el, name, val) {
+  document.querySelectorAll('[name="' + name + '"]').forEach(r => {
+    r.closest('.radio-option').classList.remove('selected');
+  });
+  el.classList.add('selected');
+  el.querySelector('input').checked = true;
+}
+
+// Checkbox toggle (statut pilote → déclenche DC)
+function toggleCheck(el) {
+  el.classList.toggle('selected');
+  el.querySelector('input').checked = el.classList.contains('selected');
+  // Si c'est un statut pilote, recalculer DC
+  if (el.querySelector('input[name="statut"]')) {
+    updateDCRequirement();
+  }
+}
+
+// FFA selection
+function selectFFA(card, amount) {
+  document.querySelectorAll('#ffa_grid .coti-card').forEach(c => c.classList.remove('selected'));
+  card.classList.add('selected');
+  card.querySelector('input').checked = true;
+  state.ffaAmount = amount;
+  updateTotalDisplay();
+}
+
+// ARC selection
+function selectARC(card, amount) {
+  document.querySelectorAll('.coti-grid .coti-card[onclick*="selectARC"]').forEach(c => c.classList.remove('selected'));
+  card.classList.add('selected');
+  card.querySelector('input').checked = true;
+  state.arcAmount = amount;
+  updateTotalDisplay();
+}
+
+// FFA option toggle
+function toggleOption(row, amount, id) {
+  row.classList.toggle('selected');
+  const cb = document.getElementById(id);
+  cb.checked = row.classList.contains('selected');
+  if (row.classList.contains('selected')) {
+    state.ffaOptions[id] = amount;
+  } else {
+    delete state.ffaOptions[id];
+  }
+  updateTotalDisplay();
+}
+
+// Validation checkboxes
+function toggleValidation(id) {
+  const wrap = document.getElementById(id + '_wrap');
+  wrap.classList.toggle('checked');
+  state.checks[id] = wrap.classList.contains('checked');
+  checkPayPalReady();
+}
+
+// Stripe — initialisé après chargement complet du DOM et du SDK
+let stripe, cardElement;
+
+function initStripe() {
+  if (typeof Stripe === 'undefined') {
+    setTimeout(initStripe, 100); // Réessayer si Stripe.js pas encore chargé
+    return;
+  }
+  stripe = Stripe('pk_live_51TIsWvFQt7eOzCbraGf6ZOa5Pnhh9jYG2Pxwf2PPmnxAMLaj2f4g7bbHZkQkAfSOcorxxBZAtdsp9BVFwKYGX4ma00Kgh4hobO');
+  const elements = stripe.elements();
+  cardElement = elements.create('card', {
+    style: {
+      base: {
+        fontSize: '15px',
+        fontFamily: 'Inter, sans-serif',
+        color: '#0a1628',
+        '::placeholder': { color: '#9ca3af' }
+      },
+      invalid: { color: '#e53e3e' }
+    },
+    hidePostalCode: true
+  });
+  cardElement.mount('#stripe-card-element');
+  cardElement.on('change', function(e) {
+    const el = document.getElementById('stripe-card-errors');
+    if (el) el.textContent = e.error ? e.error.message : '';
+  });
+}
+
+document.addEventListener('DOMContentLoaded', initStripe);
+
+async function payWithStripe() {
+  const total = getTotal();
+  if (total === 0) return;
+  const btn = document.getElementById('stripe-pay-btn');
+  btn.disabled = true;
+  btn.textContent = 'Traitement en cours...';
+
+  const nom = (document.getElementById('nom').value || '').trim();
+  const prenom = (document.getElementById('prenom').value || '').trim();
+  const email = (document.getElementById('email').value || '').trim();
+
+  try {
+    // 1. Créer le PaymentIntent côté serveur
+    const resp = await fetch('/api/stripe/create-payment-intent', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        amount: total,
+        email: email,
+        name: prenom + ' ' + nom,
+        description: 'Adhésion ARC 2026 — ' + prenom + ' ' + nom
+      })
+    });
+    const data = await resp.json();
+    if (!resp.ok || !data.clientSecret) throw new Error(data.error || 'Erreur serveur');
+
+    // 2. Confirmer le paiement avec la carte
+    const result = await stripe.confirmCardPayment(data.clientSecret, {
+      payment_method: {
+        card: cardElement,
+        billing_details: { name: prenom + ' ' + nom, email: email }
+      }
+    });
+
+    if (result.error) {
+      const el = document.getElementById('stripe-card-errors');
+      if (el) el.textContent = result.error.message;
+      btn.disabled = false;
+      btn.innerHTML = '🔒 Régler — <span id="stripe_amount">' + total + ' €</span>';
+    } else {
+      // Succès
+      btn.textContent = '✅ Paiement accepté !';
+      btn.style.background = '#2e7d32';
+      setTimeout(() => {
+        alert('✅ Paiement de ' + total + ' € accepté. Votre adhésion sera validée par le Bureau directeur. Un email de confirmation vous sera envoyé à ' + email + '.');
+      }, 300);
+    }
+  } catch(e) {
+    const el = document.getElementById('stripe-card-errors');
+    if (el) el.textContent = 'Erreur : ' + e.message;
+    btn.disabled = false;
+    btn.innerHTML = '🔒 Régler — <span id="stripe_amount">' + total + ' €</span>';
+  }
+}
+
+// Init — AUDACE + Caution toujours dans le total
+updateTotalDisplay();
+</script>
+</body>
+</html>

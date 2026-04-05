@@ -14,8 +14,64 @@ app.use((req, res, next) => {
   next();
 });
 
+// ── DOMAINE CANONIQUE ─────────────────────────────────────────────────
+// Tous les domaines secondaires redirigent vers www.aeroclub-arc.fr
+const CANONICAL = "www.aeroclub-arc.fr";
+const ALIASES = [
+  "www.aeroclub-arc.com",
+  "www.aeroclubarc.fr",
+  "www.aeroclubarc.com",
+  "aeroclub-arc.fr",
+  "aeroclub-arc.com",
+  "aeroclubarc.fr",
+  "aeroclubarc.com",
+];
+app.use((req, res, next) => {
+  const host = req.hostname;
+  if (ALIASES.includes(host)) {
+    return res.redirect(301, `https://${CANONICAL}${req.originalUrl}`);
+  }
+  next();
+});
+
 // ── REDIRECT / avant express.static ──────────────────────────────────
 app.get("/", (req, res) => res.redirect(301, "/home-arc"));
+
+// ── STRIPE PAYMENT INTENT ─────────────────────────────────────────────
+// La clé secrète doit être dans les variables d'environnement Railway
+// Settings → Variables → STRIPE_SECRET_KEY = sk_live_...
+app.use(express.json());
+
+app.post("/api/stripe/create-payment-intent", async (req, res) => {
+  try {
+    const { amount, email, name, description } = req.body;
+    if (!amount || amount <= 0) return res.status(400).json({ error: "Montant invalide" });
+
+    const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+    if (!stripeSecretKey) return res.status(500).json({ error: "Stripe non configuré" });
+
+    const r = await fetch("https://api.stripe.com/v1/payment_intents", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${stripeSecretKey}`,
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams({
+        amount: String(Math.round(amount * 100)), // en centimes
+        currency: "eur",
+        description: description || "Adhésion ARC 2026",
+        "receipt_email": email || "",
+        "metadata[name]": name || "",
+        "metadata[source]": "arc-inscription",
+      }),
+    });
+    const data = await r.json();
+    if (!r.ok) return res.status(400).json({ error: data.error?.message || "Erreur Stripe" });
+    res.json({ clientSecret: data.client_secret });
+  } catch(e) {
+    res.status(500).json({ error: e.message });
+  }
+});
 
 // ── PROXY PPV ─────────────────────────────────────────────────────────
 app.get("/api/ppv/total", async (req, res) => {
