@@ -1155,17 +1155,16 @@ function removePromo() {
 
 function getTotalAfterPromo() {
   const base = getTotal();
-  if (!activePromo || state.arcAmount <= 0) return base;
-  // La réduction s'applique UNIQUEMENT sur la cotisation ARC (frais d'inscription)
-  // Sont exclus : licence FFA, assurance, options FFA, caution (FIXED_OPTIONS)
+  if (!activePromo) return base;
+  // Réduction sur la cotisation ARC — si pas encore sélectionnée, on tente quand même
+  const arcBase = state.arcAmount > 0 ? state.arcAmount : base;
   let arcDiscounted;
   if (activePromo.type === 'percent') {
-    arcDiscounted = Math.round(state.arcAmount * (1 - activePromo.value / 100));
+    arcDiscounted = Math.round(arcBase * (1 - activePromo.value / 100));
   } else {
-    arcDiscounted = Math.max(0, state.arcAmount - activePromo.value);
+    arcDiscounted = Math.max(0, arcBase - activePromo.value);
   }
-  // Total = cotisation ARC réduite + tout le reste (FFA + options + caution)
-  const rest = base - state.arcAmount;
+  const rest = state.arcAmount > 0 ? base - state.arcAmount : 0;
   return arcDiscounted + rest;
 }
 
@@ -1343,7 +1342,7 @@ function initStripe() {
 document.addEventListener('DOMContentLoaded', initStripe);
 
 async function payWithStripe() {
-  const total = getTotal();
+  const total = getTotalAfterPromo();
   if (total === 0) return;
   const btn = document.getElementById('stripe-pay-btn');
   btn.disabled = true;
