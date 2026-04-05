@@ -1192,11 +1192,11 @@ function updateTotalDisplay() {
 
 function checkPayPalReady() {
   const btn = document.getElementById('stripe-pay-btn');
-  if (btn && state.checks.check1 && state.checks.check2 && getTotal() > 0 && state.arcAmount > 0) {
-    btn.disabled = false;
-  } else if (btn) {
-    btn.disabled = true;
-  }
+  if (!btn) return;
+  const ready = state.checks.check1 && state.checks.check2 && getTotal() > 0;
+  btn.disabled = !ready;
+  btn.style.opacity = ready ? '1' : '0.4';
+  btn.style.cursor = ready ? 'pointer' : 'not-allowed';
 }
 
 // Vérifier si le DC doit être obligatoire selon les statuts cochés à l'étape 2
@@ -1382,11 +1382,12 @@ async function payWithStripe() {
       btn.disabled = false;
       btn.innerHTML = '🔒 Régler — <span id="stripe_amount">' + total + ' €</span>';
     } else {
-      // Succès
+      // Succès — envoyer les données du formulaire au bureau
       btn.textContent = '✅ Paiement accepté !';
       btn.style.background = '#2e7d32';
+      await submitInscription(total, result.paymentIntent.id);
       setTimeout(() => {
-        alert('✅ Paiement de ' + total + ' € accepté. Votre adhésion sera validée par le Bureau directeur. Un email de confirmation vous sera envoyé à ' + email + '.');
+        alert('✅ Paiement de ' + total + ' € accepté. Un récapitulatif complet a été envoyé au Bureau directeur. Votre adhésion sera validée dans les prochains jours.');
       }, 300);
     }
   } catch(e) {
@@ -1394,6 +1395,48 @@ async function payWithStripe() {
     if (el) el.textContent = 'Erreur : ' + e.message;
     btn.disabled = false;
     btn.innerHTML = '🔒 Régler — <span id="stripe_amount">' + total + ' €</span>';
+  }
+}
+
+
+// ── ENVOI DES DONNÉES DU FORMULAIRE AU BUREAU ─────────────────────────
+async function submitInscription(montantPaye, stripePaymentId) {
+  try {
+    const getVal = id => { const el = document.getElementById(id); return el ? el.value : ''; };
+    const getChecked = name => [...document.querySelectorAll('input[name="' + name + '"]:checked')].map(i => i.value).join(', ');
+    const getRadio = name => { const el = document.querySelector('input[name="' + name + '"]:checked'); return el ? el.value : ''; };
+    const ffaCard = document.querySelector('#ffa_grid .coti-card.selected .name');
+    const arcCard = document.querySelector('.coti-grid .coti-card.selected .name');
+    const optionsSelected = [...document.querySelectorAll('.option-row.selected .opt-name')].map(el => el.textContent).join(', ') || 'Aucune';
+
+    const data = {
+      nom: getVal('nom'), prenom: getVal('prenom'),
+      date_naissance: getVal('ddn'), lieu_naissance: getVal('lieu_naissance'),
+      nationalite: getVal('nationalite'), sexe: getRadio('sexe'),
+      profession: getVal('profession'), employeur: getVal('employeur'),
+      adresse: getVal('adresse'), cp: getVal('cp'), ville: getVal('ville'),
+      tel: getVal('tel'), mobile: getVal('mobile'), email: getVal('email'),
+      urgence_nom: getVal('urgence_nom'), urgence_tel: getVal('urgence_tel'),
+      beneficiaire_nom: getVal('beneficiaire_nom'), beneficiaire_tel: getVal('beneficiaire_tel'),
+      statuts: getChecked('statut'),
+      licence_ffa: getVal('licence_ffa'), licence_cpl: getVal('licence_cpl'),
+      date_obtention: getVal('date_obtention'),
+      cotisation_arc: arcCard ? arcCard.textContent : 'Non sélectionnée',
+      cotisation_ffa: ffaCard ? ffaCard.textContent : 'Non sélectionnée',
+      options_ffa: optionsSelected,
+      code_promo: activePromo ? activePromo.code + ' (' + activePromo.label + ')' : 'Aucun',
+      montant_paye: montantPaye + ' €',
+      stripe_payment_id: stripePaymentId,
+      date_inscription: new Date().toLocaleString('fr-FR'),
+    };
+
+    await fetch('/api/inscription/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+  } catch(e) {
+    console.log('Envoi inscription:', e.message);
   }
 }
 

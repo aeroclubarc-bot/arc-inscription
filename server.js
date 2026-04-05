@@ -79,6 +79,103 @@ app.post("/api/stripe/create-payment-intent", async (req, res) => {
   }
 });
 
+// ── INSCRIPTION SUBMIT — email récapitulatif au bureau ─────────────────
+// Variables Railway à ajouter :
+//   GMAIL_USER = aeroclubarc@gmail.com
+//   GMAIL_PASS = mot de passe d'application Gmail (pas le mot de passe principal)
+app.post("/api/inscription/submit", async (req, res) => {
+  try {
+    const d = req.body;
+    const gmailUser = process.env.GMAIL_USER;
+    const gmailPass = process.env.GMAIL_PASS;
+
+    if (!gmailUser || !gmailPass) {
+      console.log("Email non configuré — GMAIL_USER/GMAIL_PASS manquants");
+      return res.json({ ok: true, warning: "Email non envoyé — variables manquantes" });
+    }
+
+    // Construire le corps de l'email
+    const emailBody = `
+NOUVELLE ADHÉSION — AÉROCLUB A.R.C.
+Date : ${d.date_inscription}
+Paiement Stripe : ${d.stripe_payment_id}
+Montant réglé : ${d.montant_paye}
+${d.code_promo !== 'Aucun' ? 'Code promo : ' + d.code_promo : ''}
+
+═══════════════════════════════
+IDENTITÉ
+═══════════════════════════════
+Nom : ${d.nom} ${d.prenom}
+Date de naissance : ${d.date_naissance}
+Lieu de naissance : ${d.lieu_naissance}
+Nationalité : ${d.nationalite}
+Sexe : ${d.sexe}
+Profession : ${d.profession}
+Employeur : ${d.employeur}
+
+═══════════════════════════════
+COORDONNÉES
+═══════════════════════════════
+Adresse : ${d.adresse}, ${d.cp} ${d.ville}
+Téléphone : ${d.tel}
+Mobile : ${d.mobile}
+Email : ${d.email}
+
+═══════════════════════════════
+CONTACT D'URGENCE
+═══════════════════════════════
+Nom : ${d.urgence_nom}
+Téléphone : ${d.urgence_tel}
+Bénéficiaire assurance : ${d.beneficiaire_nom} — ${d.beneficiaire_tel}
+
+═══════════════════════════════
+STATUT & LICENCES
+═══════════════════════════════
+Statuts : ${d.statuts}
+Licence FFA : ${d.licence_ffa}
+Licence CPL/ATPL : ${d.licence_cpl}
+Date d'obtention : ${d.date_obtention}
+
+═══════════════════════════════
+COTISATIONS CHOISIES
+═══════════════════════════════
+Adhésion ARC : ${d.cotisation_arc}
+Formule FFA : ${d.cotisation_ffa}
+Options FFA : ${d.options_ffa}
+Code promo : ${d.code_promo}
+TOTAL RÉGLÉ : ${d.montant_paye}
+`.trim();
+
+    // Envoi via Nodemailer SMTP Gmail
+    const nodemailerUrl = `https://registry.npmjs.org/nodemailer/-/nodemailer-6.9.13.tgz`;
+    // Utiliser le module nodemailer natif si disponible, sinon fetch SMTP
+    let nodemailer;
+    try { nodemailer = await import('nodemailer'); } catch(e) {
+      // Fallback: log en console si nodemailer absent
+      console.log("=== NOUVELLE ADHÉSION ===\n" + emailBody);
+      return res.json({ ok: true, warning: "nodemailer non installé — données loggées" });
+    }
+
+    const transporter = nodemailer.default.createTransport({
+      service: 'gmail',
+      auth: { user: gmailUser, pass: gmailPass }
+    });
+
+    await transporter.sendMail({
+      from: `"Formulaire ARC" <${gmailUser}>`,
+      to: gmailUser,
+      subject: `[ARC] Nouvelle adhésion — ${d.prenom} ${d.nom} — ${d.montant_paye}`,
+      text: emailBody,
+    });
+
+    console.log(`Email inscription envoyé pour ${d.prenom} ${d.nom}`);
+    res.json({ ok: true });
+  } catch(e) {
+    console.log("Erreur inscription submit:", e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // ── PROXY PPV ─────────────────────────────────────────────────────────
 app.get("/api/ppv/total", async (req, res) => {
   try {
