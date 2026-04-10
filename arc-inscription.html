@@ -821,7 +821,7 @@
         </div>
 
         <p class="info-note" style="margin: 16px 0 10px;">Options réservées aux FI/FE (instructeurs) :</p>
-        <div class="option-row" onclick="toggleOption(this, 35, 'ffa_opt_fi_acc')">
+        <div class="option-row" onclick="toggleOption(this, 50, 'ffa_opt_fi_acc')">
           <input type="checkbox" id="ffa_opt_fi_acc">
           <div class="opt-left">
             <div class="opt-name">Individuelle Accidents FI/FE</div>
@@ -903,7 +903,7 @@
           </div>
           <div class="opt-desc">Remboursée une fois la permanence effectuée</div>
         </div>
-        <div class="opt-price">+35 €</div>
+        <div class="opt-price">+50 €</div>
       </div>
 
       <p class="info-note" style="margin-top:12px;">Le forfait DC est automatiquement ajouté pour tout pilote breveté (PPL, CPL, ATPL, LAPL, ABL). AUDACE et la caution de permanence sont obligatoires pour tous les membres.</p>
@@ -999,8 +999,8 @@ let state = {
   checks: { check1: false, check2: false }
 };
 
-// AUDACE (5€) et Caution (35€) toujours inclus
-const FIXED_OPTIONS = 5 + 35; // AUDACE + Caution
+// AUDACE (5€) et Caution (50€) toujours inclus
+const FIXED_OPTIONS = 5 + 50; // AUDACE + Caution
 
 function getTotal() {
   let t = state.arcAmount + state.ffaAmount + FIXED_OPTIONS;
