@@ -44,7 +44,6 @@ app.use((req, res, next) => {
 app.get("/", (req, res) => res.redirect(301, "/home-arc"));
 
 // ── STRIPE PAYMENT INTENT ─────────────────────────────────────────────
-// Railway → Settings → Variables → ajouter : STRIPE_SECRET_KEY = sk_live_...
 app.post("/api/stripe/create-payment-intent", async (req, res) => {
   try {
     const { amount, email, name, description } = req.body;
@@ -80,9 +79,7 @@ app.post("/api/stripe/create-payment-intent", async (req, res) => {
   }
 });
 
-
 // ── TEST EMAIL ────────────────────────────────────────────────────────
-// Appeler /api/test-email pour vérifier que Resend fonctionne
 app.get("/api/test-email", async (req, res) => {
   const resendKey = process.env.RESEND_API_KEY;
   const destEmail = process.env.DEST_EMAIL || "aeroclubarc@gmail.com";
@@ -102,17 +99,15 @@ app.get("/api/test-email", async (req, res) => {
   }
 });
 
-// ── CONTACT SUBMIT — formulaire de contact ────────────────────────────
+// ── CONTACT SUBMIT ────────────────────────────────────────────────────
 app.post("/api/contact/submit", async (req, res) => {
   try {
     const { name, email, telephone, sujet, message } = req.body;
     if (!name || !email || !sujet || !message) {
       return res.status(400).json({ error: "Champs manquants" });
     }
-
     const resendKey = process.env.RESEND_API_KEY;
     const destEmail = process.env.DEST_EMAIL || "aeroclubarc@gmail.com";
-
     const emailBody = `NOUVEAU MESSAGE — FORMULAIRE DE CONTACT
 ════════════════════════════════════════
 De : ${name}
@@ -124,12 +119,10 @@ Message :
 ${message}
 ════════════════════════════════════════
 Répondre à : ${email}`;
-
     if (!resendKey) {
       console.log("=== CONTACT ===\n" + emailBody);
       return res.json({ ok: true, warning: "Email non envoyé — RESEND_API_KEY manquante" });
     }
-
     const resend = new Resend(resendKey);
     const { data, error } = await resend.emails.send({
       from: "Contact ARC <onboarding@resend.dev>",
@@ -138,12 +131,10 @@ Répondre à : ${email}`;
       subject: `[ARC Contact] ${sujet} — ${name}`,
       text: emailBody,
     });
-
     if (error) {
       console.error("Resend contact error:", error);
       return res.status(500).json({ error: error.message });
     }
-
     console.log(`Contact envoyé de ${name} (${email}) — ID: ${data.id}`);
     res.json({ ok: true });
   } catch(e) {
@@ -152,13 +143,10 @@ Répondre à : ${email}`;
   }
 });
 
-// ── INSCRIPTION SUBMIT — email récapitulatif au bureau ─────────────────
-// Variable Railway à ajouter : RESEND_API_KEY = re_XXXX...
-// Créer un compte gratuit sur resend.com → API Keys → Create
+// ── INSCRIPTION SUBMIT ─────────────────────────────────────────────────
 app.post("/api/inscription/submit", async (req, res) => {
   try {
     const d = req.body;
-
     const emailBody = `NOUVELLE ADHÉSION — AÉROCLUB A.R.C.
 ════════════════════════════════════════
 Date : ${d.date_inscription}
@@ -220,17 +208,13 @@ Options FFA : ${d.options_ffa}
 Code promo : ${d.code_promo}
 TOTAL RÉGLÉ : ${d.montant_paye}
 ════════════════════════════════════════`;
-
     const resendKey = process.env.RESEND_API_KEY;
     const destEmail = process.env.DEST_EMAIL || "aeroclubarc@gmail.com";
-
     console.log(`[ARC] Nouvelle adhésion reçue — ${d.prenom} ${d.nom} — Resend key: ${resendKey ? "OK" : "MANQUANTE"} — dest: ${destEmail}`);
-
     if (!resendKey) {
       console.log("=== NOUVELLE ADHÉSION (pas de clé Resend) ===\n" + emailBody);
       return res.json({ ok: true, warning: "Email non envoyé — RESEND_API_KEY manquante" });
     }
-
     const resend = new Resend(resendKey);
     const { data, error } = await resend.emails.send({
       from: "Formulaire ARC <onboarding@resend.dev>",
@@ -239,12 +223,10 @@ TOTAL RÉGLÉ : ${d.montant_paye}
       subject: `[ARC] Adhésion — ${d.prenom} ${d.nom} — ${d.montant_paye}`,
       text: emailBody,
     });
-
     if (error) {
       console.error("Resend error:", error);
       return res.status(500).json({ error: error.message || "Erreur Resend" });
     }
-
     console.log(`Email envoyé pour ${d.prenom} ${d.nom} — ID: ${data.id}`);
     res.json({ ok: true, emailId: data.id });
   } catch(e) {
@@ -296,25 +278,35 @@ app.get("/api/ppv/today", async (req, res) => {
 app.use(express.static(path.join(__dirname)));
 
 // ── PAGES ─────────────────────────────────────────────────────────────
-app.get("/home-arc", (req, res) => res.sendFile(path.join(__dirname, "home.html")));
-app.get("/ppv", (req, res) => res.sendFile(path.join(__dirname, "ppv.html")));
-app.get("/accueil", (req, res) => res.sendFile(path.join(__dirname, "accueil.html")));
-app.get("/leclub", (req, res) => res.sendFile(path.join(__dirname, "leclub.html")));
-app.get("/le-club", (req, res) => res.sendFile(path.join(__dirname, "leclub.html")));
-app.get("/la-flotte", (req, res) => res.sendFile(path.join(__dirname, "laflotte.html")));
-app.get("/formation", (req, res) => res.sendFile(path.join(__dirname, "ppl.html")));
-app.get("/ppl", (req, res) => res.sendFile(path.join(__dirname, "ppl.html")));
-app.get("/post-ppl", (req, res) => res.sendFile(path.join(__dirname, "postppl.html")));
-app.get("/postppl", (req, res) => res.sendFile(path.join(__dirname, "postppl.html")));
-app.get("/aerodrome", (req, res) => res.sendFile(path.join(__dirname, "aerodrome.html")));
-app.get("/contact", (req, res) => res.sendFile(path.join(__dirname, "contact.html")));
-app.get("/tarifs", (req, res) => res.sendFile(path.join(__dirname, "index.html")));
-app.get("/adhesion", (req, res) => res.sendFile(path.join(__dirname, "index.html")));
-app.get("/inscription", (req, res) => res.sendFile(path.join(__dirname, "index.html")));
-app.get("/sitemap.xml", (req, res) => { res.setHeader("Content-Type", "application/xml"); res.sendFile(path.join(__dirname, "sitemap.xml")); });
-app.get("/robots.txt", (req, res) => { res.setHeader("Content-Type", "text/plain"); res.send("User-agent: *\nAllow: /\nDisallow: /tarifs\nDisallow: /inscription\nDisallow: /adhesion\nSitemap: https://www.aeroclub-arc.fr/sitemap.xml\n"); });
-app.get("/statuts", (req, res) => res.sendFile(path.join(__dirname, "statuts.html")));
-app.get("/reglement", (req, res) => res.sendFile(path.join(__dirname, "reglement.html")));
+app.get("/home-arc",       (req, res) => res.sendFile(path.join(__dirname, "home.html")));
+app.get("/ppv",            (req, res) => res.sendFile(path.join(__dirname, "ppv.html")));
+app.get("/accueil",        (req, res) => res.sendFile(path.join(__dirname, "accueil.html")));
+app.get("/leclub",         (req, res) => res.sendFile(path.join(__dirname, "leclub.html")));
+app.get("/le-club",        (req, res) => res.sendFile(path.join(__dirname, "leclub.html")));
+app.get("/la-flotte",      (req, res) => res.sendFile(path.join(__dirname, "laflotte.html")));
+app.get("/formation",      (req, res) => res.sendFile(path.join(__dirname, "ppl.html")));
+app.get("/ppl",            (req, res) => res.sendFile(path.join(__dirname, "ppl.html")));
+app.get("/post-ppl",       (req, res) => res.sendFile(path.join(__dirname, "postppl.html")));
+app.get("/postppl",        (req, res) => res.sendFile(path.join(__dirname, "postppl.html")));
+app.get("/aerodrome",      (req, res) => res.sendFile(path.join(__dirname, "aerodrome.html")));
+app.get("/contact",        (req, res) => res.sendFile(path.join(__dirname, "contact.html")));
+app.get("/tarifs",         (req, res) => res.sendFile(path.join(__dirname, "index.html")));
+app.get("/adhesion",       (req, res) => res.sendFile(path.join(__dirname, "index.html")));
+app.get("/inscription",    (req, res) => res.sendFile(path.join(__dirname, "index.html")));
+app.get("/statuts",        (req, res) => res.sendFile(path.join(__dirname, "statuts.html")));
+app.get("/reglement",      (req, res) => res.sendFile(path.join(__dirname, "reglement.html")));
+
+// ── ENTRETIEN DR250 ───────────────────────────────────────────────────
+app.get("/entretien-dr250", (req, res) => res.sendFile(path.join(__dirname, "entretien-dr250.html")));
+
+app.get("/sitemap.xml", (req, res) => {
+  res.setHeader("Content-Type", "application/xml");
+  res.sendFile(path.join(__dirname, "sitemap.xml"));
+});
+app.get("/robots.txt", (req, res) => {
+  res.setHeader("Content-Type", "text/plain");
+  res.send("User-agent: *\nAllow: /\nDisallow: /tarifs\nDisallow: /inscription\nDisallow: /adhesion\nSitemap: https://www.aeroclub-arc.fr/sitemap.xml\n");
+});
 
 app.listen(PORT, () => {
   console.log(`ARC running on port ${PORT}`);
