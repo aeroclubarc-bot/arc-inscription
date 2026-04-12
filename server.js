@@ -302,6 +302,8 @@ app.get("/entretien-dr250", (req, res) => res.sendFile(path.join(__dirname, "ent
 // ── ENTRETIEN D113 ───────────────────────────────────────────────────
 app.get("/entretien-d113", (req, res) => res.sendFile(path.join(__dirname, "entretien-d113.html")));
 
+// ── ENTRETIEN DH251 ───────────────────────────────────────────────────
+app.get("/entretien-dh251", (req, res) => res.sendFile(path.join(__dirname, "entretien-dh251.html")));
 app.get("/sitemap.xml", (req, res) => {
   res.setHeader("Content-Type", "application/xml");
   res.sendFile(path.join(__dirname, "sitemap.xml"));
