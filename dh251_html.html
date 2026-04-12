@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Programme d'Entretien CNRA — Jodel DH 251 F-POUF</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✈️</text></svg>"/>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>* { box-sizing: border-box; margin: 0; padding: 0; } body { background: #f0f2f8; font-family: Arial, sans-serif; } #root { min-height: 100vh; }</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useRef, useEffect } = React;
+
+const C = { bg:"#f0f2f8", hdr:"#1a1a5e", acc:"#2244aa", lgt:"#e8e8f8", brd:"#b0b8e0", grn:"#1e7a1e", r0:"#fff", r1:"#f7f7fd" };
+
+const INFO = { immat:"F-POUF", serie:"03", moteur:"LYCOMING O-235-C2C", helice:"EVRA 88/75/34", edition:"3", date:"22/04/2025" };
+
+// Sections ATA100 avec items détaillés
+const SECTIONS = [
+  { id:"prep", title:"PRÉPARATION À LA VISITE", type:"checklist", items:[
+    "Nettoyage général de l'ensemble de l'avion",
+    "Nettoyage de l'intérieur cabine",
+    "Mise en route moteur — vérification sélecteur magnéto, chauffage et point fixe",
+    "Contrôle ralenti et plein gaz, pression/température huile, mixture, réchauffage carbu",
+    "Contrôle lampes témoins, charge batterie, freins, robinet carburant",
+    "Essai magnétos (perte de tours suivant manuel d'utilisation)",
+    "Essai VHF — vérification présence fiche de compensation compas",
+    "Arrêt moteur — s'assurer arrêt tous appareils électriques — retirer clés de contact",
+    "Recherche fuites (carburant, lubrifiant, hydraulique)",
+    "Nettoyage moteur (moteur refroidi)",
+    "Vérification et mise à jour documents de bord — validité des documents",
+    "S'informer des observations pilotes sur le comportement et fonctionnement de l'appareil",
+  ]},
+  { id:"ata21", title:"ATA 21 — CHAUFFAGE ET VENTILATION", type:"inspection", items:[
+    {el:"Étanchéité circuit chauffage",insp:"Vérifier l'étanchéité du circuit de chauffage en particulier au niveau de l'enveloppe d'échappement",v50:true,v100:true},
+    {el:"Conduits BOAS / colliers",insp:"Inspecter les conduits (BOAS) et leurs colliers. Vérifier les fixations en particulier à proximité des commandes moteur",v50:true,v100:true},
+    {el:"Boîte distribution / flexibles",insp:"Examen de la boîte de distribution, des flexibles de commande, essai de fonctionnement",v50:false,v100:true},
+    {el:"État conduits BOAS / aérateurs",insp:"Vérifier l'état des conduits BOAS, l'étanchéité de ceux-ci et des palettes fixées contre l'intérieur du dôme, essai des aérateurs",v50:false,v100:true},
+    {el:"Entrées d'air latérales",insp:"Vérifier la propreté des entrées d'air latérales",v50:false,v100:true},
+  ]},
+  { id:"ata23", title:"ATA 23 — RADIO NAVIGATION", type:"inspection", items:[
+    {el:"Antennes — fixations et état",insp:"Examen détaillé des fixations et de l'état des antennes",v50:false,v100:true},
+    {el:"Câbles coaxiaux",insp:"Inspection des câbles coaxiaux sur toute leur longueur en particulier au passage des cloisons, aux fixations",v50:false,v100:true},
+    {el:"Racks / silentblocs",insp:"Examen des racks des silentblocs pour crique et corrosion",v50:false,v100:true},
+    {el:"Balise de détresse",insp:"Vérification, test de la balise de détresse et de ses fixations",v50:false,v100:true},
+  ]},
+  { id:"ata24", title:"ATA 24 — CIRCUIT ÉLECTRIQUE", type:"inspection", items:[
+    {el:"Batterie — fuites / cosses",insp:"Examen détaillé de la batterie pour déceler d'éventuelles fuites, inspection particulière au niveau des sorties des cosses",v50:true,v100:true},
+    {el:"Niveau batterie",insp:"Vérifier / compléter le niveau de la batterie (eau distillée uniquement)",v50:true,v100:true},
+    {el:"Dépose batterie / support",insp:"Dépose de la batterie pour vérification du support, de la fixation CPF (recherche traces de corrosion, crique, défaut de fixation)",v50:false,v100:true},
+    {el:"Charge batterie / cosses",insp:"Vérification charge batterie, nettoyage et graissage des cosses",v50:false,v100:true},
+    {el:"Relais général et démarrage",insp:"Examen détaillé des relais général et démarrage. Assurer les contacts et la protection. Vérifier les fixations",v50:false,v100:true},
+    {el:"Tubes / fils — frottements",insp:"Vérifier une éventuelle usure des tubes et fils par frottements ou vibrations",v50:true,v100:true},
+    {el:"Connexions électriques",insp:"Vérifier le bon état de toutes les connexions électriques",v50:true,v100:true},
+    {el:"Câblages moteur",insp:"Examiner tous les câblages électriques côtés moteur (traces d'usure, brûlures). Assurer les fixations",v50:false,v100:true},
+    {el:"Courroie alternateur",insp:"Contrôle de la tension de la courroie d'alternateur",v50:false,v100:true},
+    {el:"Alternateur — dépose vérification",insp:"Dépose de l'alternateur pour vérification du roulement, état des balais et du collecteur, fixations des diodes de redressement",v50:false,v100:true},
+    {el:"Câblages intérieur complet",insp:"Examen détaillé des câblages électriques tout le long de leur cheminement, derrière tableau de bord, derrière les selleries, à l'intérieur fuselage",v50:false,v100:true},
+    {el:"Feux anticollisions / verrines",insp:"S'assurer du fonctionnement des feux anticollisions, feux à éclats et inspecter les verrines et leurs fixations",v50:false,v100:true},
+    {el:"Fusibles de rechange",insp:"S'assurer de la présence des fusibles de rechange",v50:true,v100:true},
+    {el:"Régulateur tension / voyant",insp:"Vérification du bon fonctionnement du régulateur de tension et du voyant d'alerte de baisse de charge",v50:false,v100:true},
+  ]},
+  { id:"ata25", title:"ATA 25 — SIÈGES ET CABINE", type:"inspection", items:[
+    {el:"Sièges avant — verrouillage",insp:"Vérifier le fonctionnement du système des sièges avant, en particulier le verrouillage",v50:true,v100:true},
+    {el:"Mécanisme pivotement sièges",insp:"Graissage du mécanisme de pivotement",v50:false,v100:true},
+    {el:"Fixations sièges / structures",insp:"Examen des fixations des sièges sur les structures",v50:false,v100:true},
+    {el:"Dossiers avant — criques",insp:"Essai de flexion des dossiers de sièges avant pour déceler d'éventuelles criques",v50:false,v100:true},
+    {el:"Ceintures / points d'ancrage",insp:"Vérifier l'état des ceintures ainsi que les points d'ancrage",v50:false,v100:true},
+    {el:"Systèmes fermeture ceintures",insp:"S'assurer du bon fonctionnement des systèmes de fermeture des ceintures",v50:false,v100:true},
+    {el:"Selleries / fixations palonniers",insp:"Vérifier l'état des selleries et de leurs fixations, en particulier au niveau des palonniers",v50:false,v100:true},
+    {el:"Dépose garnitures / structures",insp:"Dépose des garnitures pour examen des structures cachées",v50:false,v100:true},
+  ]},
+  { id:"ata27", title:"ATA 27 — COMMANDES DE VOL", type:"inspection", items:[
+    {el:"Libre fonctionnement commandes",insp:"S'assurer du libre fonctionnement des commandes (profondeur, gauchissement, direction) absence de point dur",v50:true,v100:true},
+    {el:"Absence jeux anormaux",insp:"S'assurer de l'absence de jeux anormaux dans les commandes",v50:true,v100:true},
+    {el:"Neutre ailerons",insp:"Vérifier le neutre des ailerons (bord de fuite de 0 à 5 mm au-dessus de celui de l'aile)",v50:true,v100:true},
+    {el:"Compensation de butée à butée",insp:"Vérifier le fonctionnement de la commande de compensation de butée à butée, manche plein piqué et manche plein cabré",v50:false,v100:true},
+    {el:"Graissage charnières / paliers",insp:"Graisser à l'huile moteur les charnières de gouvernes, palier de palonnier, axe de base du manche",v50:true,v100:true},
+    {el:"Tension câbles de commande",insp:"Contrôler la tension des câbles de commande",v50:false,v100:true},
+    {el:"Poulies / supports / guide câbles",insp:"Examen visuel des poulies, de leur support, des fibres guide câbles",v50:false,v100:true},
+    {el:"Ferrures axes poulies ailerons",insp:"Vérifier que les ferrures des axes de poulies d'ailerons ne sont pas débrasées",v50:true,v100:true},
+    {el:"Câbles — dépose vérification",insp:"Détendre les câbles sur toute la longueur et vérifier leur état au niveau des poulies et guide câbles. Examen visuel des poulies, essai de rotation",v50:false,v100:true},
+    {el:"Palonniers / paliers / rotules",insp:"Examen visuel des palonniers, paliers, combiné, manche de conjugaison. Vérification de l'état des rotules et des axes (criques, corrosion)",v50:false,v100:true},
+    {el:"Dépose câbles — vérification complète",insp:"Dépose des câbles. Vérification sur toute la longueur",v50:false,v100:true},
+    {el:"Mécanisme compensation profondeur",insp:"Examen détaillé de l'ensemble du mécanisme de compensation de profondeur : état et fixation du boîtier, du flexible, de la gaine, des glissières, saxes, fixations",v50:false,v100:true},
+    {el:"Mécanisme commande volets",insp:"Après démontage du protecteur, examen détaillé du mécanisme de commande de volets. État des axes, présence et efficacité des goupilles, absence de crique ou d'usure sur le secteur denté",v50:false,v100:true},
+    {el:"Bielle commande volet",insp:"Examen approfondi de la bielle de commande de volet sous la voilure. État des rotules, sertissage, corrosion",v50:false,v100:true},
+    {el:"Graissage commande tab",insp:"Graisser la commande du tab",v50:false,v100:true},
+  ]},
+  { id:"ata31", title:"ATA 31 — CIRCUIT ANÉMOMÉTRIQUE", type:"inspection", items:[
+    {el:"Prises statiques et dynamiques",insp:"Propreté des prises statiques et dynamiques",v50:true,v100:true},
+    {el:"Tuyauteries statique",insp:"Examen des tuyauteries de statique (cheminement, fixations, pincement)",v50:false,v100:true},
+    {el:"Prise dynamique",insp:"État de la prise dynamique, des fixations et raccordement des tuyauteries",v50:false,v100:true},
+    {el:"Fixations / amortisseurs tableau bord",insp:"Examen détaillé des fixations et amortisseurs de tableau de bord des instruments",v50:false,v100:true},
+    {el:"Altimètre / anémomètre — banc",insp:"Passage au banc de l'altimètre et l'anémomètre",v50:false,v100:true},
+    {el:"Compensation compas",insp:"Compensation du compas",v50:false,v100:true},
+    {el:"Gonflage pneus",insp:"Gonflage pneus",v50:true,v100:true},
+  ]},
+  { id:"ata32", title:"ATA 32 — ATTERRISSEURS", type:"inspection", items:[
+    {el:"Carénages roue / jambe — dépose",insp:"Dépose des carénages de roue et de jambe de train et vérification de leur état. Examen visuel de la tige coulissante (coups, corrosion, usure)",v50:false,v100:true},
+    {el:"Fût — criques / corrosion",insp:"Examen visuel du fût (recherche de criques, corrosion)",v50:false,v100:true},
+    {el:"Fourreaux — supports inférieurs",insp:"Vérification des fourreaux au niveau des supports inférieurs de fixation (trace de pliure)",v50:false,v100:true},
+    {el:"Caoutchoucs amortisseurs",insp:"Vérification des caoutchoucs amortisseurs",v50:false,v100:true},
+    {el:"Gonflage pneus train principal",insp:"Gonflage des pneus",v50:false,v100:true},
+    {el:"Dépose tige — ressuage fusée",insp:"Dépose de la tige coulissante. Contrôle par ressuage des soudures fusée tige. Remplacement des joints à lèvres",v50:false,v100:true},
+    {el:"Boulons amortisseurs",insp:"Examen des boulons des amortisseurs (état, corrosion)",v50:false,v100:true},
+    {el:"Atterrisseur AR — nettoyage",insp:"Nettoyage complet",v50:false,v100:true},
+    {el:"Serrage flasques roue AR",insp:"Vérification du serrage des flasques de roue",v50:true,v100:true},
+    {el:"Verrouillage dans l'axe",insp:"Vérification du verrouillage dans l'axe (démontage complet)",v50:false,v100:true},
+    {el:"Guignol conjugaison direction",insp:"Serrage du guignol de conjugaison sur la direction",v50:false,v100:true},
+    {el:"Lames ressorts — dépose graissage",insp:"Démontage complet des lames de ressorts et graissage",v50:false,v100:true},
+    {el:"Étrier fixation lames",insp:"Vérification de l'étrier de fixation des lames de ressorts",v50:false,v100:true},
+    {el:"Jeu lames dans l'étrier",insp:"Vérification du jeu des lames dans l'étrier (les lames ne doivent avoir ni jeu ni être serrées dans l'étrier)",v50:true,v100:true},
+    {el:"Boulon fixation AV lames",insp:"Vérification du serrage du boulon de fixation AV des lames de ressorts",v50:true,v100:true},
+    {el:"Partie AR fuselage — contrôle général",insp:"Contrôle général de la partie AR du fuselage",v50:false,v100:true},
+    {el:"Roues — coupures / criques",insp:"Examen visuel des roues pour déceler des coupures et criques",v50:true,v100:true},
+    {el:"Repère pneu / jante",insp:"Contrôler le repère pour assurer que le pneu n'a pas tourné sur la jante",v50:true,v100:true},
+    {el:"Roulements — vérification",insp:"Vérification manuelle et auditive de l'état des roulements",v50:false,v100:true},
+    {el:"Roulements — dépose lubrification",insp:"Dépose pour examen de l'état des roulements et de leur portée sur la fusée. Lubrification des roulements",v50:false,v100:true},
+    {el:"Valve / chambre à air",insp:"Vérification de l'état de la valve et de la chambre à air pour usure",v50:false,v100:true},
+    {el:"Pression pneumatiques",insp:"Vérifier la pression des pneumatiques",v50:true,v100:true},
+    {el:"Réglage freins",insp:"Vérifier le réglage des freins",v50:false,v100:true},
+    {el:"Niveau liquide frein",insp:"Contrôle du niveau du liquide de frein dans la bâche",v50:true,v100:true},
+    {el:"Plaquettes / disque",insp:"Contrôle de l'état des plaquettes et du disque",v50:false,v100:true},
+    {el:"Circuit frein — inspection complète",insp:"Inspection complète des circuits de frein droit et gauche depuis les cylindres de roues jusqu'à la bâche hydraulique (fuite aux raccords, usure tuyauteries)",v50:false,v100:true},
+    {el:"Maîtres cylindres / valve parking",insp:"Vérifier l'efficacité des maîtres cylindres de frein et de la valve de frein de parking",v50:false,v100:true},
+    {el:"Rinçage circuit frein / purge",insp:"Rinçage complet du circuit de frein. Remplacement du liquide de frein. Purge",v50:false,v100:true},
+  ]},
+  { id:"ata53", title:"ATA 53 — FUSELAGE", type:"inspection", items:[
+    {el:"Revêtement toile — extérieur",insp:"Examen visuel du revêtement toile pour recherche de déformations (déchirures, peinture écaillée)",v50:true,v100:true},
+    {el:"Revêtement toile — détaillé",insp:"Vérification détaillée du revêtement toile. Examen approfondi des structures internes du fuselage (zones moisies, décollement de baguettes)",v50:true,v100:true},
+    {el:"Cloison pare-feu / batterie",insp:"Examen détaillé du couple de cloison pare-feu, en particulier au niveau de la batterie",v50:true,v100:true},
+    {el:"Plancher cabine",insp:"Examen visuel du plancher de cabine, après dépose des tapis et moquettes",v50:false,v100:true},
+    {el:"Trous évacuation eau",insp:"S'assurer que les trous d'évacuation d'eau sont bien débouchés",v50:false,v100:true},
+    {el:"Étambot — décollements / impacts",insp:"Recherche de décollement ou d'impacts éventuels au niveau de l'étambot",v50:false,v100:true},
+    {el:"Longeron principal voilure",insp:"Examen détaillé de la partie centrale du longeron principal voilure",v50:false,v100:true},
+    {el:"Cloison fuselage",insp:"Examen de la cloison de fuselage",v50:false,v100:true},
+    {el:"Boulons attaches aile/fuselage",insp:"Examen approfondi des boulons d'attaches aile/fuselage",v50:false,v100:true},
+    {el:"Roulette de queue — graissage",insp:"Graisser au Rétinax H le mécanisme de la roulette de queue",v50:true,v100:true},
+  ]},
+  { id:"ata54", title:"ATA 54 — NACELLE MOTEUR", type:"inspection", items:[
+    {el:"Étanchéité cloison pare-feu",insp:"Vérification de l'étanchéité de la cloison pare-feu par rapport à la structure",v50:false,v100:true},
+    {el:"Attaches bâti moteur (intérieur cabine)",insp:"Examen détaillé des attaches bâti moteur (enfoncements contreplaqués à l'intérieur cabine)",v50:false,v100:true},
+    {el:"Resserrage boulons CPF",insp:"Vérification resserrage des boulons traversant la CPF avec adjonction de rondelles si nécessaire",v50:false,v100:true},
+    {el:"Ferrures attache bâti — criques",insp:"Vérification des ferrures d'attache du bâti moteur pour criques, corrosion",v50:false,v100:true},
+  ]},
+  { id:"ata55", title:"ATA 55 — EMPENNAGES", type:"inspection", items:[
+    {el:"Gouverne direction — état général",insp:"Vérifier l'état de la gouverne de direction (entoilage, peinture, structure) en particulier au niveau du guignol de conjugaison",v50:false,v100:true},
+    {el:"Empennage monobloc",insp:"Vérifier l'état de l'empennage monobloc (entoilage, peinture, structure). Examen de l'encastrement des leviers de commande (matage)",v50:false,v100:true},
+    {el:"Portes visite / ferrures / paliers",insp:"Ouverture des portes de visite, carène d'étambot pour examen des ferrures et des paliers de fixation des empennages horizontaux et de la structure de dérive",v50:false,v100:true},
+    {el:"Jeux axes monobloc / rotules",insp:"Contrôler les jeux des axes d'articulation du monobloc et des rotules",v50:false,v100:true},
+    {el:"Butées de profondeur",insp:"Vérification des butées de profondeur (moisissure, crique, défaut de fixation)",v50:false,v100:true},
+    {el:"Jeu charnière direction",insp:"Contrôler les jeux de la charnière de direction",v50:false,v100:true},
+    {el:"Dépose gouverne direction",insp:"Dépose de la gouverne de direction, inspection des charnières, des axes de fixation, usure. Remontage avec contrôle du débattement",v50:false,v100:true},
+    {el:"Trous évacuation eau empennage",insp:"S'assurer que les trous d'évacuation d'eau sont bien débouchés",v50:false,v100:true},
+    {el:"Masses d'équilibrage",insp:"Inspecter la fixation des masses d'équilibrage (corrosion du tube, de la visserie)",v50:false,v100:true},
+    {el:"Anti-tab — examen visuel",insp:"Examen visuel des gouvernes d'anti-tab",v50:false,v100:true},
+    {el:"Anti-tab — charnière",insp:"Contrôle de la charnière d'anti-tab",v50:false,v100:true},
+    {el:"Anti-tab — dépose inspection",insp:"Dépose de la gouverne d'anti-tab, inspection des charnières pour usure et corrosion. Remontage avec contrôle du débattement",v50:false,v100:true},
+    {el:"Graissage rotules / axes / paliers",insp:"Graissage des rotules et des axes paliers de monobloc et des paliers de direction",v50:false,v100:true},
+  ]},
+  { id:"ata56", title:"ATA 56 — VERRIÈRES", type:"inspection", items:[
+    {el:"Commandes de verrouillage",insp:"Fonctionnement des commandes de verrouillage",v50:false,v100:true},
+    {el:"Transparents — crazing / criques",insp:"État des transparents (crazing, criques, étanchéité)",v50:false,v100:true},
+    {el:"Joints d'étanchéité",insp:"Contrôler les joints d'étanchéité",v50:false,v100:true},
+    {el:"Vis fixation plexiglas",insp:"Vérification des vis de fixation des plexiglas",v50:false,v100:true},
+  ]},
+  { id:"ata57", title:"ATA 57 — AILES", type:"inspection", items:[
+    {el:"Entoilage — craquelures / impacts",insp:"Vérifier l'état de l'entoilage (craquelure, impact, nœuds de lardage)",v50:true,v100:true},
+    {el:"Longeron — zone attaches train",insp:"Vérifier l'état du longeron dans la zone des attaches de train",v50:false,v100:true},
+    {el:"Nervures / longeronnet / bord de fuite",insp:"Vérifier l'intégrité des nervures et des structures de longeronnet de bord de fuite par légères pressions manuelles",v50:false,v100:true},
+    {el:"Marchepied / protection structure",insp:"Vérification de l'état du marchepied et de la protection de structure à l'arrière de celui-ci (usure, étanchéité)",v50:false,v100:true},
+    {el:"Ailerons — état général",insp:"État général des ailerons, inspecter en particulier l'arêtier de bord de fuite et les zones d'attaches et de butées de débattement",v50:false,v100:true},
+    {el:"Volets — état général",insp:"État général des volets (impacts sur intrados) Recherche défauts au niveau des charnières intégrité de la nervure supportant le guignol de commande",v50:true,v100:true},
+    {el:"Charnières volets / axes commande",insp:"Vérification de l'état et graissage des charnières des volets, des axes de commande de volets, des axes d'articulation et des axes de chapes de câble d'aileron",v50:false,v100:true},
+    {el:"Trous évacuation eau ailes",insp:"S'assurer que les trous d'évacuation d'eau sont bien débouchés",v50:false,v100:true},
+    {el:"Trappe visite renvois câbles ailerons",insp:"Dépose de la trappe de visite des renvois de câbles ailerons. Examen détaillé de ceux-ci (état des poulies, des câbles, des fixations)",v50:false,v100:true},
+    {el:"Dépose volets / ailerons — inspection",insp:"Dépose des volets et des ailerons, inspection détaillée du longeronnet, des charnières, des butées, des guignols de commande, des axes d'articulation",v50:false,v100:true},
+    {el:"Cales débattements ailerons-volets",insp:"Remplacement des cales de débattements ailerons-volets (si cale en bois déformée)",v50:false,v100:true},
+    {el:"Raidisseurs réservoir",insp:"Vérification de l'état général des raidisseurs de réservoir (criques autour des trous de fixation)",v50:false,v100:true},
+    {el:"Serrages attaches (couples de serrage)",insp:"Vérifier le serrage : attaches voilure 4 kg.m — plan horizontal 4+8 (+2 masses d'équilibrage) — atterrisseur AR 4 kg.m — atterrisseur principal 8 kg.m — charnières de gouvernes",v50:false,v100:true},
+  ]},
+  { id:"ata61", title:"ATA 61 — HÉLICE", type:"inspection", items:[
+    {el:"Montage et serrage hélice",insp:"Vérifier le montage et le serrage de l'hélice",v50:true,v100:true},
+    {el:"Absence défaut / impacts",insp:"S'assurer de l'absence de défaut sur l'hélice (impacts)",v50:true,v100:true},
+    {el:"Cône d'hélice — intégrité",insp:"Vérifier l'intégrité du cône d'hélice et des fixations (fissures, criques d'impacts)",v50:true,v100:true},
+    {el:"Dépose hélice — inspection détaillée",insp:"Dépose de l'hélice pour inspection détaillée (état, fixation). Vérification des boulons de fixation de l'hélice",v50:false,v100:true},
+  ]},
+  { id:"ata71", title:"ATA 71 — GMP (GROUPE MOTOPROPULSEUR)", type:"inspection", items:[
+    {el:"Capots moteur",insp:"Examen des capots moteur, état des plastiques, fixations",v50:false,v100:true},
+    {el:"Bâti moteur — serrage 8 kg.m",insp:"Vérification serrage du bâti moteur 8 kg.m (déformation, criques, corrosion, frottement, soudures)",v50:false,v100:true},
+    {el:"Déflecteurs moteur / bavettes",insp:"Examen des déflecteurs moteur et de leurs bavettes caoutchouc (criques, fixation)",v50:false,v100:true},
+    {el:"Silentblocs",insp:"Examen des silentblocs (craquelures, brûlures)",v50:false,v100:true},
+    {el:"Vidange huile moteur",insp:"Vidange de l'huile moteur",v50:true,v100:true},
+    {el:"Radiateur d'huile",insp:"Examen du radiateur d'huile. État du nid d'abeille, fuites, fixations",v50:false,v100:true},
+    {el:"Crépine à huile",insp:"Nettoyage crépine à huile",v50:false,v100:true},
+    {el:"Filtre à air",insp:"Nettoyage du filtre à air",v50:true,v100:true},
+    {el:"Tuyauteries d'huile",insp:"Inspecter les tuyauteries d'huile. État général, raccords",v50:false,v100:true},
+    {el:"Circuit admission / carbu",insp:"Vérifier le circuit d'admission : pipes, raccords caoutchouc, colliers, carbu",v50:false,v100:true},
+    {el:"Écrous réservoir d'huile",insp:"Vérifier le serrage des écrous de fixation du réservoir d'huile",v50:true,v100:true},
+    {el:"Reniflard",insp:"Examen du reniflard, fixation, obstructions",v50:false,v100:true},
+    {el:"Carters — criques / joints / cylindres",insp:"Examen des carters pour criques, fuites aux joints. Examen des cylindres, fixations, état des ailettes de refroidissement",v50:false,v100:true},
+    {el:"Déflecteurs d'air sur cylindres",insp:"Vérifier l'ajustage des déflecteurs d'air sur les cylindres",v50:true,v100:true},
+    {el:"Écrous de cylindres",insp:"Vérifier le serrage des écrous de cylindres",v50:true,v100:true},
+    {el:"Jonction fût cylindre / culasse",insp:"Vérifier la jonction fût de cylindre culasses (recherche suintement d'huile ou décoloration)",v50:false,v100:true},
+    {el:"Compressions cylindres 80 PSI",insp:"Vérifier les compressions des cylindres sur 80 PSI — C1 / C2 / C3 / C4",v50:false,v100:true},
+    {el:"Culbuteurs / soupapes / poussoirs",insp:"Dépose des couvercles culbuteurs et examen des culbuteurs et soupapes. Après avoir enlevé les bougies, tourner lentement pour examiner les poussoirs. Remonter après avoir changé les joints",v50:false,v100:true},
+  ]},
+  { id:"ata73", title:"ATA 73 — CIRCUIT CARBURANT", type:"inspection", items:[
+    {el:"Carburateur — fixations / fuites",insp:"Examen approfondi du carburateur, fixations, fuites, jeu",v50:false,v100:true},
+    {el:"Filtre décanteur — nettoyage",insp:"Nettoyage du filtre du décanteur",v50:true,v100:true},
+    {el:"Tuyauteries essence souples",insp:"Examen des tuyauteries d'essence souples (état, péremption)",v50:false,v100:true},
+    {el:"Raccords pompe mécanique",insp:"Examen approfondi des raccords sur pompe mécanique entrée et sortie de pompe",v50:false,v100:true},
+    {el:"Purge carburateur",insp:"Purge du carburateur",v50:true,v100:true},
+    {el:"Capteurs pression essence",insp:"Inspection des capteurs de pression essence, état de la tuyauterie",v50:false,v100:true},
+    {el:"Filtres / décanteur / pompe élec.",insp:"Nettoyage des filtres, décanteur et pompe électrique. Examen des particules recueillies pour investigation éventuelle",v50:true,v100:true},
+    {el:"Filtre arrivée essence carbu",insp:"Nettoyage du filtre d'arrivée d'essence au carburateur",v50:false,v100:true},
+    {el:"Réservoir — fuite / sangles",insp:"Inspection détaillée du réservoir (recherche fuite, corrosion) des sangles de fixation (usure) et du raccord de sortie de réservoir",v50:false,v100:true},
+    {el:"Ligne alimentation réservoir → pompe",insp:"Examen détaillé de toute la ligne d'alimentation depuis le réservoir jusqu'à l'entrée de la pompe mécanique",v50:false,v100:true},
+    {el:"Étalonnage jaugeur / étiquettes",insp:"Vérification étalonnage du jaugeur. Contrôle de la présence des étiquettes",v50:false,v100:true},
+    {el:"Tuyauteries mise à l'air libre",insp:"Vérification de l'efficacité des tuyauteries de mise à air libre",v50:true,v100:true},
+    {el:"Joints toriques purges carburant",insp:"Remplacement des joints toriques des purges à carburant",v50:false,v100:true},
+  ]},
+  { id:"ata74", title:"ATA 74 — ALLUMAGE", type:"inspection", items:[
+    {el:"Bougies — dépose / nettoyage / réglage",insp:"Démontage des bougies, nettoyage, contrôle de l'écartement. Les changer si nécessaire",v50:true,v100:true},
+    {el:"Rampes d'allumage — examen visuel",insp:"Examen visuel des rampes d'allumage",v50:false,v100:true},
+    {el:"Calage magnétos / câblages",insp:"Contrôle du calage des magnétos, inspection câblages, connections, trous évent, câble de mise à la masse",v50:false,v100:true},
+    {el:"Magnétos — dépose nettoyage",insp:"Dépose et nettoyage complet des magnétos. Vérification des magnétos (tous les 500h)",v50:false,v100:true},
+    {el:"Fils rampes — isolement / contacts",insp:"Vérifier l'isolement et l'état des contacts des fils des rampes d'allumage",v50:false,v100:true},
+    {el:"Roulements / enroulement / vis platinées",insp:"Inspection des roulements, entraîneur, enroulement, condensateur, vis platinées, balais, bloc de distribution",v50:false,v100:true},
+    {el:"Vérification déclic",insp:"Vérification déclic",v50:false,v100:true},
+  ]},
+  { id:"ata75", title:"ATA 75 — ADMISSION AIR", type:"inspection", items:[
+    {el:"Boîtier réchauffe carbu",insp:"Examen visuel du boîtier de réchauffage carburateur, état du clapet, de son axe, des paliers de la commande boîtier de réchauffage",v50:false,v100:true},
+    {el:"Filtre à air / conduit entrée",insp:"Vérification du filtre à air et vérification du conduit d'entrée d'air vers carburateur",v50:true,v100:true},
+    {el:"Boîtier admission d'air",insp:"Vérification du boîtier d'admission d'air",v50:false,v100:true},
+  ]},
+  { id:"ata76", title:"ATA 76 — COMMANDES MOTEUR", type:"inspection", items:[
+    {el:"Commandes gaz / richesse — fixation",insp:"Vérifier la fixation des commandes de gaz et richesse",v50:true,v100:true},
+    {el:"Commande mixture — gaine / arrêt",insp:"Commande de mixture, état de la gaine et de l'arrêt de gaine",v50:false,v100:true},
+    {el:"Libre débattement / graissage gaines",insp:"Vérifier le libre débattement et graisser les gaines des commandes moteur",v50:false,v100:true},
+    {el:"Commandes gaz / mixture — fonctionnement",insp:"Examen des commandes de gaz, de mixture pour vérifier leur fonctionnement, état de la gaine et de l'arrêt de gaine",v50:false,v100:true},
+    {el:"Commande réchauffe carbu",insp:"Commande de réchauffage carburateur, état de gaine, de ses fixations, de l'axe de l'arrêt de gaine et de son support",v50:false,v100:true},
+  ]},
+  { id:"ata77", title:"ATA 77 — CONTRÔLE MOTEUR", type:"inspection", items:[
+    {el:"Tachymètre — banc",insp:"Passage au banc du tachymètre",v50:false,v100:true},
+    {el:"Alarme basse pression",insp:"S'assurer du bon fonctionnement de l'alarme basse pression",v50:true,v100:true},
+  ]},
+  { id:"ata78", title:"ATA 78 — ÉCHAPPEMENT", type:"inspection", items:[
+    {el:"Système échappement complet",insp:"Examen approfondi du système d'échappement, silencieux, collecteurs, pots, brides, joints, boulonnerie",v50:false,v100:true},
+    {el:"Enveloppes réchauffage cabine",insp:"Examen approfondi des enveloppes de réchauffage air cabine",v50:true,v100:true},
+    {el:"Démontage enveloppes — fissures",insp:"Démontage des enveloppes de réchauffage cabine pour recherche de fissure, crique sur l'enveloppe de pot d'échappement",v50:false,v100:true},
+    {el:"Pot de détente — inspection interne",insp:"Dépose du pot de détente pour inspection interne",v50:false,v100:true},
+  ]},
+  { id:"ata80", title:"ATA 80 — DÉMARREUR", type:"inspection", items:[
+    {el:"Démarreur — fixations / engrenages / connexions",insp:"Examen du démarreur, de ses fixations, de l'état des engrenages, de l'état des connections électriques",v50:false,v100:true},
+    {el:"Tuyauteries huile / essence",insp:"Vérifier l'état et la fixation des tuyauteries d'huile et d'essence",v50:false,v100:true},
+  ]},
+  { id:"docs", title:"MISE À JOUR DOCUMENTS", type:"checklist", items:[
+    "Mise à jour heures cellule, moteur, hélice sur les carnets",
+    "Remplir les carnets (de route, cellule, moteur)",
+    "Inscrire la déclaration d'entretien avec APRS sur les carnets",
+    "Vérifier le statut des consignes de navigabilité (Annexe 2)",
+  ]},
+];
+
+const SIG_W=380, SIG_H=110;
+const defPF = () => ({
+  horametre_entree:"", horametre_sortie:"", date_entree:"", date_sortie:"",
+  p_huile:"", t_huile:"", t_culasse:"", p_ess_avec:"", p_ess_sans:"",
+  rpm_max:"", rpm_ralenti:"", regime_plein_gaz:"",
+  mag_1G:"", mag_1D:"", mag_2G:"", mag_2D:"",
+  rechauffe_carbu:"", rechauffe_cabine:"",
+  eclairage_cabine:"", eclairage_tableau:"",
+  volets:"", indicateur_tab:"", jauges_ess:"",
+  instru_moteur:"", altimetre:"", indicateur_virage:"",
+  horizon:"", conservateur_cap:"",
+  freins:"", montres:"",
+  comp1:"", comp2:"", comp3:"", comp4:"",
+});
+const defVF = () => ({
+  date:"", aerodrome:"", pilote:"", duree:"", qfe:"", t_sol:"", zp_sol:"",
+  rpm_decollage:"", rentree_train:"", rentree_volets:"",
+  alti1:"", vi1:"", rpm1:"", pess1:"", phuil1:"", thuil1:"",
+  alti2:"", vi2:"", rpm2:"", pess2:"", phuil2:"", thuil2:"",
+  pal_alt:"", pal_vi:"", pal_rpm:"", pal_pess:"", pal_phuil:"", pal_thuil:"",
+  maniabilite:"", instruments:"", climatisation:"", rech_carbu:"", essai_resa:"", comportement_helice:"",
+  decroch_lisse_vi:"", decroch_lisse_obs:"",
+  decroch_decol_vi:"", decroch_decol_obs:"",
+  decroch_atterr_vi:"", decroch_atterr_obs:"",
+  avertisseur_decrochage:"",
+  pique_vne:"",
+  train_normale:"", train_secours:"", correct_alti:"", etouffoir:"",
+  roulage:"", virages:"", freins_sol:"",
+  remarques:"",
+  // Test transpondeur
+  transp_1200:"", transp_3700:"", transp_5500:"", transp_7500:"",
+  transp_pilote:"", transp_aprs:"",
+});
+const defState = () => ({
+  visitType:"100h", immat:INFO.immat, visitDate:new Date().toISOString().slice(0,10),
+  techName:"", totalH:"", licenceNum:"",
+  checked:{}, remarks:{}, worksExtra:"", partsReplaced:"",
+  pf: defPF(), vf: defVF(),
+});
+
+function SigPad({onSave,existing}){
+  const ref=useRef(null);const[drawing,setDrawing]=useState(false);const[has,setHas]=useState(!!existing);
+  useEffect(()=>{if(existing&&ref.current){const img=new Image();img.onload=()=>ref.current.getContext("2d").drawImage(img,0,0);img.src=existing;}},[]);
+  const pos=e=>{const r=ref.current.getBoundingClientRect();return e.touches?{x:e.touches[0].clientX-r.left,y:e.touches[0].clientY-r.top}:{x:e.clientX-r.left,y:e.clientY-r.top};};
+  const dn=e=>{e.preventDefault();setDrawing(true);const p=pos(e),ctx=ref.current.getContext("2d");ctx.beginPath();ctx.moveTo(p.x,p.y);};
+  const mv=e=>{e.preventDefault();if(!drawing)return;const p=pos(e),ctx=ref.current.getContext("2d");ctx.lineWidth=2;ctx.lineCap="round";ctx.strokeStyle="#1a1a5e";ctx.lineTo(p.x,p.y);ctx.stroke();setHas(true);};
+  const up=()=>{setDrawing(false);if(ref.current)onSave(ref.current.toDataURL());};
+  const clr=()=>{ref.current.getContext("2d").clearRect(0,0,SIG_W,SIG_H);setHas(false);onSave(null);};
+  return <div style={{display:"flex",flexDirection:"column",gap:6}}>
+    <canvas ref={ref} width={SIG_W} height={SIG_H} style={{border:"1.5px solid #99b",borderRadius:4,background:"#f9f9ff",cursor:"crosshair",touchAction:"none"}}
+      onMouseDown={dn} onMouseMove={mv} onMouseUp={up} onMouseLeave={up} onTouchStart={dn} onTouchMove={mv} onTouchEnd={up}/>
+    <div style={{display:"flex",gap:8,alignItems:"center"}}>
+      <button onClick={clr} style={{fontSize:11,padding:"2px 10px",background:"#eee",border:"1px solid #ccc",borderRadius:3,cursor:"pointer"}}>Effacer</button>
+      {has&&<span style={{fontSize:11,color:"#2a7a2a"}}>✓ Enregistrée</span>}
+    </div>
+  </div>;
+}
+
+function XCell({active,done,onToggle}){
+  if(!active)return <td style={{textAlign:"center",borderBottom:"1px solid #eee",color:"#ddd",padding:"4px 6px"}}>—</td>;
+  return <td onClick={onToggle} title="Cliquer pour valider"
+    style={{textAlign:"center",borderBottom:"1px solid #eee",cursor:"pointer",userSelect:"none",fontSize:15,fontWeight:"bold",padding:"4px 6px",
+      color:done?"#1e7a1e":"#2244aa",opacity:done?1:0.35}}>{done?"✓":"×"}</td>;
+}
+
+function Field({label,val,onChange,w,unit,ph}){
+  return <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:5}}>
+    <span style={{fontSize:12,color:"#444",minWidth:w||160,flexShrink:0}}>{label}</span>
+    <input value={val} onChange={e=>onChange(e.target.value)} placeholder={ph||""} style={{width:80,padding:"2px 6px",border:"1px solid #b0b8e0",borderRadius:3,fontSize:12,textAlign:"center"}}/>
+    {unit&&<span style={{fontSize:11,color:"#888"}}>{unit}</span>}
+  </div>;
+}
+
+function App(){
+  const[st,setSt]=useState(defState);
+  const[sig,setSig]=useState(null);
+  const[rmkFor,setRmkFor]=useState(null);
+  const[page,setPage]=useState("form");
+  const[tab,setTab]=useState("inspection"); // inspection | pf | vf | transp
+  const[saveMsg,setSaveMsg]=useState(null);
+  const[hasSave,setHasSave]=useState(false);
+  const[pdfBusy,setPdfBusy]=useState(false);
+
+  const{visitType,immat,visitDate,techName,totalH,licenceNum,checked,remarks,worksExtra,partsReplaced,pf,vf}=st;
+  const upd=k=>v=>setSt(p=>({...p,[k]:typeof v==="function"?v(p[k]):v}));
+  const updPF=k=>v=>setSt(p=>({...p,pf:{...p.pf,[k]:v}}));
+  const updVF=k=>v=>setSt(p=>({...p,vf:{...p.vf,[k]:v}}));
+
+  useEffect(()=>{if(window.__dh251__)setHasSave(true);},[]);
+  const save=()=>{window.__dh251__={st,sig,at:new Date().toISOString()};setHasSave(true);setSaveMsg("saved");setTimeout(()=>setSaveMsg(null),2500);};
+  const load=()=>{const s=window.__dh251__;if(!s)return;setSt(s.st);setSig(s.sig);setSaveMsg("loaded");setTimeout(()=>setSaveMsg(null),2500);};
+  const clear=()=>{window.__dh251__=null;setHasSave(false);setSt(defState());setSig(null);setSaveMsg("cleared");setTimeout(()=>setSaveMsg(null),2500);};
+  const expJ=()=>{const b=new Blob([JSON.stringify({st,at:new Date().toISOString()},null,2)],{type:"application/json"});const u=URL.createObjectURL(b);const a=document.createElement("a");a.href=u;a.download=`DH251_${immat}_${visitDate}.json`;a.click();URL.revokeObjectURL(u);};
+  const impJ=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{try{const p=JSON.parse(ev.target.result);if(p.st){setSt(p.st);setSaveMsg("loaded");setTimeout(()=>setSaveMsg(null),2500);}}catch{alert("Fichier invalide.");}};r.readAsText(f);e.target.value="";};
+
+  const togCk=k=>upd("checked")(p=>({...p,[k]:!p[k]}));
+  const togCx=(k,col)=>upd("checked")(p=>{const c=p[k]||{};return{...p,[k]:{...c,[col]:!c[col]}};});
+  const cx=(k,col)=>!!(checked[k]&&checked[k][col]);
+  const rdone=(k,it)=>{const c=checked[k]||{};return(!it.v50||c.v50)&&(!it.v100||c.v100);};
+
+  let tot=0,dn=0;
+  SECTIONS.forEach(s=>{
+    if(s.type==="checklist")s.items.forEach((_,i)=>{tot++;if(checked[`${s.id}_${i}`])dn++;});
+    else s.items.forEach((it,i)=>{const k=`${s.id}_${i}`;if(it.v50){tot++;if(cx(k,"v50"))dn++;}if(it.v100){tot++;if(cx(k,"v100"))dn++;}});
+  });
+  const pct=tot?Math.round(dn/tot*100):0;
+  const fmtD=d=>{if(!d)return"—";const[y,m,day]=d.split("-");return`${day}/${m}/${y}`;};
+  const savedAt=window.__dh251__?.at?new Date(window.__dh251__.at).toLocaleString("fr-FR"):null;
+
+  const dlPDF=async()=>{
+    setPdfBusy(true);
+    try{
+      const doc=new window.jspdf.jsPDF({orientation:"portrait",unit:"mm",format:"a4"});
+      const PW=210,PH=297,ML=12,MR=12,MT=12,CW=186;let y=MT;
+      const sp=(t,w,s=8)=>{doc.setFontSize(s);return doc.splitTextToSize(String(t||"—"),w);};
+      const chk=(n=6)=>{if(y+n>PH-14){doc.addPage();y=MT;}};
+      // Header
+      doc.setFillColor(26,26,94);doc.rect(ML,y,CW,13,"F");
+      doc.setTextColor(255,255,255);doc.setFontSize(12);doc.setFont("helvetica","bold");
+      doc.text("PROGRAMME D'ENTRETIEN CNRA — JODEL DH 251",ML+3,y+5.5);
+      doc.setFontSize(7.5);doc.setFont("helvetica","normal");
+      doc.text(`Aéroclub ARC — Chavenay 78450 — Éd.${INFO.edition} du ${INFO.date} — RSANav P.E.N. n°042 M.BEAUDOIN`,ML+3,y+10.5);
+      doc.setTextColor(0,0,0);y+=15;
+      // Info box
+      doc.setFillColor(232,232,248);doc.rect(ML,y,CW,20,"F");doc.setDrawColor(176,184,224);doc.rect(ML,y,CW,20);
+      const infos=[["Immatriculation",immat],["N° de série",INFO.serie],["Moteur",INFO.moteur],["Hélice",INFO.helice],["Type de visite",visitType],["Date",fmtD(visitDate)],["Technicien",techName||"—"],["Licence N°",licenceNum||"—"]];
+      infos.forEach(([k,v],i)=>{
+        const cx2=i<4?ML+3:ML+3+CW/2,cy2=i<4?y+4+i*4:y+4+(i-4)*4;
+        doc.setFont("helvetica","bold");doc.setFontSize(7);doc.setTextColor(26,26,94);doc.text(k+":",cx2,cy2);
+        doc.setFont("helvetica","normal");doc.setTextColor(0,0,0);doc.text(String(v||"—"),cx2+32,cy2);
+      });
+      y+=22;
+      // Sections inspection
+      for(const sec of SECTIONS){
+        chk(10);doc.setFillColor(34,68,170);doc.rect(ML,y,CW,6,"F");
+        doc.setTextColor(255,255,255);doc.setFontSize(8.5);doc.setFont("helvetica","bold");
+        doc.text(sec.title,ML+2,y+4.2);doc.setTextColor(0,0,0);y+=7;
+        if(sec.type==="checklist"){
+          for(let i=0;i<sec.items.length;i++){
+            const k=`${sec.id}_${i}`,ok=!!checked[k];
+            const lines=sp(sec.items[i],CW-14,7.5),rh=Math.max(5,lines.length*3.8+2);
+            chk(rh+1);doc.setFillColor(i%2?247:255,i%2?247:255,i%2?253:255);doc.rect(ML,y,CW,rh,"F");
+            doc.setDrawColor(216,220,240);doc.line(ML,y+rh,ML+CW,y+rh);
+            doc.setDrawColor(34,68,170);doc.setLineWidth(0.4);doc.rect(ML+2,y+rh/2-2.2,4,4);
+            if(ok){doc.setDrawColor(30,122,30);doc.setLineWidth(0.6);doc.line(ML+2.5,y+rh/2,ML+3.8,y+rh/2+1.5);doc.line(ML+3.8,y+rh/2+1.5,ML+5.8,y+rh/2-1.5);}
+            doc.setLineWidth(0.2);doc.setFontSize(7.5);doc.setFont("helvetica","normal");
+            doc.setTextColor(ok?140:30,ok?140:30,ok?140:30);
+            lines.forEach((l,li)=>doc.text(l,ML+8,y+3.8+li*3.8));
+            doc.setTextColor(0,0,0);y+=rh;
+          }
+        }else{
+          doc.setFillColor(237,237,248);doc.rect(ML,y,CW,5,"F");
+          doc.setFontSize(7);doc.setFont("helvetica","bold");doc.setTextColor(60,68,120);
+          doc.text("Élément",ML+1,y+3.5);doc.text("Inspection",ML+38,y+3.5);
+          doc.text("50h",ML+132,y+3.5);doc.text("100h",ML+142,y+3.5);doc.text("Note",ML+154,y+3.5);
+          doc.setDrawColor(176,184,224);doc.line(ML,y+5,ML+CW,y+5);doc.setTextColor(0,0,0);y+=5.5;
+          for(let i=0;i<sec.items.length;i++){
+            const it=sec.items[i],k=`${sec.id}_${i}`;
+            const d50=!!(checked[k]&&checked[k].v50),d100=!!(checked[k]&&checked[k].v100);
+            const rd=(!it.v50||d50)&&(!it.v100||d100);
+            const elL=sp(it.el,36,7),inL=sp(it.insp,92,7),ntL=remarks[k]?sp(remarks[k],30,6.5):[];
+            const rh=Math.max(5,(Math.max(elL.length,inL.length))*3.6+2+(ntL.length?ntL.length*3+1:0));
+            chk(rh+1);
+            if(rd)doc.setFillColor(239,255,239);else doc.setFillColor(i%2?247:255,i%2?247:255,i%2?253:255);
+            doc.rect(ML,y,CW,rh,"F");doc.setDrawColor(216,220,240);doc.line(ML,y+rh,ML+CW,y+rh);
+            [ML+38,ML+132,ML+142,ML+154].forEach(x=>doc.line(x,y,x,y+rh));
+            doc.setFontSize(7);doc.setFont("helvetica","bold");doc.setTextColor(26,26,94);
+            elL.forEach((l,li)=>doc.text(l,ML+1,y+3.6+li*3.6));
+            doc.setFont("helvetica","normal");doc.setTextColor(40,40,40);
+            inL.forEach((l,li)=>doc.text(l,ML+39,y+3.6+li*3.6));
+            if(it.v50){doc.setFontSize(8);doc.setFont("helvetica","bold");doc.setTextColor(d50?30:34,d50?122:68,d50?30:170);doc.text(d50?"✓":"x",ML+134,y+rh/2+1.5);}
+            if(it.v100){doc.setFontSize(8);doc.setFont("helvetica","bold");doc.setTextColor(d100?30:34,d100?122:68,d100?30:170);doc.text(d100?"✓":"x",ML+144,y+rh/2+1.5);}
+            if(ntL.length){doc.setFontSize(6.5);doc.setFont("helvetica","italic");doc.setTextColor(150,100,0);ntL.forEach((l,li)=>doc.text(l,ML+155,y+3.2+li*3));}
+            doc.setTextColor(0,0,0);y+=rh;
+          }
+        }
+        y+=3;
+      }
+      // Point fixe
+      chk(50);doc.setFillColor(26,26,94);doc.rect(ML,y,CW,6,"F");
+      doc.setTextColor(255,255,255);doc.setFontSize(8.5);doc.setFont("helvetica","bold");
+      doc.text("RAPPORT DE POINT FIXE",ML+2,y+4.2);doc.setTextColor(0,0,0);y+=8;
+      const pfData=[
+        ["Horamètre entrée / sortie",`${pf.horametre_entree||"—"} / ${pf.horametre_sortie||"—"}`],
+        ["Pression huile / Température huile",`${pf.p_huile||"—"} / ${pf.t_huile||"—"}`],
+        ["Température culasse",pf.t_culasse],
+        ["Pression essence avec / sans pompe",`${pf.p_ess_avec||"—"} / ${pf.p_ess_sans||"—"}`],
+        ["Régime plein gaz",pf.regime_plein_gaz+" tr/mn"],
+        ["RPM max / RPM ralenti",`${pf.rpm_max||"—"} / ${pf.rpm_ralenti||"—"} tr/mn`],
+        ["Magnétos — 1G / 1D / 2G / 2D",`${pf.mag_1G||"—"} / ${pf.mag_1D||"—"} / ${pf.mag_2G||"—"} / ${pf.mag_2D||"—"}`],
+        ["Réchauffage carbu / cabine",`${pf.rechauffe_carbu||"—"} / ${pf.rechauffe_cabine||"—"}`],
+        ["Éclairage cabine / tableau",`${pf.eclairage_cabine||"—"} / ${pf.eclairage_tableau||"—"}`],
+        ["Volets / Indicateur tab",`${pf.volets||"—"} / ${pf.indicateur_tab||"—"}`],
+        ["Altimètre QFE",pf.altimetre],["Indicateur de virage",pf.indicateur_virage],
+        ["Compressions C1/C2/C3/C4",`${pf.comp1||"—"} / ${pf.comp2||"—"} / ${pf.comp3||"—"} / ${pf.comp4||"—"} PSI`],
+        ["Freins / Montres",`${pf.freins||"—"} / ${pf.montres||"—"}`],
+      ];
+      pfData.forEach(([k,v])=>{
+        chk(5);doc.setFont("helvetica","bold");doc.setFontSize(7.5);doc.setTextColor(26,26,94);
+        doc.text(k+" :",ML+2,y+3.5);doc.setFont("helvetica","normal");doc.setTextColor(0,0,0);
+        doc.text(v||"—",ML+90,y+3.5);y+=5;
+      });
+      y+=4;
+      // Vol de contrôle
+      chk(50);doc.setFillColor(26,26,94);doc.rect(ML,y,CW,6,"F");
+      doc.setTextColor(255,255,255);doc.setFontSize(8.5);doc.setFont("helvetica","bold");
+      doc.text("VOL DE CONTRÔLE",ML+2,y+4.2);doc.setTextColor(0,0,0);y+=8;
+      const vfData=[
+        ["Date / Aérodrome",`${vf.date||"—"} — ${vf.aerodrome||"—"}`],
+        ["Pilote",vf.pilote],["Durée vol / QFE / T° sol / Zp sol",`${vf.duree||"—"} / ${vf.qfe||"—"} / ${vf.t_sol||"—"}°C / ${vf.zp_sol||"—"} ft`],
+        ["Décollage — tr/mn",vf.rpm_decollage],
+        ["Montée alt.1 — Vi/tr/mn/P.ess/P.huil/T°huil",`${vf.vi1||"—"} / ${vf.rpm1||"—"} / ${vf.pess1||"—"} / ${vf.phuil1||"—"} / ${vf.thuil1||"—"}`],
+        ["Montée alt.2 — Vi/tr/mn/P.ess/P.huil/T°huil",`${vf.vi2||"—"} / ${vf.rpm2||"—"} / ${vf.pess2||"—"} / ${vf.phuil2||"—"} / ${vf.thuil2||"—"}`],
+        ["Palier croisière — Vi/tr/mn/P.ess/P.huil/T°huil",`${vf.pal_vi||"—"} / ${vf.pal_rpm||"—"} / ${vf.pal_pess||"—"} / ${vf.pal_phuil||"—"} / ${vf.pal_thuil||"—"}`],
+        ["Maniabilité",vf.maniabilite],["Instruments de bord",vf.instruments],
+        ["Climatisation / Réchauffe carbu",`${vf.climatisation||"—"} / ${vf.rech_carbu||"—"}`],
+        ["Décrochage avion lisse",`${vf.decroch_lisse_vi||"—"} kt — ${vf.decroch_lisse_obs||"—"}`],
+        ["Décrochage décollage",`${vf.decroch_decol_vi||"—"} kt — ${vf.decroch_decol_obs||"—"}`],
+        ["Décrochage atterrissage",`${vf.decroch_atterr_vi||"—"} kt — ${vf.decroch_atterr_obs||"—"}`],
+        ["Avertisseur décrochage",vf.avertisseur_decrochage],
+        ["Piqué à VNE",vf.pique_vne],
+        ["Train sortie normale / secours",`${vf.train_normale||"—"} / ${vf.train_secours||"—"}`],
+        ["Correcteur d'altitude / Étouffoir",`${vf.correct_alti||"—"} / ${vf.etouffoir||"—"}`],
+        ["Remarques pilote",vf.remarques],
+      ];
+      vfData.forEach(([k,v])=>{
+        chk(5);doc.setFont("helvetica","bold");doc.setFontSize(7.5);doc.setTextColor(26,26,94);
+        doc.text(k+" :",ML+2,y+3.5);doc.setFont("helvetica","normal");doc.setTextColor(0,0,0);
+        const ls=sp(v||"—",CW-92,7.5);ls.forEach((l,li)=>{chk(4);doc.text(l,ML+92,y+3.5+li*3.8);});
+        y+=Math.max(5,ls.length*3.8+1);
+      });
+      y+=4;
+      // Test transpondeur
+      chk(30);doc.setFillColor(26,26,94);doc.rect(ML,y,CW,6,"F");
+      doc.setTextColor(255,255,255);doc.setFontSize(8.5);doc.setFont("helvetica","bold");
+      doc.text("ANNEXE 1 — TEST INTERMÉDIAIRE TRANSPONDEUR",ML+2,y+4.2);doc.setTextColor(0,0,0);y+=8;
+      [["1200 ft",vf.transp_1200],["3700 ft",vf.transp_3700],["5500 ft",vf.transp_5500],["7500 ft",vf.transp_7500]].forEach(([alt,val])=>{
+        chk(5);doc.setFont("helvetica","bold");doc.setFontSize(7.5);doc.setTextColor(26,26,94);
+        doc.text("Altitude à relever : "+alt+" — Constatée :",ML+2,y+3.5);
+        doc.setFont("helvetica","normal");doc.setTextColor(0,0,0);doc.text(val||"—",ML+95,y+3.5);y+=5;
+      });
+      doc.setFont("helvetica","normal");doc.setFontSize(7.5);
+      doc.text("Pilote : "+(vf.transp_pilote||"—"),ML+2,y+5);
+      doc.text("APRSeur : "+(vf.transp_aprs||"—"),ML+80,y+5);y+=10;
+      // Travaux & cloture
+      chk(30);doc.setFillColor(34,68,170);doc.rect(ML,y,CW,6,"F");
+      doc.setTextColor(255,255,255);doc.setFontSize(8.5);doc.setFont("helvetica","bold");
+      doc.text("TRAVAUX SUPPLÉMENTAIRES & PIÈCES REMPLACÉES",ML+2,y+4.2);doc.setTextColor(0,0,0);y+=8;
+      for(const[lbl,val] of [["Travaux supplémentaires",worksExtra],["Pièces remplacées",partsReplaced]]){
+        chk(10);doc.setFillColor(244,244,251);doc.rect(ML,y,CW,5,"F");
+        doc.setFont("helvetica","bold");doc.setFontSize(7.5);doc.setTextColor(26,26,94);doc.text(lbl+" :",ML+2,y+3.5);doc.setTextColor(0,0,0);y+=6;
+        const ls=sp(val||"Néant",CW-4,7.5);doc.setFont("helvetica","normal");
+        ls.forEach((l,li)=>{chk(4);doc.text(l,ML+2,y+3+li*3.8);});y+=ls.length*3.8+4;
+      }
+      // Déclaration d'entretien APRS
+      chk(25);doc.setFillColor(26,26,94);doc.rect(ML,y,CW,6,"F");
+      doc.setTextColor(255,255,255);doc.setFontSize(8.5);doc.setFont("helvetica","bold");
+      doc.text("DÉCLARATION D'ENTRETIEN — APRS",ML+2,y+4.2);doc.setTextColor(0,0,0);y+=8;
+      const aprs=`Je soussigné(e) ${techName||"_______________"}, N° licence ${licenceNum||"_________"}, certifie que l'aéronef ${immat} immatriculé F-${immat} a été entretenu conformément au programme d'entretien CNRA Éd.${INFO.edition} et satisfait aux conditions normales d'utilisation. Fait à Chavenay le ${fmtD(visitDate)}.`;
+      doc.setFillColor(244,244,251);doc.rect(ML,y,CW,3,"F");
+      const al=sp(aprs,CW-4,7.5);doc.setFont("helvetica","italic");
+      al.forEach((l,li)=>{chk(4);doc.text(l,ML+2,y+4+li*4);});y+=al.length*4+6;
+      // Signature
+      chk(35);doc.setFillColor(34,68,170);doc.rect(ML,y,CW,6,"F");
+      doc.setTextColor(255,255,255);doc.setFontSize(8.5);doc.setFont("helvetica","bold");
+      doc.text("SIGNATURE",ML+2,y+4.2);doc.setTextColor(0,0,0);y+=8;
+      [["Technicien",techName||"—"],["N° Licence",licenceNum||"—"],["Date",fmtD(visitDate)],["Visite",visitType],["Immatriculation",immat]].forEach(([k,v],i)=>{
+        doc.setFont("helvetica","bold");doc.setFontSize(8);doc.text(k+" :",ML+2,y+i*5);
+        doc.setFont("helvetica","normal");doc.text(v,ML+36,y+i*5);
+      });
+      const sx=ML+CW-65,sy=y-2;doc.setDrawColor(150,150,200);doc.rect(sx,sy,62,28);
+      doc.setFontSize(6.5);doc.setTextColor(160,160,190);doc.text("Signature",sx+2,sy+3.5);
+      if(sig)doc.addImage(sig,"PNG",sx+1,sy+5,60,22);
+      // Footer
+      const np=doc.getNumberOfPages();
+      for(let p=1;p<=np;p++){
+        doc.setPage(p);doc.setDrawColor(176,184,224);doc.line(ML,PH-10,PW-MR,PH-10);
+        doc.setFontSize(6.5);doc.setFont("helvetica","normal");doc.setTextColor(130,130,160);
+        doc.text(`DH 251 — ${immat} — Visite ${visitType} du ${fmtD(visitDate)} — Éd.${INFO.edition}`,ML,PH-6.5);
+        doc.text(`Page ${p}/${np}`,PW-MR,PH-6.5,{align:"right"});
+      }
+      doc.save(`DH251_${immat}_${visitType}_${visitDate}.pdf`);
+    }catch(e){alert("Erreur PDF : "+e.message);}
+    finally{setPdfBusy(false);}
+  };
+
+  const SaveBar=()=>(
+    <div style={{background:"#0f0f2e",padding:"7px 14px",display:"flex",flexWrap:"wrap",gap:8,alignItems:"center"}}>
+      <span style={{fontSize:11,color:"#aab"}}>💾</span>
+      <button onClick={save} style={{fontSize:11,padding:"3px 10px",background:"#2244aa",color:"#fff",border:"none",borderRadius:3,cursor:"pointer",fontWeight:"bold"}}>Sauvegarder</button>
+      {hasSave&&<button onClick={load} style={{fontSize:11,padding:"3px 10px",background:"#2a7a2a",color:"#fff",border:"none",borderRadius:3,cursor:"pointer"}}>Reprendre</button>}
+      <button onClick={expJ} style={{fontSize:11,padding:"3px 10px",background:"#444",color:"#fff",border:"none",borderRadius:3,cursor:"pointer"}}>↓ Export .json</button>
+      <label style={{fontSize:11,padding:"3px 10px",background:"#444",color:"#fff",borderRadius:3,cursor:"pointer"}}>↑ Import .json<input type="file" accept=".json" onChange={impJ} style={{display:"none"}}/></label>
+      {hasSave&&<button onClick={clear} style={{fontSize:11,padding:"3px 10px",background:"#933",color:"#fff",border:"none",borderRadius:3,cursor:"pointer"}}>Effacer</button>}
+      {savedAt&&<span style={{fontSize:10,color:"#8ab"}}>Sauvegarde : {savedAt}</span>}
+      {saveMsg&&<span style={{fontSize:11,fontWeight:"bold",color:saveMsg==="cleared"?"#f88":"#8f8"}}>{saveMsg==="saved"?"✓ Sauvegardé !":saveMsg==="loaded"?"✓ Repris !":"✓ Effacé"}</span>}
+    </div>
+  );
+
+  const tabStyle=(t)=>({padding:"8px 16px",cursor:"pointer",border:"none",borderBottom:tab===t?"3px solid #2244aa":"3px solid transparent",background:tab===t?"#fff":"#eef",fontWeight:tab===t?"bold":"normal",color:tab===t?C.hdr:"#555",fontSize:13});
+
+  return <div style={{fontFamily:"Arial,sans-serif",maxWidth:1000,margin:"0 auto",padding:20,background:C.bg,minHeight:"100vh"}}>
+    {/* Header */}
+    <div style={{background:C.hdr,color:"#fff",padding:"13px 18px",borderRadius:"8px 8px 0 0",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+      <div>
+        <div style={{fontSize:18,fontWeight:"bold",letterSpacing:1}}>PROGRAMME D'ENTRETIEN CNRA</div>
+        <div style={{fontSize:13,opacity:0.9}}>JODEL DH 251 — {INFO.immat} — {INFO.moteur}</div>
+      </div>
+      <div style={{textAlign:"right",fontSize:11,opacity:0.85}}>
+        <div>Aéroclub ARC — Chavenay 78450</div>
+        <div>Éd.{INFO.edition} — RSANav P.E.N. n°042</div>
+      </div>
+    </div>
+    <SaveBar/>
+
+    {/* Infos */}
+    <div style={{background:C.lgt,border:`1px solid ${C.brd}`,borderTop:"none",padding:"10px 14px",display:"flex",flexWrap:"wrap",gap:12,alignItems:"flex-end"}}>
+      {[{lb:"Immatriculation",val:immat,set:upd("immat"),ph:INFO.immat,w:110},
+        {lb:"Date de visite",val:visitDate,set:upd("visitDate"),tp:"date",w:150},
+        {lb:"Technicien",val:techName,set:upd("techName"),ph:"Nom Prénom",w:160},
+        {lb:"N° Licence",val:licenceNum,set:upd("licenceNum"),ph:"ex: PPL-F-12345",w:130},
+        {lb:"Potentiel total (h)",val:totalH,set:upd("totalH"),ph:"ex: 500",w:100}].map(f=>(
+        <label key={f.lb} style={{display:"flex",flexDirection:"column",gap:2}}>
+          <span style={{fontSize:10,color:"#444",fontWeight:"bold",textTransform:"uppercase"}}>{f.lb}</span>
+          <input value={f.val} onChange={e=>f.set(e.target.value)} type={f.tp||"text"} placeholder={f.ph}
+            style={{width:f.w,padding:"4px 8px",border:`1px solid ${C.brd}`,borderRadius:3,fontSize:13}}/>
+        </label>
+      ))}
+      <label style={{display:"flex",flexDirection:"column",gap:2}}>
+        <span style={{fontSize:10,color:"#444",fontWeight:"bold",textTransform:"uppercase"}}>Type de visite</span>
+        <select value={visitType} onChange={e=>upd("visitType")(e.target.value)}
+          style={{padding:"5px 10px",border:`1px solid ${C.brd}`,borderRadius:3,fontSize:14,fontWeight:"bold",color:C.hdr,background:"#fff"}}>
+          <option>50h</option><option>100h</option>
+        </select>
+      </label>
+    </div>
+
+    {/* Progress */}
+    <div style={{background:"#fff",border:`1px solid ${C.brd}`,borderTop:"none",padding:"7px 14px",display:"flex",alignItems:"center",gap:12}}>
+      <span style={{fontSize:12,color:"#555",whiteSpace:"nowrap"}}>Progression inspection :</span>
+      <div style={{flex:1,background:"#dde0f0",borderRadius:8,height:10,overflow:"hidden"}}>
+        <div style={{width:`${pct}%`,background:pct===100?C.grn:C.acc,height:"100%",transition:"width 0.3s",borderRadius:8}}/>
+      </div>
+      <span style={{fontSize:12,fontWeight:"bold",color:pct===100?C.grn:C.acc,whiteSpace:"nowrap"}}>{dn}/{tot} ({pct}%)</span>
+    </div>
+
+    {/* Tabs */}
+    <div style={{display:"flex",borderBottom:"1px solid #dde",marginTop:10,background:"#eef"}}>
+      {[["inspection","📋 Inspection"],["pf","🔧 Point fixe"],["vf","✈️ Vol contrôle"],["transp","📡 Transpondeur"]].map(([t,lbl])=>(
+        <button key={t} onClick={()=>setTab(t)} style={tabStyle(t)}>{lbl}</button>
+      ))}
+    </div>
+
+    {/* TAB: INSPECTION */}
+    {tab==="inspection" && SECTIONS.map(sec=>(
+      <div key={sec.id} style={{marginTop:10,border:`1px solid ${C.brd}`,borderRadius:6,background:"#fff"}}>
+        <div style={{background:C.acc,color:"#fff",padding:"7px 13px",fontWeight:"bold",fontSize:12,letterSpacing:0.5}}>{sec.title}</div>
+        {sec.type==="checklist"?(
+          <div style={{padding:"3px 0"}}>
+            {sec.items.map((it,i)=>{
+              const k=`${sec.id}_${i}`,ok=!!checked[k];
+              return <div key={i} style={{display:"flex",alignItems:"center",gap:10,padding:"5px 12px",background:i%2?C.r1:C.r0,borderBottom:"1px solid #eef",flexWrap:"wrap"}}>
+                <input type="checkbox" checked={ok} onChange={()=>togCk(k)} style={{width:16,height:16,cursor:"pointer",accentColor:C.acc,flexShrink:0}}/>
+                <span style={{flex:1,fontSize:13,color:ok?"#888":"#222",textDecoration:ok?"line-through":"none",minWidth:200}}>{it}</span>
+                <button onClick={()=>setRmkFor(rmkFor===k?null:k)} style={{background:remarks[k]?"#ffe0a0":"#eee",border:"1px solid #ccc",borderRadius:3,cursor:"pointer",fontSize:11,padding:"2px 8px"}}>{remarks[k]?"📝":"+ Note"}</button>
+                {rmkFor===k&&<textarea value={remarks[k]||""} onChange={e=>upd("remarks")(p=>({...p,[k]:e.target.value}))} placeholder="Observations..." rows={1} style={{fontSize:12,padding:4,border:"1px solid #ccc",borderRadius:3,width:"100%",resize:"vertical",marginTop:4}}/>}
+              </div>;
+            })}
+          </div>
+        ):(
+          <div style={{overflowX:"auto"}}>
+            <table style={{width:"100%",borderCollapse:"collapse",fontSize:12,minWidth:480}}>
+              <thead><tr style={{background:"#edf0f8",color:"#444"}}>
+                <th style={{padding:"5px 8px",textAlign:"left",width:"22%",borderBottom:`1px solid ${C.brd}`}}>Élément</th>
+                <th style={{padding:"5px 8px",textAlign:"left",borderBottom:`1px solid ${C.brd}`}}>Inspection</th>
+                <th style={{padding:"5px 4px",textAlign:"center",width:44,borderBottom:`1px solid ${C.brd}`,color:C.acc}}>50h</th>
+                <th style={{padding:"5px 4px",textAlign:"center",width:44,borderBottom:`1px solid ${C.brd}`,color:C.acc}}>100h</th>
+                <th style={{padding:"5px 6px",textAlign:"center",width:58,borderBottom:`1px solid ${C.brd}`}}>Note</th>
+              </tr></thead>
+              <tbody>
+                {sec.items.map((it,i)=>{
+                  const k=`${sec.id}_${i}`,d50=cx(k,"v50"),d100=cx(k,"v100"),rd=rdone(k,it);
+                  return <tr key={i} style={{background:rd?"#efffef":i%2?C.r1:C.r0}}>
+                    <td style={{padding:"5px 8px",fontWeight:"600",color:C.hdr,borderBottom:"1px solid #eef",verticalAlign:"top",fontSize:11}}>{it.el}</td>
+                    <td style={{padding:"5px 8px",color:"#333",lineHeight:1.4,borderBottom:"1px solid #eef",verticalAlign:"top",fontSize:12}}>{it.insp}</td>
+                    <XCell active={it.v50} done={d50} onToggle={()=>togCx(k,"v50")}/>
+                    <XCell active={it.v100} done={d100} onToggle={()=>togCx(k,"v100")}/>
+                    <td style={{textAlign:"center",borderBottom:"1px solid #eef",verticalAlign:"middle",position:"relative"}}>
+                      <button onClick={()=>setRmkFor(rmkFor===k?null:k)} style={{background:remarks[k]?"#ffe0a0":"#eee",border:"1px solid #ccc",borderRadius:3,cursor:"pointer",fontSize:10,padding:"2px 6px"}}>{remarks[k]?"📝":"+"}</button>
+                      {rmkFor===k&&<div style={{position:"absolute",right:0,zIndex:20,background:"#fff",border:"1px solid #99b",borderRadius:4,padding:8,boxShadow:"0 2px 10px #0003",width:210}}>
+                        <textarea value={remarks[k]||""} onChange={e=>upd("remarks")(p=>({...p,[k]:e.target.value}))} placeholder="Observations..." rows={3} style={{fontSize:12,width:"100%",padding:4,border:"1px solid #ccc",borderRadius:3,resize:"vertical",boxSizing:"border-box"}}/>
+                        <button onClick={()=>setRmkFor(null)} style={{marginTop:4,fontSize:11,padding:"2px 10px",cursor:"pointer",background:C.acc,color:"#fff",border:"none",borderRadius:3}}>OK</button>
+                      </div>}
+                    </td>
+                  </tr>;
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    ))}
+
+    {/* TAB: POINT FIXE */}
+    {tab==="pf" && <div style={{marginTop:10,border:`1px solid ${C.brd}`,borderRadius:6,background:"#fff"}}>
+      <div style={{background:C.hdr,color:"#fff",padding:"8px 14px",fontWeight:"bold",fontSize:13}}>RAPPORT DE POINT FIXE MOTEUR</div>
+      <div style={{padding:16,display:"flex",flexWrap:"wrap",gap:24}}>
+        <div>
+          <div style={{fontWeight:"bold",color:C.hdr,fontSize:12,marginBottom:8}}>Identification</div>
+          <Field label="Horamètre entrée" val={pf.horametre_entree} onChange={updPF("horametre_entree")} unit="h"/>
+          <Field label="Horamètre sortie" val={pf.horametre_sortie} onChange={updPF("horametre_sortie")} unit="h"/>
+          <Field label="Date entrée" val={pf.date_entree} onChange={updPF("date_entree")}/>
+          <Field label="Date sortie" val={pf.date_sortie} onChange={updPF("date_sortie")}/>
+        </div>
+        <div>
+          <div style={{fontWeight:"bold",color:C.hdr,fontSize:12,marginBottom:8}}>Paramètres moteur</div>
+          <Field label="Pression huile" val={pf.p_huile} onChange={updPF("p_huile")}/>
+          <Field label="Température huile" val={pf.t_huile} onChange={updPF("t_huile")} unit="°C"/>
+          <Field label="Température culasse" val={pf.t_culasse} onChange={updPF("t_culasse")} unit="°C"/>
+          <Field label="Pression essence avec pompe" val={pf.p_ess_avec} onChange={updPF("p_ess_avec")} w={190}/>
+          <Field label="Pression essence sans pompe" val={pf.p_ess_sans} onChange={updPF("p_ess_sans")} w={190}/>
+          <Field label="Régime plein gaz" val={pf.regime_plein_gaz} onChange={updPF("regime_plein_gaz")} unit="tr/mn"/>
+          <Field label="RPM max" val={pf.rpm_max} onChange={updPF("rpm_max")} unit="tr/mn"/>
+          <Field label="RPM ralenti" val={pf.rpm_ralenti} onChange={updPF("rpm_ralenti")} unit="tr/mn"/>
+        </div>
+        <div>
+          <div style={{fontWeight:"bold",color:C.hdr,fontSize:12,marginBottom:8}}>Magnétos</div>
+          <Field label="1+2 t/mn — G" val={pf.mag_1G} onChange={updPF("mag_1G")} unit="tr/mn"/>
+          <Field label="1+2 t/mn — D" val={pf.mag_1D} onChange={updPF("mag_1D")} unit="tr/mn"/>
+          <Field label="1 ou G" val={pf.mag_2G} onChange={updPF("mag_2G")} unit="tr/mn"/>
+          <Field label="2 ou D" val={pf.mag_2D} onChange={updPF("mag_2D")} unit="tr/mn"/>
+          <div style={{fontWeight:"bold",color:C.hdr,fontSize:12,marginBottom:8,marginTop:8}}>Compressions</div>
+          <Field label="Cylindre 1" val={pf.comp1} onChange={updPF("comp1")} unit="PSI"/>
+          <Field label="Cylindre 2" val={pf.comp2} onChange={updPF("comp2")} unit="PSI"/>
+          <Field label="Cylindre 3" val={pf.comp3} onChange={updPF("comp3")} unit="PSI"/>
+          <Field label="Cylindre 4" val={pf.comp4} onChange={updPF("comp4")} unit="PSI"/>
+        </div>
+        <div>
+          <div style={{fontWeight:"bold",color:C.hdr,fontSize:12,marginBottom:8}}>Équipements</div>
+          <Field label="Réchauffe carbu" val={pf.rechauffe_carbu} onChange={updPF("rechauffe_carbu")}/>
+          <Field label="Réchauffe cabine" val={pf.rechauffe_cabine} onChange={updPF("rechauffe_cabine")}/>
+          <Field label="Éclairage cabine" val={pf.eclairage_cabine} onChange={updPF("eclairage_cabine")}/>
+          <Field label="Éclairage tableau" val={pf.eclairage_tableau} onChange={updPF("eclairage_tableau")}/>
+          <Field label="Volets" val={pf.volets} onChange={updPF("volets")}/>
+          <Field label="Indicateur tab" val={pf.indicateur_tab} onChange={updPF("indicateur_tab")}/>
+          <Field label="Jauges essence" val={pf.jauges_ess} onChange={updPF("jauges_ess")}/>
+          <Field label="Instruments moteur" val={pf.instru_moteur} onChange={updPF("instru_moteur")}/>
+          <Field label="Altimètre QFE" val={pf.altimetre} onChange={updPF("altimetre")}/>
+          <Field label="Indicateur de virage" val={pf.indicateur_virage} onChange={updPF("indicateur_virage")}/>
+          <Field label="Horizon artificiel" val={pf.horizon} onChange={updPF("horizon")}/>
+          <Field label="Conservateur de cap" val={pf.conservateur_cap} onChange={updPF("conservateur_cap")}/>
+          <Field label="Freins" val={pf.freins} onChange={updPF("freins")}/>
+          <Field label="Montres" val={pf.montres} onChange={updPF("montres")}/>
+        </div>
+      </div>
+    </div>}
+
+    {/* TAB: VOL CONTRÔLE */}
+    {tab==="vf" && <div style={{marginTop:10,border:`1px solid ${C.brd}`,borderRadius:6,background:"#fff"}}>
+      <div style={{background:C.hdr,color:"#fff",padding:"8px 14px",fontWeight:"bold",fontSize:13}}>VOL DE CONTRÔLE — Annexe IV arrêté 24/07/1991</div>
+      <div style={{padding:16,display:"flex",flexWrap:"wrap",gap:24}}>
+        <div>
+          <div style={{fontWeight:"bold",color:C.hdr,fontSize:12,marginBottom:8}}>Identification du vol</div>
+          <Field label="Date" val={vf.date} onChange={updVF("date")}/>
+          <Field label="Aérodrome" val={vf.aerodrome} onChange={updVF("aerodrome")}/>
+          <Field label="Pilote" val={vf.pilote} onChange={updVF("pilote")} w={80}/>
+          <Field label="Durée de vol" val={vf.duree} onChange={updVF("duree")} unit="mn"/>
+          <Field label="QFE" val={vf.qfe} onChange={updVF("qfe")} unit="hPa"/>
+          <Field label="T° sol" val={vf.t_sol} onChange={updVF("t_sol")} unit="°C"/>
+          <Field label="Zp sol" val={vf.zp_sol} onChange={updVF("zp_sol")} unit="ft"/>
+        </div>
+        <div>
+          <div style={{fontWeight:"bold",color:C.hdr,fontSize:12,marginBottom:8}}>Point fixe moteur au sol</div>
+          <Field label="Régime plein gaz" val={vf.rpm_decollage} onChange={updVF("rpm_decollage")} unit="tr/mn"/>
+          <div style={{fontWeight:"bold",color:C.hdr,fontSize:12,marginBottom:8,marginTop:8}}>Montée — Altitude 1</div>
+          {[["Altitude 1","alti1","ft"],["Vi 1","vi1","kt"],["tr/mn 1","rpm1","tr/mn"],["P. ess 1","pess1",""],["P. huil 1","phuil1",""],["T°huil 1","thuil1","°C"]].map(([lb,k,u])=>(
+            <Field key={k} label={lb} val={vf[k]} onChange={updVF(k)} unit={u}/>
+          ))}
+          <div style={{fontWeight:"bold",color:C.hdr,fontSize:12,marginBottom:8,marginTop:8}}>Montée — Altitude 2</div>
+          {[["Altitude 2","alti2","ft"],["Vi 2","vi2","kt"],["tr/mn 2","rpm2","tr/mn"],["P. ess 2","pess2",""],["P. huil 2","phuil2",""],["T°huil 2","thuil2","°C"]].map(([lb,k,u])=>(
+            <Field key={k} label={lb} val={vf[k]} onChange={updVF(k)} unit={u}/>
+          ))}
+        </div>
+        <div>
+          <div style={{fontWeight:"bold",color:C.hdr,fontSize:12,marginBottom:8}}>Palier croisière</div>
+          {[["Altitude","pal_alt","ft"],["Vi","pal_vi","kt"],["tr/mn","pal_rpm","tr/mn"],["P. ess","pal_pess",""],["P. huile","pal_phuil",""],["T° huile","pal_thuil","°C"]].map(([lb,k,u])=>(
+            <Field key={k} label={lb} val={vf[k]} onChange={updVF(k)} unit={u}/>
+          ))}
+          <div style={{fontWeight:"bold",color:C.hdr,fontSize:12,marginBottom:8,marginTop:8}}>Comportement équipements</div>
+          {[["Maniabilité","maniabilite"],["Instruments de bord","instruments"],["Climatisation","climatisation"],["Réchauffe carbu","rech_carbu"],["Essai réservoirs","essai_resa"],["Comportement hélice","comportement_helice"]].map(([lb,k])=>(
+            <Field key={k} label={lb} val={vf[k]} onChange={updVF(k)} w={160}/>
+          ))}
+        </div>
+        <div>
+          <div style={{fontWeight:"bold",color:C.hdr,fontSize:12,marginBottom:8}}>Décrochage gaz réduits</div>
+          {[["Avion lisse — Vi","decroch_lisse_vi","kt"],["Avion lisse — Obs.","decroch_lisse_obs",""],["Décollage — Vi","decroch_decol_vi","kt"],["Décollage — Obs.","decroch_decol_obs",""],["Atterrissage — Vi","decroch_atterr_vi","kt"],["Atterrissage — Obs.","decroch_atterr_obs",""]].map(([lb,k,u])=>(
+            <Field key={k} label={lb} val={vf[k]} onChange={updVF(k)} unit={u} w={170}/>
+          ))}
+          <Field label="Avertisseur décrochage" val={vf.avertisseur_decrochage} onChange={updVF("avertisseur_decrochage")} w={170}/>
+          <div style={{fontWeight:"bold",color:C.hdr,fontSize:12,marginBottom:8,marginTop:8}}>Descente / Piqué VNE</div>
+          <Field label="Piqué à VNE" val={vf.pique_vne} onChange={updVF("pique_vne")} w={170}/>
+          <Field label="Train sortie normale" val={vf.train_normale} onChange={updVF("train_normale")} w={170}/>
+          <Field label="Train sortie secours" val={vf.train_secours} onChange={updVF("train_secours")} w={170}/>
+          <Field label="Correcteur altitude" val={vf.correct_alti} onChange={updVF("correct_alti")} w={170}/>
+          <Field label="Étouffoir" val={vf.etouffoir} onChange={updVF("etouffoir")} w={170}/>
+          <div style={{fontWeight:"bold",color:C.hdr,fontSize:12,marginBottom:8,marginTop:8}}>Au sol</div>
+          <Field label="Roulage" val={vf.roulage} onChange={updVF("roulage")} w={170}/>
+          <Field label="Virages" val={vf.virages} onChange={updVF("virages")} w={170}/>
+          <Field label="Freins" val={vf.freins_sol} onChange={updVF("freins_sol")} w={170}/>
+        </div>
+        <div style={{width:"100%"}}>
+          <div style={{fontWeight:"bold",color:C.hdr,fontSize:12,marginBottom:6}}>Remarques pilote</div>
+          <textarea value={vf.remarques} onChange={e=>updVF("remarques")(e.target.value)} rows={3} placeholder="Remarques et observations du pilote..."
+            style={{width:"100%",fontSize:13,padding:8,border:`1px solid ${C.brd}`,borderRadius:4,resize:"vertical",boxSizing:"border-box"}}/>
+        </div>
+      </div>
+    </div>}
+
+    {/* TAB: TRANSPONDEUR */}
+    {tab==="transp" && <div style={{marginTop:10,border:`1px solid ${C.brd}`,borderRadius:6,background:"#fff"}}>
+      <div style={{background:C.hdr,color:"#fff",padding:"8px 14px",fontWeight:"bold",fontSize:13}}>ANNEXE 1 — TEST INTERMÉDIAIRE CHAÎNE ATC (DSAC P-41-14)</div>
+      <div style={{padding:16}}>
+        <div style={{fontSize:12,color:"#555",marginBottom:14,lineHeight:1.7,background:"#f0f2f8",padding:10,borderRadius:6,border:`1px solid ${C.brd}`}}>
+          Tests effectués en vol — altimètre calé à <strong>1013 hPa</strong>. Comparaison avec les altitudes indiquées par le transpondeur aux 4 niveaux de référence.
+        </div>
+        <table style={{width:"100%",maxWidth:500,borderCollapse:"collapse",fontSize:13,marginBottom:16}}>
+          <thead><tr style={{background:"#edf0f8"}}>
+            <th style={{padding:"8px 12px",textAlign:"left",borderBottom:`1px solid ${C.brd}`}}>Altitude à relever</th>
+            <th style={{padding:"8px 12px",textAlign:"left",borderBottom:`1px solid ${C.brd}`}}>Altitude constatée</th>
+          </tr></thead>
+          <tbody>
+            {[["1200 ft","transp_1200"],["3700 ft","transp_3700"],["5500 ft","transp_5500"],["7500 ft","transp_7500"]].map(([alt,k])=>(
+              <tr key={k} style={{borderBottom:`1px solid ${C.brd}`}}>
+                <td style={{padding:"8px 12px",fontWeight:"bold",color:C.hdr}}>{alt}</td>
+                <td style={{padding:"6px 12px"}}>
+                  <input value={vf[k]} onChange={e=>updVF(k)(e.target.value)} placeholder="ft" style={{width:100,padding:"4px 8px",border:`1px solid ${C.brd}`,borderRadius:3,fontSize:13}}/>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <div style={{display:"flex",gap:20,flexWrap:"wrap"}}>
+          <div>
+            <div style={{fontWeight:"bold",color:C.hdr,fontSize:12,marginBottom:6}}>Pilote</div>
+            <input value={vf.transp_pilote} onChange={e=>updVF("transp_pilote")(e.target.value)} placeholder="Nom du pilote" style={{width:200,padding:"5px 8px",border:`1px solid ${C.brd}`,borderRadius:3,fontSize:13}}/>
+          </div>
+          <div>
+            <div style={{fontWeight:"bold",color:C.hdr,fontSize:12,marginBottom:6}}>APRSeur</div>
+            <input value={vf.transp_aprs} onChange={e=>updVF("transp_aprs")(e.target.value)} placeholder="Nom de l'APRSeur" style={{width:200,padding:"5px 8px",border:`1px solid ${C.brd}`,borderRadius:3,fontSize:13}}/>
+          </div>
+        </div>
+        <div style={{marginTop:14,background:"#f4f6fb",border:`1px solid ${C.brd}`,borderRadius:6,padding:12,fontSize:13,fontStyle:"italic",color:"#333",lineHeight:1.9}}>
+          Tests intermédiaires de la chaîne ATC effectués en vol : <strong>APRS</strong><br/>
+          A Chavenay le <strong>{new Date(visitDate).toLocaleDateString("fr-FR")}</strong><br/>
+          Signature de l'APRSeur : <strong>{vf.transp_aprs||"_______________"}</strong>
+        </div>
+      </div>
+    </div>}
+
+    {/* Travaux / pièces / signature */}
+    <div style={{marginTop:10,border:`1px solid ${C.brd}`,borderRadius:6,background:"#fff"}}>
+      <div style={{background:C.acc,color:"#fff",padding:"7px 13px",fontWeight:"bold",fontSize:13}}>TRAVAUX SUPPLÉMENTAIRES & PIÈCES REMPLACÉES</div>
+      <div style={{padding:14,display:"flex",flexDirection:"column",gap:10}}>
+        {[["Travaux supplémentaires","worksExtra","Décrire les travaux..."],["Pièces remplacées","partsReplaced","Énumérer les pièces..."]].map(([lbl,key,ph])=>(
+          <div key={key}>
+            <div style={{fontWeight:"bold",fontSize:12,color:C.hdr,marginBottom:4}}>{lbl} :</div>
+            <textarea value={st[key]} onChange={e=>upd(key)(e.target.value)} rows={2} placeholder={ph}
+              style={{width:"100%",fontSize:13,padding:7,border:`1px solid ${C.brd}`,borderRadius:4,resize:"vertical",boxSizing:"border-box"}}/>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    {/* Déclaration APRS + signature */}
+    <div style={{marginTop:10,border:`1px solid ${C.brd}`,borderRadius:6,background:"#fff",padding:16,marginBottom:14}}>
+      <div style={{fontWeight:"bold",color:C.hdr,marginBottom:8,fontSize:13}}>DÉCLARATION D'ENTRETIEN — APRS</div>
+      <div style={{background:C.lgt,border:`1px solid ${C.brd}`,borderRadius:6,padding:12,marginBottom:14,fontSize:13,fontStyle:"italic",lineHeight:1.9,color:"#333"}}>
+        Je soussigné(e) <strong>{techName||"_______________"}</strong>, N° licence <strong>{licenceNum||"_________"}</strong>, certifie que l'aéronef <strong>{immat}</strong> a été entretenu conformément au programme d'entretien CNRA Éd.{INFO.edition} du {INFO.date} et satisfait aux conditions normales d'utilisation prévues par le manuel de vol. Fait à Chavenay le <strong>{new Date(visitDate).toLocaleDateString("fr-FR")}</strong>.
+      </div>
+      <div style={{fontWeight:"bold",color:C.hdr,marginBottom:10}}>Signature</div>
+      <div style={{display:"flex",gap:24,flexWrap:"wrap",alignItems:"flex-start"}}>
+        <div style={{fontSize:13,lineHeight:2,minWidth:200}}>
+          <div><strong>Technicien :</strong> {techName||"—"}</div>
+          <div><strong>N° Licence :</strong> {licenceNum||"—"}</div>
+          <div><strong>Date :</strong> {new Date(visitDate).toLocaleDateString("fr-FR")}</div>
+          <div><strong>Visite :</strong> {visitType}</div>
+          <div><strong>Immatriculation :</strong> {immat}</div>
+        </div>
+        <div><div style={{fontSize:12,marginBottom:5,color:"#555"}}>Signature manuscrite :</div><SigPad onSave={setSig} existing={sig}/></div>
+      </div>
+    </div>
+
+    {/* Boutons */}
+    <div style={{display:"flex",gap:10,justifyContent:"flex-end",flexWrap:"wrap"}}>
+      <button onClick={clear} style={{background:"#eee",color:"#555",border:"1px solid #ccc",borderRadius:4,padding:"7px 16px",cursor:"pointer",fontSize:14}}>Réinitialiser</button>
+      <button onClick={dlPDF} disabled={pdfBusy}
+        style={{background:pdfBusy?"#666":C.hdr,color:"#fff",border:"none",borderRadius:4,padding:"7px 22px",cursor:pdfBusy?"wait":"pointer",fontWeight:"bold",fontSize:14}}>
+        {pdfBusy?"⏳ Génération...":"📄 Télécharger PDF"}
+      </button>
+    </div>
+  </div>;
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
