@@ -488,6 +488,10 @@ async function sendMessage(){
     });
     var data=await res.json();
     if(res.ok&&data.ok){
+      // GTM — événement de conversion contact
+      if(typeof dataLayer !== 'undefined'){
+        dataLayer.push({ event: 'contact_submit', form_name: 'contact_arc' });
+      }
       document.getElementById('form-success').style.display='block';
       document.getElementById('contact-form').style.opacity='0.4';
       document.getElementById('contact-form').style.pointerEvents='none';

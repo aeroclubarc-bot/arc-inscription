@@ -1395,6 +1395,10 @@ async function payWithStripe() {
       // Succès — envoyer les données du formulaire au bureau
       btn.textContent = '✅ Paiement accepté !';
       btn.style.background = '#2e7d32';
+      // GTM — événement de conversion adhésion
+      if(typeof dataLayer !== 'undefined'){
+        dataLayer.push({ event: 'adhesion_submit', value: total, currency: 'EUR' });
+      }
       await submitInscription(total, result.paymentIntent.id);
       setTimeout(() => {
         alert('✅ Paiement de ' + total + ' € accepté. Un récapitulatif complet a été envoyé au Bureau directeur. Votre adhésion sera validée dans les prochains jours.');
