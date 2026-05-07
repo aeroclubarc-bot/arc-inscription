@@ -40,8 +40,11 @@ app.use((req, res, next) => {
   next();
 });
 
-// ── REDIRECT / ────────────────────────────────────────────────────────
-app.get("/", (req, res) => res.redirect(301, "/home-arc"));
+// ── PAGE D'ACCUEIL ────────────────────────────────────────────────────
+// SEO : l'URL canonique est https://www.aeroclub-arc.fr/
+// /home-arc redirige en 301 vers / pour préserver les anciens liens indexés
+app.get("/", (req, res) => res.sendFile(path.join(__dirname, "home.html")));
+app.get("/home-arc", (req, res) => res.redirect(301, "/"));
 
 // ── STRIPE PAYMENT INTENT ─────────────────────────────────────────────
 app.post("/api/stripe/create-payment-intent", async (req, res) => {
@@ -278,7 +281,6 @@ app.get("/api/ppv/today", async (req, res) => {
 app.use(express.static(path.join(__dirname)));
 
 // ── PAGES ─────────────────────────────────────────────────────────────
-app.get("/home-arc",       (req, res) => res.sendFile(path.join(__dirname, "home.html")));
 app.get("/ppv",            (req, res) => res.sendFile(path.join(__dirname, "ppv.html")));
 app.get("/accueil",        (req, res) => res.sendFile(path.join(__dirname, "accueil.html")));
 app.get("/leclub",         (req, res) => res.sendFile(path.join(__dirname, "leclub.html")));
@@ -296,21 +298,32 @@ app.get("/inscription",    (req, res) => res.sendFile(path.join(__dirname, "inde
 app.get("/statuts",        (req, res) => res.sendFile(path.join(__dirname, "statuts.html")));
 app.get("/reglement",      (req, res) => res.sendFile(path.join(__dirname, "reglement.html")));
 
-// ── ENTRETIEN DR250 ───────────────────────────────────────────────────
+// ── ENTRETIEN ─────────────────────────────────────────────────────────
 app.get("/entretien-dr250", (req, res) => res.sendFile(path.join(__dirname, "entretien-dr250.html")));
-
-// ── ENTRETIEN D113 ───────────────────────────────────────────────────
-app.get("/entretien-d113", (req, res) => res.sendFile(path.join(__dirname, "entretien-d113.html")));
-
-// ── ENTRETIEN DH251 ───────────────────────────────────────────────────
+app.get("/entretien-d113",  (req, res) => res.sendFile(path.join(__dirname, "entretien-d113.html")));
 app.get("/entretien-dh251", (req, res) => res.sendFile(path.join(__dirname, "entretien-dh251.html")));
+
+// ── SITEMAP ───────────────────────────────────────────────────────────
 app.get("/sitemap.xml", (req, res) => {
   res.setHeader("Content-Type", "application/xml");
   res.sendFile(path.join(__dirname, "sitemap.xml"));
 });
+
+// ── ROBOTS.TXT ────────────────────────────────────────────────────────
+// SEO : /inscription et /adhesion sont indexables (pages de conversion à fort potentiel).
+// Pages techniques/privées bloquées : /tarifs, /entretien-*, /ppv.
 app.get("/robots.txt", (req, res) => {
   res.setHeader("Content-Type", "text/plain");
-  res.send("User-agent: *\nAllow: /\nDisallow: /tarifs\nDisallow: /inscription\nDisallow: /adhesion\nSitemap: https://www.aeroclub-arc.fr/sitemap.xml\n");
+  res.send(
+    "User-agent: *\n" +
+    "Allow: /\n" +
+    "Disallow: /tarifs\n" +
+    "Disallow: /entretien-dr250\n" +
+    "Disallow: /entretien-d113\n" +
+    "Disallow: /entretien-dh251\n" +
+    "Disallow: /ppv\n" +
+    "Sitemap: https://www.aeroclub-arc.fr/sitemap.xml\n"
+  );
 });
 
 app.listen(PORT, () => {
