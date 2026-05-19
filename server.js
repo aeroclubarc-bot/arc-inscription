@@ -280,19 +280,24 @@ app.get("/api/ppv/today", async (req, res) => {
 // ── STATIC FILES (après les routes API) ──────────────────────────────
 app.use(express.static(path.join(__dirname)));
 
+// ── REDIRECTIONS SEO (anciennes URLs Webflow → routes actuelles) ─────
+app.get("/flotte",         (req, res) => res.redirect(301, "/la-flotte"));
+app.get("/club",           (req, res) => res.redirect(301, "/leclub"));
+app.get("/instructeur",    (req, res) => res.redirect(301, "/formation"));
+
 // ── PAGES ─────────────────────────────────────────────────────────────
 app.get("/ppv",            (req, res) => res.sendFile(path.join(__dirname, "ppv.html")));
 app.get("/accueil",        (req, res) => res.sendFile(path.join(__dirname, "accueil.html")));
 app.get("/leclub",         (req, res) => res.sendFile(path.join(__dirname, "leclub.html")));
-app.get("/le-club",        (req, res) => res.sendFile(path.join(__dirname, "leclub.html")));
+app.get("/le-club",        (req, res) => res.redirect(301, "/leclub"));
 app.get("/la-flotte",      (req, res) => res.sendFile(path.join(__dirname, "laflotte.html")));
 app.get("/formation",      (req, res) => res.sendFile(path.join(__dirname, "ppl.html")));
 app.get("/ppl",            (req, res) => res.sendFile(path.join(__dirname, "ppl.html")));
 app.get("/post-ppl",       (req, res) => res.sendFile(path.join(__dirname, "postppl.html")));
-app.get("/postppl",        (req, res) => res.sendFile(path.join(__dirname, "postppl.html")));
+app.get("/postppl",        (req, res) => res.redirect(301, "/post-ppl"));
 app.get("/aerodrome",      (req, res) => res.sendFile(path.join(__dirname, "aerodrome.html")));
 app.get("/contact",        (req, res) => res.sendFile(path.join(__dirname, "contact.html")));
-app.get("/tarifs",         (req, res) => res.sendFile(path.join(__dirname, "index.html")));
+app.get("/tarifs",         (req, res) => res.redirect(301, "/adhesion"));
 app.get("/adhesion",       (req, res) => res.sendFile(path.join(__dirname, "index.html")));
 app.get("/inscription",    (req, res) => res.sendFile(path.join(__dirname, "index.html")));
 app.get("/statuts",        (req, res) => res.sendFile(path.join(__dirname, "statuts.html")));
@@ -310,18 +315,17 @@ app.get("/sitemap.xml", (req, res) => {
 });
 
 // ── ROBOTS.TXT ────────────────────────────────────────────────────────
-// SEO : /inscription et /adhesion sont indexables (pages de conversion à fort potentiel).
-// Pages techniques/privées bloquées : /tarifs, /entretien-*, /ppv.
+// SEO : /inscription, /adhesion et /ppv sont indexables (conversion + différenciant).
+// /tarifs est en 301 vers /adhesion, donc plus besoin de l'exclure.
+// Seuls les formulaires d'entretien aéronefs (privés, membres) restent bloqués.
 app.get("/robots.txt", (req, res) => {
   res.setHeader("Content-Type", "text/plain");
   res.send(
     "User-agent: *\n" +
     "Allow: /\n" +
-    "Disallow: /tarifs\n" +
     "Disallow: /entretien-dr250\n" +
     "Disallow: /entretien-d113\n" +
     "Disallow: /entretien-dh251\n" +
-    "Disallow: /ppv\n" +
     "Sitemap: https://www.aeroclub-arc.fr/sitemap.xml\n"
   );
 });

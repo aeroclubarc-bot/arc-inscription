@@ -66,4 +66,12 @@
     <priority>0.7</priority>
   </url>
 
+  <!-- Page Aéroclub Vert — production solaire en temps réel -->
+  <url>
+    <loc>https://www.aeroclub-arc.fr/ppv</loc>
+    <lastmod>2026-05-19</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+
 </urlset>
