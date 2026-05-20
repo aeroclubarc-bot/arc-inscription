@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Signature OT SEGA — F-PJIL</title>
+  <title>Signature OT SEGA — Aéroclub A.R.C.</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
@@ -30,6 +30,7 @@
     .mode-btn{padding:6px 14px;border:2px solid #c5cce0;border-radius:20px;cursor:pointer;font-size:12px;font-weight:bold;background:#fff;color:#555;transition:all .15s}
     .mode-btn.active{background:#2244aa;color:#fff;border-color:#2244aa}
     .mode-btn.active-green{background:#1e7a1e;color:#fff;border-color:#1e7a1e}
+    .mode-btn.active-amber{background:#b54708;color:#fff;border-color:#b54708}
     /* PDF viewer */
     .pdf-scroll{max-height:75vh;overflow-y:auto;background:#444;border-radius:8px;padding:8px}
     .page-wrap{position:relative;display:inline-block;margin-bottom:12px}
@@ -38,6 +39,7 @@
     /* Annotations */
     .anno{position:absolute;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:3px;user-select:none;font-weight:bold}
     .anno.trigram{background:rgba(34,68,170,.12);border:1.5px solid #2244aa;color:#1a1a5e;font-size:11px;min-width:36px;min-height:18px;padding:1px 4px}
+    .anno.txt{background:rgba(255,255,255,.85);border:1.5px solid #b54708;color:#1a1a5e;font-size:12px;min-width:24px;min-height:18px;padding:2px 6px;font-weight:600;white-space:nowrap}
     .anno.sig{background:rgba(255,255,255,.9);border:2px solid #1e7a1e;padding:2px;flex-direction:column;min-width:120px;min-height:48px}
     .anno.sig img{width:100%;height:auto;display:block}
     .anno.sig .sname{font-size:7px;color:#1a1a5e;text-align:center;padding:1px 3px;white-space:nowrap}
@@ -58,8 +60,8 @@
 </head>
 <body>
 <div class="hdr">
-  <div><h1>📋 Signature OT SEGA — F-PJIL</h1><p>Upload · Trigramme · Signature manuscrite · Export PDF</p></div>
-  <div style="text-align:right;font-size:11px;opacity:.8"><div>Aéroclub ARC · Chavenay</div><div>D113 S/N:1648</div></div>
+  <div><h1>📋 Signature OT SEGA</h1><p>Upload · Trigramme · Signature · Saisie texte · Export PDF</p></div>
+  <div style="text-align:right;font-size:11px;opacity:.8"><div>Aéroclub A.R.C.</div><div>Chavenay · LFPX</div></div>
 </div>
 <div class="wrap">
 
@@ -79,7 +81,7 @@
       <div style="font-size:44px;margin-bottom:10px">📄</div>
       <div style="font-size:15px;font-weight:bold;color:#1a1a5e;margin-bottom:5px">Glisser-déposer l'OT PDF ici</div>
       <div style="font-size:13px;color:#888">ou cliquer pour sélectionner</div>
-      <div style="font-size:11px;color:#aaa;margin-top:6px">Ex: OT_PJIL2026-01.pdf</div>
+      <div style="font-size:11px;color:#aaa;margin-top:6px">Ex: OT_POUF2026-03.pdf, OT_PJIL2026-01.pdf…</div>
     </div>
     <input type="file" id="fi" accept=".pdf" style="display:none">
     <div id="uploadOK" style="margin-top:8px;font-size:13px;color:#1e7a1e;display:none">✅ <span id="fname"></span></div>
@@ -91,13 +93,14 @@
   <div class="ch">👤 Étape 2 — Informations mécanicien</div>
   <div class="cb">
     <div class="info-grid">
+      <div class="ifield"><label>Immatriculation</label><input id="immat" list="immatList" placeholder="F-PJIL, F-POUF…" style="font-weight:bold;text-transform:uppercase"><datalist id="immatList"><option value="F-PJIL"><option value="F-POUF"><option value="F-BMCA"></datalist></div>
+      <div class="ifield"><label>N° OT</label><input id="otNum" placeholder="ex: POUF2026-03"></div>
       <div class="ifield"><label>Mécanicien</label><input id="mechName" value="CAPUANO Romain"></div>
       <div class="ifield"><label>Trigramme VISA</label><input id="trigram" value="RCA" maxlength="4" style="font-weight:bold;font-size:16px;text-align:center;text-transform:uppercase"></div>
       <div class="ifield"><label>N° Licence</label><input id="mechLic" value="FR.66.0097.16"></div>
       <div class="ifield"><label>Date APRS</label><input id="aprsDate" type="date"></div>
       <div class="ifield"><label>Heure remise en service</label><input id="aprsH" placeholder="ex: 14h30"></div>
-      <div class="ifield"><label>HT Cellule</label><input id="htCell" value="1 501h39"></div>
-      <div class="ifield"><label>N° OT</label><input id="otNum" value="PJIL2026-01"></div>
+      <div class="ifield"><label>HT Cellule</label><input id="htCell" placeholder="ex: 1 501h39"></div>
     </div>
     <div style="margin-top:12px">
       <button class="btn btn-primary" onclick="goStep3()">Continuer → Annoter le document</button>
@@ -114,6 +117,7 @@
     <span style="font-size:12px;font-weight:bold;color:#444">Mode :</span>
     <button class="mode-btn active" id="mTrig" onclick="setMode('trigram')">🔤 Trigramme VISA</button>
     <button class="mode-btn" id="mSig" onclick="setMode('sig')">✍️ Signature</button>
+    <button class="mode-btn" id="mTxt" onclick="setMode('text')">📝 Saisie texte</button>
     <div style="width:1px;height:24px;background:#ccc;margin:0 4px"></div>
     <span id="modeHint" style="font-size:12px;color:#555">Cliquez sur une case VISA pour apposer le trigramme</span>
     <div style="flex:1"></div>
@@ -130,6 +134,23 @@
         <button class="btn btn-sm" style="background:#c0392b;color:#fff" onclick="clearSig()">✕ Effacer</button>
         <button class="btn btn-sm btn-green" onclick="validateSig()">✓ Valider</button>
         <span id="sigStatus" style="font-size:12px;color:#888">Signez puis validez, ensuite cliquez sur la page pour placer</span>
+      </div>
+    </div>
+
+    <!-- Saisie texte (mode text uniquement) -->
+    <div id="txtBlock" style="display:none;margin-bottom:12px;background:#fff8ee;padding:12px;border-radius:8px;border:1px solid #f0c060">
+      <div style="font-weight:bold;color:#1a1a5e;font-size:13px;margin-bottom:8px">📝 Texte à apposer :</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <input id="txtInput" placeholder="Tapez le texte à insérer (numéro, date, observation…)" style="flex:1;min-width:280px;padding:8px 12px;border:1.5px solid #c5cce0;border-radius:5px;font-size:13px">
+        <label style="font-size:12px;color:#555">Taille :
+          <select id="txtSize" style="padding:5px 8px;border:1.5px solid #c5cce0;border-radius:5px;font-size:12px">
+            <option value="8">Petit (8pt)</option>
+            <option value="10" selected>Normal (10pt)</option>
+            <option value="12">Moyen (12pt)</option>
+            <option value="14">Grand (14pt)</option>
+          </select>
+        </label>
+        <span id="txtStatus" style="font-size:12px;color:#888">Tapez puis cliquez sur la page pour placer</span>
       </div>
     </div>
 
@@ -170,10 +191,10 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs
 var pdfDoc = null;
 var zoom = 1.0;
 var renderScale = 1.8;
-var mode = 'trigram'; // 'trigram' | 'sig'
+var mode = 'trigram'; // 'trigram' | 'sig' | 'text'
 var sigDataURL = null;
 var sigValid = false;
-var annotations = []; // {id, page, type:'trig'|'sig', xR, yR, wR, hR, text?, dataURL?, name?, lic?, date?}
+var annotations = []; // {id, page, type:'trig'|'sig'|'txt', xR, yR, wR, hR, text?, dataURL?, name?, lic?, date?, size?}
 var annoId = 0;
 
 // ── UPLOAD ─────────────────────────────────────────────────────────
@@ -218,11 +239,15 @@ function goStep3() {
 function setMode(m) {
   mode = m;
   document.getElementById('mTrig').className = 'mode-btn' + (m==='trigram'?' active':'');
-  document.getElementById('mSig').className = 'mode-btn' + (m==='sig'?' active-green':'');
+  document.getElementById('mSig').className  = 'mode-btn' + (m==='sig'?' active-green':'');
+  document.getElementById('mTxt').className  = 'mode-btn' + (m==='text'?' active-amber':'');
   document.getElementById('sigBlock').style.display = m==='sig'?'block':'none';
-  document.getElementById('modeHint').textContent = m==='trigram'
-    ? 'Cliquez sur une case VISA pour apposer le trigramme'
-    : (sigValid ? 'Cliquez sur la page pour placer la signature' : 'Dessinez et validez votre signature ci-dessus');
+  document.getElementById('txtBlock').style.display = m==='text'?'block':'none';
+  var hint = '';
+  if (m==='trigram') hint = 'Cliquez sur une case VISA pour apposer le trigramme';
+  else if (m==='sig') hint = sigValid ? 'Cliquez sur la page pour placer la signature' : 'Dessinez et validez votre signature ci-dessus';
+  else hint = 'Tapez votre texte puis cliquez sur la page pour le placer';
+  document.getElementById('modeHint').textContent = hint;
 }
 
 // ── SIGNATURE PAD ──────────────────────────────────────────────────
@@ -284,6 +309,10 @@ function renderAll() {
 function handleClick(pw, cv, pn, xR, yR) {
   if(mode === 'trigram') {
     placeTrigram(pw, cv, pn, xR, yR);
+  } else if(mode === 'text') {
+    var txt = document.getElementById('txtInput').value.trim();
+    if(!txt){ alert('Veuillez taper le texte à insérer.'); document.getElementById('txtInput').focus(); return; }
+    placeText(pw, cv, pn, xR, yR, txt);
   } else {
     if(!sigValid){ alert('Veuillez d\'abord valider votre signature.'); return; }
     placeSig(pw, cv, pn, xR, yR);
@@ -297,6 +326,30 @@ function placeTrigram(pw, cv, pn, xR, yR) {
   annotations.push(anno);
   drawTrigramEl(pw, cv, anno);
   updateAnnoUI();
+}
+
+function placeText(pw, cv, pn, xR, yR, txt) {
+  var size = parseInt(document.getElementById('txtSize').value, 10) || 10;
+  var id = ++annoId;
+  var anno = {id:id, page:pn, type:'txt', xR:xR, yR:yR, wR:0.1, hR:0.02, text:txt, size:size};
+  annotations.push(anno);
+  drawTextEl(pw, cv, anno);
+  updateAnnoUI();
+}
+
+function drawTextEl(pw, cv, anno) {
+  var el = document.createElement('div');
+  el.className = 'anno txt';
+  el.dataset.id = anno.id;
+  el.style.cssText = 'position:absolute;left:'+(anno.xR*100)+'%;top:'+(anno.yR*100-1)+'%;font-size:'+(anno.size||10)+'px;';
+  el.textContent = anno.text;
+  // Delete btn
+  var del = document.createElement('button');
+  del.className = 'del'; del.textContent = '×';
+  del.onclick = function(e){ e.stopPropagation(); removeAnno(anno.id); pw.removeChild(el); updateAnnoUI(); };
+  el.appendChild(del);
+  makeDrag(el, pw, anno);
+  pw.appendChild(el);
 }
 
 function drawTrigramEl(pw, cv, anno) {
@@ -351,6 +404,7 @@ function redrawAnnos(pw, cv, pn) {
   annotations.forEach(function(anno){
     if(anno.page !== pn) return;
     if(anno.type==='trig') drawTrigramEl(pw, cv, anno);
+    else if(anno.type==='txt') drawTextEl(pw, cv, anno);
     else drawSigEl(pw, cv, anno);
   });
 }
@@ -440,6 +494,16 @@ async function exportPDF() {
           jdoc.setTextColor(26,26,94);
           jdoc.text(anno.text, x, y, {baseline:'bottom'});
           jdoc.setTextColor(0,0,0);
+        } else if(anno.type==='txt') {
+          // Saisie texte libre
+          var fs = anno.size || 10;
+          // conversion approximative px -> pt PDF (1px ≈ 0.75pt mais l'écran est rendu à scale 1.8, on calibre)
+          var pdfFs = Math.max(6, fs * 0.85);
+          jdoc.setFont('helvetica','normal');
+          jdoc.setFontSize(pdfFs);
+          jdoc.setTextColor(20,20,40);
+          jdoc.text(anno.text, x, y, {baseline:'top'});
+          jdoc.setTextColor(0,0,0);
         } else {
           // Signature
           var sw = anno.wR*PW, sh = anno.hR*PH*1.5;
@@ -462,10 +526,12 @@ async function exportPDF() {
       });
     }
 
-    var ot = document.getElementById('otNum').value||'OT';
-    jdoc.save('OT_'+ot+'_SIGNE.pdf');
+    var immat = (document.getElementById('immat').value || '').toUpperCase().replace(/[^A-Z0-9-]/g,'');
+    var ot = (document.getElementById('otNum').value || '').replace(/[^A-Za-z0-9-]/g,'') || 'OT';
+    var fname = 'OT_' + (immat ? immat + '_' : '') + ot + '_SIGNE.pdf';
+    jdoc.save(fname);
     document.getElementById('dlStatus').style.display='block';
-    document.getElementById('dlStatus').innerHTML='✅ <strong>OT_'+ot+'_SIGNE.pdf</strong> téléchargé !';
+    document.getElementById('dlStatus').innerHTML='✅ <strong>'+fname+'</strong> téléchargé !';
     document.getElementById('dlStatus').style.color='#1e7a1e';
   } catch(e){ alert('Erreur export: '+e.message); }
   btn.disabled=false; btn.textContent='📄 Télécharger OT signé (PDF)';
