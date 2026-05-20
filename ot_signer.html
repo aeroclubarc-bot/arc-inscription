@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Signature OT SEGA — F-PJIL</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:Arial,sans-serif;background:#f0f2f8;min-height:100vh}
+    .hdr{background:#1a1a5e;color:#fff;padding:12px 20px;display:flex;justify-content:space-between;align-items:center}
+    .hdr h1{font-size:17px}.hdr p{font-size:11px;opacity:.8;margin-top:2px}
+    .wrap{max-width:1100px;margin:0 auto;padding:14px}
+    .card{background:#fff;border-radius:10px;border:1px solid #c5cce0;margin-bottom:14px;overflow:hidden}
+    .ch{background:#2244aa;color:#fff;padding:9px 16px;font-weight:bold;font-size:13px;display:flex;justify-content:space-between;align-items:center}
+    .cb{padding:14px}
+    .upload-zone{border:3px dashed #b0b8e0;border-radius:10px;padding:36px;text-align:center;cursor:pointer;transition:all .2s;background:#f8f9ff}
+    .upload-zone:hover,.upload-zone.drag-over{border-color:#2244aa;background:#eef2ff}
+    .btn{padding:8px 18px;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:bold;transition:all .15s}
+    .btn-primary{background:#1a1a5e;color:#fff}.btn-primary:hover{background:#2244aa}
+    .btn-primary:disabled{background:#aaa;cursor:not-allowed}
+    .btn-green{background:#1e7a1e;color:#fff}.btn-green:hover{background:#2a8a2a}
+    .btn-orange{background:#e67e22;color:#fff}.btn-sm{padding:4px 10px;font-size:11px}
+    .info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
+    .ifield label{display:block;font-size:10px;font-weight:bold;color:#444;text-transform:uppercase;margin-bottom:3px}
+    .ifield input{width:100%;padding:6px 9px;border:1.5px solid #c5cce0;border-radius:5px;font-size:13px}
+    /* Mode sélection */
+    .mode-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:8px 14px;background:#f0f4ff;border-bottom:1px solid #dde}
+    .mode-btn{padding:6px 14px;border:2px solid #c5cce0;border-radius:20px;cursor:pointer;font-size:12px;font-weight:bold;background:#fff;color:#555;transition:all .15s}
+    .mode-btn.active{background:#2244aa;color:#fff;border-color:#2244aa}
+    .mode-btn.active-green{background:#1e7a1e;color:#fff;border-color:#1e7a1e}
+    /* PDF viewer */
+    .pdf-scroll{max-height:75vh;overflow-y:auto;background:#444;border-radius:8px;padding:8px}
+    .page-wrap{position:relative;display:inline-block;margin-bottom:12px}
+    .page-wrap canvas{display:block;border-radius:3px;box-shadow:0 2px 6px rgba(0,0,0,.4);max-width:100%}
+    .page-lbl{color:#eee;font-size:11px;text-align:center;padding:3px 0}
+    /* Annotations */
+    .anno{position:absolute;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:3px;user-select:none;font-weight:bold}
+    .anno.trigram{background:rgba(34,68,170,.12);border:1.5px solid #2244aa;color:#1a1a5e;font-size:11px;min-width:36px;min-height:18px;padding:1px 4px}
+    .anno.sig{background:rgba(255,255,255,.9);border:2px solid #1e7a1e;padding:2px;flex-direction:column;min-width:120px;min-height:48px}
+    .anno.sig img{width:100%;height:auto;display:block}
+    .anno.sig .sname{font-size:7px;color:#1a1a5e;text-align:center;padding:1px 3px;white-space:nowrap}
+    .anno .del{position:absolute;top:-8px;right:-8px;background:#c0392b;color:#fff;border:none;border-radius:50%;width:16px;height:16px;cursor:pointer;font-size:10px;display:none;align-items:center;justify-content:center;z-index:10}
+    .anno:hover .del{display:flex}
+    /* Sig pad */
+    .sig-pad-c{border:2px dashed #8a8;border-radius:6px;background:#f9fff9;cursor:crosshair;touch-action:none;display:block}
+    /* Steps */
+    .steps{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+    .step-pill{padding:5px 14px;border-radius:20px;font-size:12px;font-weight:bold;border:2px solid #dde;color:#888;background:#fff}
+    .step-pill.done{background:#efffef;border-color:#1e7a1e;color:#1e7a1e}
+    .step-pill.active{background:#1a1a5e;border-color:#1a1a5e;color:#fff}
+    /* toolbar */
+    .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:8px;background:#f8f9ff;border-bottom:1px solid #dde;border-radius:0}
+    .zoom-lbl{font-size:12px;padding:4px 10px;background:#eee;border-radius:4px;min-width:52px;text-align:center}
+    .hint{background:#fff8e8;border:1px solid #f0c060;border-radius:6px;padding:8px 12px;font-size:12px;color:#8a6200;margin-bottom:8px}
+  </style>
+</head>
+<body>
+<div class="hdr">
+  <div><h1>📋 Signature OT SEGA — F-PJIL</h1><p>Upload · Trigramme · Signature manuscrite · Export PDF</p></div>
+  <div style="text-align:right;font-size:11px;opacity:.8"><div>Aéroclub ARC · Chavenay</div><div>D113 S/N:1648</div></div>
+</div>
+<div class="wrap">
+
+<!-- Étapes -->
+<div class="steps">
+  <div class="step-pill active" id="sp1">1 · Upload PDF</div>
+  <div class="step-pill" id="sp2">2 · Informations</div>
+  <div class="step-pill" id="sp3">3 · Annoter & Signer</div>
+  <div class="step-pill" id="sp4">4 · Exporter</div>
+</div>
+
+<!-- ÉTAPE 1 -->
+<div class="card" id="s1">
+  <div class="ch">📤 Étape 1 — Upload de l'OT SEGA (PDF)</div>
+  <div class="cb">
+    <div class="upload-zone" id="dz" onclick="document.getElementById('fi').click()">
+      <div style="font-size:44px;margin-bottom:10px">📄</div>
+      <div style="font-size:15px;font-weight:bold;color:#1a1a5e;margin-bottom:5px">Glisser-déposer l'OT PDF ici</div>
+      <div style="font-size:13px;color:#888">ou cliquer pour sélectionner</div>
+      <div style="font-size:11px;color:#aaa;margin-top:6px">Ex: OT_PJIL2026-01.pdf</div>
+    </div>
+    <input type="file" id="fi" accept=".pdf" style="display:none">
+    <div id="uploadOK" style="margin-top:8px;font-size:13px;color:#1e7a1e;display:none">✅ <span id="fname"></span></div>
+  </div>
+</div>
+
+<!-- ÉTAPE 2 -->
+<div class="card" id="s2" style="display:none">
+  <div class="ch">👤 Étape 2 — Informations mécanicien</div>
+  <div class="cb">
+    <div class="info-grid">
+      <div class="ifield"><label>Mécanicien</label><input id="mechName" value="CAPUANO Romain"></div>
+      <div class="ifield"><label>Trigramme VISA</label><input id="trigram" value="RCA" maxlength="4" style="font-weight:bold;font-size:16px;text-align:center;text-transform:uppercase"></div>
+      <div class="ifield"><label>N° Licence</label><input id="mechLic" value="FR.66.0097.16"></div>
+      <div class="ifield"><label>Date APRS</label><input id="aprsDate" type="date"></div>
+      <div class="ifield"><label>Heure remise en service</label><input id="aprsH" placeholder="ex: 14h30"></div>
+      <div class="ifield"><label>HT Cellule</label><input id="htCell" value="1 501h39"></div>
+      <div class="ifield"><label>N° OT</label><input id="otNum" value="PJIL2026-01"></div>
+    </div>
+    <div style="margin-top:12px">
+      <button class="btn btn-primary" onclick="goStep3()">Continuer → Annoter le document</button>
+    </div>
+  </div>
+</div>
+
+<!-- ÉTAPE 3 -->
+<div class="card" id="s3" style="display:none">
+  <div class="ch">✍️ Étape 3 — Annoter & Signer</div>
+
+  <!-- Mode bar -->
+  <div class="mode-bar">
+    <span style="font-size:12px;font-weight:bold;color:#444">Mode :</span>
+    <button class="mode-btn active" id="mTrig" onclick="setMode('trigram')">🔤 Trigramme VISA</button>
+    <button class="mode-btn" id="mSig" onclick="setMode('sig')">✍️ Signature</button>
+    <div style="width:1px;height:24px;background:#ccc;margin:0 4px"></div>
+    <span id="modeHint" style="font-size:12px;color:#555">Cliquez sur une case VISA pour apposer le trigramme</span>
+    <div style="flex:1"></div>
+    <button class="btn btn-sm btn-orange" onclick="undoLast()">↩️ Annuler dernier</button>
+  </div>
+
+  <div class="cb" style="padding:10px">
+
+    <!-- Pad signature (mode sig uniquement) -->
+    <div id="sigBlock" style="display:none;margin-bottom:12px;background:#f4f8f4;padding:12px;border-radius:8px;border:1px solid #b8d0b8">
+      <div style="font-weight:bold;color:#1a1a5e;font-size:13px;margin-bottom:8px">✍️ Dessinez votre signature :</div>
+      <canvas id="sigPad" class="sig-pad-c" width="480" height="110"></canvas>
+      <div style="display:flex;gap:8px;margin-top:6px;align-items:center">
+        <button class="btn btn-sm" style="background:#c0392b;color:#fff" onclick="clearSig()">✕ Effacer</button>
+        <button class="btn btn-sm btn-green" onclick="validateSig()">✓ Valider</button>
+        <span id="sigStatus" style="font-size:12px;color:#888">Signez puis validez, ensuite cliquez sur la page pour placer</span>
+      </div>
+    </div>
+
+    <!-- Toolbar PDF -->
+    <div class="toolbar" style="border-radius:8px 8px 0 0">
+      <button class="btn btn-sm btn-primary" onclick="zoomIn()">🔍+</button>
+      <button class="btn btn-sm btn-primary" onclick="zoomOut()">🔍−</button>
+      <div class="zoom-lbl" id="zoomLbl">100%</div>
+      <div style="width:1px;height:24px;background:#ccc;margin:0 4px"></div>
+      <span style="font-size:12px;color:#555" id="annoCount">0 annotation(s)</span>
+    </div>
+
+    <!-- Pages PDF -->
+    <div class="pdf-scroll" id="pdfPages"></div>
+  </div>
+</div>
+
+<!-- ÉTAPE 4 -->
+<div class="card" id="s4" style="display:none">
+  <div class="ch">📥 Étape 4 — Exporter le PDF signé</div>
+  <div class="cb">
+    <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+      <button class="btn btn-green" id="dlBtn" onclick="exportPDF()">📄 Télécharger OT signé (PDF)</button>
+      <div>
+        <div id="annoSummary" style="font-size:13px;font-weight:bold;color:#1e7a1e"></div>
+        <div style="font-size:11px;color:#888;margin-top:2px">OT SEGA avec trigrammes et signatures apposés</div>
+      </div>
+    </div>
+    <div id="dlStatus" style="margin-top:8px;font-size:13px;display:none"></div>
+  </div>
+</div>
+
+</div><!-- end wrap -->
+
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+var pdfDoc = null;
+var zoom = 1.0;
+var renderScale = 1.8;
+var mode = 'trigram'; // 'trigram' | 'sig'
+var sigDataURL = null;
+var sigValid = false;
+var annotations = []; // {id, page, type:'trig'|'sig', xR, yR, wR, hR, text?, dataURL?, name?, lic?, date?}
+var annoId = 0;
+
+// ── UPLOAD ─────────────────────────────────────────────────────────
+var dz = document.getElementById('dz');
+dz.addEventListener('dragover', function(e){ e.preventDefault(); dz.classList.add('drag-over'); });
+dz.addEventListener('dragleave', function(){ dz.classList.remove('drag-over'); });
+dz.addEventListener('drop', function(e){ e.preventDefault(); dz.classList.remove('drag-over'); var f=e.dataTransfer.files[0]; if(f&&f.type==='application/pdf') loadPDF(f); else alert('Fichier PDF requis.'); });
+document.getElementById('fi').addEventListener('change', function(e){ if(e.target.files[0]) loadPDF(e.target.files[0]); });
+
+function loadPDF(file) {
+  var r = new FileReader();
+  r.onload = function(ev) {
+    var arr = new Uint8Array(ev.target.result);
+    pdfjsLib.getDocument(arr).promise.then(function(doc) {
+      pdfDoc = doc;
+      document.getElementById('fname').textContent = file.name + ' (' + doc.numPages + ' pages)';
+      document.getElementById('uploadOK').style.display = 'block';
+      document.getElementById('s2').style.display = 'block';
+      document.getElementById('aprsDate').value = new Date().toISOString().slice(0,10);
+      setStep(2);
+    }).catch(function(e){ alert('Erreur PDF: '+e.message); });
+  };
+  r.readAsArrayBuffer(file);
+}
+
+function setStep(n) {
+  ['sp1','sp2','sp3','sp4'].forEach(function(id,i){
+    var el = document.getElementById(id);
+    var num = i+1;
+    el.className = 'step-pill' + (num<n?' done':num===n?' active':'');
+  });
+}
+
+function goStep3() {
+  document.getElementById('s3').style.display = 'block';
+  setStep(3);
+  renderAll();
+  setTimeout(function(){ document.getElementById('s3').scrollIntoView({behavior:'smooth'}); }, 100);
+}
+
+// ── MODE ────────────────────────────────────────────────────────────
+function setMode(m) {
+  mode = m;
+  document.getElementById('mTrig').className = 'mode-btn' + (m==='trigram'?' active':'');
+  document.getElementById('mSig').className = 'mode-btn' + (m==='sig'?' active-green':'');
+  document.getElementById('sigBlock').style.display = m==='sig'?'block':'none';
+  document.getElementById('modeHint').textContent = m==='trigram'
+    ? 'Cliquez sur une case VISA pour apposer le trigramme'
+    : (sigValid ? 'Cliquez sur la page pour placer la signature' : 'Dessinez et validez votre signature ci-dessus');
+}
+
+// ── SIGNATURE PAD ──────────────────────────────────────────────────
+var sp = document.getElementById('sigPad');
+var sc = sp.getContext('2d');
+var spDraw = false;
+sp.addEventListener('mousedown', function(e){ spDraw=true; var r=sp.getBoundingClientRect(); sc.beginPath(); sc.moveTo(e.clientX-r.left,e.clientY-r.top); });
+sp.addEventListener('mousemove', function(e){ if(!spDraw)return; var r=sp.getBoundingClientRect(); sc.lineWidth=2;sc.lineCap='round';sc.strokeStyle='#1a1a5e';sc.lineTo(e.clientX-r.left,e.clientY-r.top);sc.stroke(); });
+sp.addEventListener('mouseup', function(){ spDraw=false; });
+sp.addEventListener('mouseleave', function(){ spDraw=false; });
+sp.addEventListener('touchstart', function(e){ e.preventDefault(); spDraw=true; var r=sp.getBoundingClientRect(); sc.beginPath(); sc.moveTo(e.touches[0].clientX-r.left,e.touches[0].clientY-r.top); },{passive:false});
+sp.addEventListener('touchmove', function(e){ e.preventDefault(); if(!spDraw)return; var r=sp.getBoundingClientRect(); sc.lineWidth=2;sc.lineCap='round';sc.strokeStyle='#1a1a5e';sc.lineTo(e.touches[0].clientX-r.left,e.touches[0].clientY-r.top);sc.stroke(); },{passive:false});
+sp.addEventListener('touchend', function(){ spDraw=false; });
+
+function clearSig(){ sc.clearRect(0,0,sp.width,sp.height); sigValid=false; sigDataURL=null; document.getElementById('sigStatus').textContent='Signez puis validez, ensuite cliquez sur la page pour placer'; document.getElementById('sigStatus').style.color='#888'; }
+function validateSig(){
+  sigDataURL = sp.toDataURL('image/png'); sigValid=true;
+  document.getElementById('sigStatus').textContent='✅ Validée — Cliquez sur la page pour placer';
+  document.getElementById('sigStatus').style.color='#1e7a1e';
+  document.getElementById('modeHint').textContent='Cliquez sur la page pour placer la signature';
+}
+
+// ── RENDER PDF ──────────────────────────────────────────────────────
+function renderAll() {
+  var cont = document.getElementById('pdfPages');
+  cont.innerHTML = '';
+  for(var p=1; p<=pdfDoc.numPages; p++) {
+    (function(pn){
+      var wrap = document.createElement('div');
+      wrap.style.cssText = 'text-align:center';
+      var lbl = document.createElement('div');
+      lbl.className = 'page-lbl'; lbl.textContent = 'Page '+pn;
+      wrap.appendChild(lbl);
+      var pw = document.createElement('div');
+      pw.className = 'page-wrap'; pw.dataset.page = pn;
+      pdfDoc.getPage(pn).then(function(page){
+        var vp = page.getViewport({scale: renderScale * zoom});
+        var cv = document.createElement('canvas');
+        cv.width = vp.width; cv.height = vp.height; cv.style.maxWidth='100%';
+        page.render({canvasContext:cv.getContext('2d'), viewport:vp}).promise.then(function(){
+          pw.appendChild(cv);
+          // Click handler
+          cv.addEventListener('click', function(e){
+            var r = cv.getBoundingClientRect();
+            var xR = (e.clientX-r.left)/r.width;
+            var yR = (e.clientY-r.top)/r.height;
+            handleClick(pw, cv, pn, xR, yR);
+          });
+          // Re-draw existing annotations for this page
+          redrawAnnos(pw, cv, pn);
+        });
+      });
+      wrap.appendChild(pw);
+      cont.appendChild(wrap);
+    })(p);
+  }
+}
+
+function handleClick(pw, cv, pn, xR, yR) {
+  if(mode === 'trigram') {
+    placeTrigram(pw, cv, pn, xR, yR);
+  } else {
+    if(!sigValid){ alert('Veuillez d\'abord valider votre signature.'); return; }
+    placeSig(pw, cv, pn, xR, yR);
+  }
+}
+
+function placeTrigram(pw, cv, pn, xR, yR) {
+  var trig = document.getElementById('trigram').value.toUpperCase() || 'VIS';
+  var id = ++annoId;
+  var anno = {id:id, page:pn, type:'trig', xR:xR, yR:yR, wR:0.04, hR:0.025, text:trig};
+  annotations.push(anno);
+  drawTrigramEl(pw, cv, anno);
+  updateAnnoUI();
+}
+
+function drawTrigramEl(pw, cv, anno) {
+  var el = document.createElement('div');
+  el.className = 'anno trigram';
+  el.dataset.id = anno.id;
+  el.style.cssText = 'position:absolute;left:'+(anno.xR*100-2)+'%;top:'+(anno.yR*100-1.5)+'%;';
+  el.textContent = anno.text;
+  // Delete btn
+  var del = document.createElement('button');
+  del.className = 'del'; del.textContent = '×';
+  del.onclick = function(e){ e.stopPropagation(); removeAnno(anno.id); pw.removeChild(el); updateAnnoUI(); };
+  el.appendChild(del);
+  // Drag
+  makeDrag(el, pw, anno);
+  pw.appendChild(el);
+}
+
+function placeSig(pw, cv, pn, xR, yR) {
+  var id = ++annoId;
+  var mechName = document.getElementById('mechName').value;
+  var lic = document.getElementById('mechLic').value;
+  var date = document.getElementById('aprsDate').value;
+  var anno = {id:id, page:pn, type:'sig', xR:xR-0.1, yR:yR-0.04, wR:0.22, hR:0.08, dataURL:sigDataURL, name:mechName, lic:lic, date:date};
+  annotations.push(anno);
+  drawSigEl(pw, cv, anno);
+  updateAnnoUI();
+}
+
+function drawSigEl(pw, cv, anno) {
+  var el = document.createElement('div');
+  el.className = 'anno sig';
+  el.dataset.id = anno.id;
+  el.style.cssText = 'position:absolute;left:'+(anno.xR*100)+'%;top:'+(anno.yR*100)+'%;width:'+(anno.wR*100)+'%;';
+  var img = document.createElement('img');
+  img.src = anno.dataURL; img.style.cssText='width:100%;display:block;';
+  el.appendChild(img);
+  var nameDiv = document.createElement('div');
+  nameDiv.className = 'sname';
+  var d = anno.date ? new Date(anno.date).toLocaleDateString('fr-FR') : '';
+  nameDiv.textContent = anno.name + ' · ' + anno.lic + (d?' · '+d:'');
+  el.appendChild(nameDiv);
+  var del = document.createElement('button');
+  del.className = 'del'; del.textContent = '×';
+  del.onclick = function(e){ e.stopPropagation(); removeAnno(anno.id); pw.removeChild(el); updateAnnoUI(); };
+  el.appendChild(del);
+  makeDrag(el, pw, anno);
+  pw.appendChild(el);
+}
+
+function redrawAnnos(pw, cv, pn) {
+  annotations.forEach(function(anno){
+    if(anno.page !== pn) return;
+    if(anno.type==='trig') drawTrigramEl(pw, cv, anno);
+    else drawSigEl(pw, cv, anno);
+  });
+}
+
+function removeAnno(id) {
+  annotations = annotations.filter(function(a){ return a.id!==id; });
+  updateAnnoUI();
+}
+
+function undoLast() {
+  if(!annotations.length) return;
+  var last = annotations[annotations.length-1];
+  annotations.pop();
+  // Remove element
+  var el = document.querySelector('[data-id="'+last.id+'"]');
+  if(el) el.remove();
+  updateAnnoUI();
+}
+
+function updateAnnoUI() {
+  var n = annotations.length;
+  document.getElementById('annoCount').textContent = n + ' annotation(s)';
+  if(n>0){
+    document.getElementById('s4').style.display = 'block';
+    document.getElementById('annoSummary').textContent = '✅ '+n+' annotation(s) — prêt à exporter';
+    setStep(4);
+  } else {
+    document.getElementById('s4').style.display = 'none';
+  }
+}
+
+function makeDrag(el, parent, anno) {
+  var dragging=false, sx, sy, ox, oy;
+  el.addEventListener('mousedown', function(e){
+    if(e.target.classList.contains('del')) return;
+    dragging=true; sx=e.clientX; sy=e.clientY;
+    ox=parseFloat(el.style.left)||0; oy=parseFloat(el.style.top)||0;
+    e.preventDefault();
+  });
+  document.addEventListener('mousemove', function(e){
+    if(!dragging) return;
+    var pr=parent.getBoundingClientRect();
+    var dx=(e.clientX-sx)/pr.width*100;
+    var dy=(e.clientY-sy)/pr.height*100;
+    el.style.left=(ox+dx)+'%'; el.style.top=(oy+dy)+'%';
+    anno.xR=(ox+dx)/100; anno.yR=(oy+dy)/100;
+  });
+  document.addEventListener('mouseup', function(){ dragging=false; });
+}
+
+// ── ZOOM ────────────────────────────────────────────────────────────
+function zoomIn(){ zoom=Math.min(zoom+0.25,3); document.getElementById('zoomLbl').textContent=Math.round(zoom*100)+'%'; renderAll(); }
+function zoomOut(){ zoom=Math.max(zoom-0.25,0.5); document.getElementById('zoomLbl').textContent=Math.round(zoom*100)+'%'; renderAll(); }
+
+// ── EXPORT PDF ──────────────────────────────────────────────────────
+async function exportPDF() {
+  var btn = document.getElementById('dlBtn');
+  btn.disabled=true; btn.textContent='⏳ Génération...';
+  try {
+    var jdoc = new window.jspdf.jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+    var PW=210, PH=297;
+
+    for(var pn=1; pn<=pdfDoc.numPages; pn++) {
+      if(pn>1) jdoc.addPage();
+      // Render page à haute résolution
+      var page = await pdfDoc.getPage(pn);
+      var vp = page.getViewport({scale:3.0});
+      var cv = document.createElement('canvas');
+      cv.width=vp.width; cv.height=vp.height;
+      await page.render({canvasContext:cv.getContext('2d'), viewport:vp}).promise;
+      jdoc.addImage(cv.toDataURL('image/jpeg',0.93),'JPEG',0,0,PW,PH);
+
+      // Annotations sur cette page
+      annotations.forEach(function(anno){
+        if(anno.page!==pn) return;
+        var x = anno.xR * PW;
+        var y = anno.yR * PH;
+
+        if(anno.type==='trig') {
+          // Fond léger + texte trigramme
+          jdoc.setFillColor(235,240,255);
+          jdoc.setDrawColor(34,68,170);
+          jdoc.setLineWidth(0.3);
+          jdoc.rect(x-0.5, y-3, 10, 4.5, 'FD');
+          jdoc.setFont('helvetica','bold');
+          jdoc.setFontSize(7);
+          jdoc.setTextColor(26,26,94);
+          jdoc.text(anno.text, x, y, {baseline:'bottom'});
+          jdoc.setTextColor(0,0,0);
+        } else {
+          // Signature
+          var sw = anno.wR*PW, sh = anno.hR*PH*1.5;
+          jdoc.setFillColor(255,255,255);
+          jdoc.setDrawColor(30,122,30);
+          jdoc.setLineWidth(0.4);
+          jdoc.rect(x, y, sw, sh+6, 'FD');
+          jdoc.addImage(anno.dataURL,'PNG',x+1,y+1,sw-2,sh-2);
+          jdoc.setFontSize(5.5);
+          jdoc.setFont('helvetica','bold');
+          jdoc.setTextColor(26,26,94);
+          jdoc.text(anno.name+' · '+anno.lic, x+1, y+sh+2);
+          if(anno.date){
+            jdoc.setFont('helvetica','normal');
+            jdoc.setTextColor(80,80,80);
+            jdoc.text('APRS du '+new Date(anno.date).toLocaleDateString('fr-FR'), x+1, y+sh+5);
+          }
+          jdoc.setTextColor(0,0,0);
+        }
+      });
+    }
+
+    var ot = document.getElementById('otNum').value||'OT';
+    jdoc.save('OT_'+ot+'_SIGNE.pdf');
+    document.getElementById('dlStatus').style.display='block';
+    document.getElementById('dlStatus').innerHTML='✅ <strong>OT_'+ot+'_SIGNE.pdf</strong> téléchargé !';
+    document.getElementById('dlStatus').style.color='#1e7a1e';
+  } catch(e){ alert('Erreur export: '+e.message); }
+  btn.disabled=false; btn.textContent='📄 Télécharger OT signé (PDF)';
+}
+
+// Init
+document.getElementById('aprsDate').value = new Date().toISOString().slice(0,10);
+</script>
+</body>
+</html>
