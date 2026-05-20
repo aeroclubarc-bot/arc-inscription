@@ -296,8 +296,11 @@ app.get("/inscription",    (req, res) => res.sendFile(path.join(__dirname, "inde
 app.get("/statuts",        (req, res) => res.sendFile(path.join(__dirname, "statuts.html")));
 app.get("/reglement",      (req, res) => res.sendFile(path.join(__dirname, "reglement.html")));
 
-// ── ENTRETIEN DR250 ───────────────────────────────────────────────────
+// ── ENTRETIEN & SIGNATURES ────────────────────────────────────────────
 app.get("/entretien-dr250", (req, res) => res.sendFile(path.join(__dirname, "entretien-dr250.html")));
+app.get("/entretien-d113",  (req, res) => res.sendFile(path.join(__dirname, "entretien-d113.html")));
+app.get("/entretien-dh251", (req, res) => res.sendFile(path.join(__dirname, "entretien-dh251.html")));
+app.get("/signer-ot",       (req, res) => res.sendFile(path.join(__dirname, "signer-ot.html")));
 
 app.get("/sitemap.xml", (req, res) => {
   res.setHeader("Content-Type", "application/xml");
