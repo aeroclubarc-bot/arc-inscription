@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Atelier — Connexion · A.R.C.</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔧</text></svg>"/>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;
+      background:radial-gradient(ellipse at center top, #1a2a3a 0%, #0f1419 70%);
+      color:#e8eef5;
+      min-height:100vh;
+      display:flex;align-items:center;justify-content:center;
+      padding:20px
+    }
+    .box{
+      background:#1a2129;
+      border:1px solid #2a3540;
+      border-radius:16px;
+      padding:38px 32px;
+      max-width:380px;width:100%;
+      box-shadow:0 20px 60px rgba(0,0,0,.5);
+    }
+    .logo{
+      width:64px;height:64px;border-radius:14px;margin:0 auto 18px;
+      background:linear-gradient(135deg,#5fa8d3,#3a7ca5);
+      display:flex;align-items:center;justify-content:center;font-size:32px;
+      box-shadow:0 8px 20px rgba(95,168,211,.35);
+    }
+    h1{font-size:20px;font-weight:700;text-align:center;letter-spacing:-.3px;margin-bottom:6px}
+    .sub{font-size:13px;color:#8b9aac;text-align:center;margin-bottom:26px}
+    label{display:block;font-size:11px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:#8b9aac;margin-bottom:6px}
+    input[type=password]{
+      width:100%;padding:12px 14px;font-size:15px;
+      background:#0f1419;border:1.5px solid #2a3540;border-radius:8px;color:#e8eef5;
+      transition:border-color .15s;
+    }
+    input[type=password]:focus{outline:none;border-color:#5fa8d3}
+    button[type=submit]{
+      width:100%;padding:12px;margin-top:18px;
+      background:linear-gradient(135deg,#5fa8d3,#3a7ca5);color:#fff;
+      border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;
+      transition:all .15s;letter-spacing:.3px;
+    }
+    button[type=submit]:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(95,168,211,.35)}
+    button[type=submit]:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
+    .err{
+      background:rgba(192,57,43,.15);border:1px solid rgba(192,57,43,.4);
+      color:#e88a82;padding:10px 12px;border-radius:6px;font-size:13px;margin-top:14px;text-align:center;
+      display:none;
+    }
+    .err.show{display:block}
+    .foot{margin-top:24px;text-align:center;font-size:11px;color:#5b6878}
+  </style>
+</head>
+<body>
+  <div class="box">
+    <div class="logo">🔧</div>
+    <h1>Atelier mécanicien</h1>
+    <div class="sub">Aéroclub A.R.C. · Chavenay</div>
+    <form id="loginForm" onsubmit="return doLogin(event)">
+      <label for="pw">Mot de passe</label>
+      <input type="password" id="pw" autocomplete="current-password" autofocus required/>
+      <button type="submit" id="btn">Accéder à l'atelier →</button>
+      <div class="err" id="err"></div>
+    </form>
+    <div class="foot">Session valide 24 heures sur cet appareil</div>
+  </div>
+
+<script>
+async function doLogin(e) {
+  e.preventDefault();
+  var pw = document.getElementById('pw').value;
+  var btn = document.getElementById('btn');
+  var err = document.getElementById('err');
+  err.classList.remove('show');
+  btn.disabled = true;
+  btn.textContent = 'Vérification…';
+  try {
+    var r = await fetch('/api/maintenance/auth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: pw }),
+    });
+    if (r.ok) {
+      // Server set the cookie — redirect to maintenance
+      var target = new URLSearchParams(window.location.search).get('next') || '/maintenance';
+      window.location.href = target;
+      return false;
+    }
+    var data = await r.json().catch(function(){ return {}; });
+    err.textContent = data.error || 'Mot de passe incorrect.';
+    err.classList.add('show');
+  } catch(ex) {
+    err.textContent = 'Erreur de connexion. Réessayez.';
+    err.classList.add('show');
+  }
+  btn.disabled = false;
+  btn.textContent = 'Accéder à l\'atelier →';
+  return false;
+}
+</script>
+</body>
+</html>

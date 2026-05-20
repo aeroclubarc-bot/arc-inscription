@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Atelier — Aéroclub A.R.C.</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔧</text></svg>"/>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#0f1419;
+      --surface:#1a2129;
+      --surface-elevated:#222b35;
+      --border:#2a3540;
+      --text:#e8eef5;
+      --text-dim:#8b9aac;
+      --accent:#5fa8d3;
+      --accent-hover:#7fbde0;
+    }
+    body{
+      font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      min-height:100vh;
+      padding:24px 16px;
+    }
+    .container{max-width:980px;margin:0 auto}
+    header{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:8px;
+      padding-bottom:20px;
+      border-bottom:1px solid var(--border);
+    }
+    .brand{display:flex;align-items:center;gap:14px}
+    .brand .logo{
+      width:48px;height:48px;border-radius:10px;
+      background:linear-gradient(135deg,#5fa8d3,#3a7ca5);
+      display:flex;align-items:center;justify-content:center;font-size:24px;
+      box-shadow:0 4px 12px rgba(95,168,211,.3);
+    }
+    .brand h1{font-size:22px;font-weight:700;letter-spacing:-.3px;line-height:1.2}
+    .brand .sub{font-size:12px;color:var(--text-dim);margin-top:2px}
+    .logout{
+      padding:7px 14px;background:transparent;border:1px solid var(--border);color:var(--text-dim);
+      border-radius:6px;cursor:pointer;font-size:12px;font-weight:500;transition:all .15s
+    }
+    .logout:hover{border-color:#c0392b;color:#e88a82;background:rgba(192,57,43,.08)}
+
+    .intro{padding:24px 0 32px;font-size:14px;color:var(--text-dim);line-height:1.6}
+    .intro strong{color:var(--text)}
+
+    .section-title{
+      font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;
+      color:var(--text-dim);margin:24px 0 12px
+    }
+
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+
+    .card{
+      background:var(--surface);
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:18px;
+      text-decoration:none;
+      color:var(--text);
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      transition:all .18s ease;
+      position:relative;
+      overflow:hidden;
+    }
+    .card::before{
+      content:"";
+      position:absolute;
+      top:0;left:0;right:0;height:3px;
+      background:var(--accent-bar,transparent);
+      transition:height .18s
+    }
+    .card:hover{
+      transform:translateY(-2px);
+      border-color:var(--accent-bar,var(--accent));
+      box-shadow:0 8px 24px rgba(0,0,0,.3);
+      background:var(--surface-elevated);
+    }
+    .card:hover::before{height:5px}
+    .card .head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+    .card .icon{
+      width:42px;height:42px;border-radius:10px;
+      display:flex;align-items:center;justify-content:center;font-size:22px;
+      background:rgba(255,255,255,.04);
+    }
+    .card .immat{
+      font-size:11px;font-weight:700;letter-spacing:1px;
+      padding:3px 8px;border-radius:4px;
+      background:rgba(255,255,255,.06);color:var(--text-dim)
+    }
+    .card h2{font-size:16px;font-weight:600;letter-spacing:-.2px;line-height:1.3}
+    .card p{font-size:13px;color:var(--text-dim);line-height:1.5}
+    .card .arrow{
+      margin-top:auto;
+      display:flex;align-items:center;justify-content:space-between;
+      padding-top:8px;font-size:12px;color:var(--accent)
+    }
+
+    /* Accent colors per aircraft (matches the maintenance app palettes) */
+    .c-pjil{--accent-bar:#2d6a2d}.c-pjil .icon{background:rgba(45,106,45,.18);color:#7fc77f}.c-pjil:hover{border-color:#2d6a2d}.c-pjil .arrow{color:#7fc77f}
+    .c-bnva{--accent-bar:#2244aa}.c-bnva .icon{background:rgba(34,68,170,.22);color:#7fa3e8}.c-bnva:hover{border-color:#2244aa}.c-bnva .arrow{color:#7fa3e8}
+    .c-pouf{--accent-bar:#a87830}.c-pouf .icon{background:rgba(168,120,48,.22);color:#e0b870}.c-pouf:hover{border-color:#a87830}.c-pouf .arrow{color:#e0b870}
+    .c-ot{--accent-bar:#5fa8d3}.c-ot .icon{background:rgba(95,168,211,.18);color:#9ec9e5}
+
+    footer{
+      margin-top:48px;padding-top:18px;border-top:1px solid var(--border);
+      font-size:11px;color:var(--text-dim);text-align:center
+    }
+
+    @media (max-width:600px){
+      body{padding:16px 12px}
+      header{flex-direction:column;gap:14px;align-items:flex-start}
+      .grid{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="brand">
+      <div class="logo">🔧</div>
+      <div>
+        <h1>Atelier — Aéroclub A.R.C.</h1>
+        <div class="sub">Outils mécaniciens · Chavenay · LFPX</div>
+      </div>
+    </div>
+    <button class="logout" onclick="logout()">Déconnexion</button>
+  </header>
+
+  <div class="intro">
+    Espace réservé aux mécaniciens. Sélectionnez l'aéronef ou l'outil à utiliser.
+    Vos données restent <strong>locales à votre appareil</strong> : sauvegarde JSON, export PDF.
+  </div>
+
+  <div class="section-title">Programmes d'entretien</div>
+  <div class="grid">
+
+    <a href="/entretien-d113" class="card c-pjil">
+      <div class="head">
+        <div class="icon">✈️</div>
+        <div class="immat">F-PJIL</div>
+      </div>
+      <h2>Jodel D113</h2>
+      <p>Programme d'entretien — Visite 50h / 100h / annuelle. Rolls Royce O-200A.</p>
+      <div class="arrow">Ouvrir →</div>
+    </a>
+
+    <a href="/entretien-dr250" class="card c-bnva">
+      <div class="head">
+        <div class="icon">✈️</div>
+        <div class="immat">F-BNVA</div>
+      </div>
+      <h2>Jodel DR 250</h2>
+      <p>Programme d'entretien — Visite 50h / 100h / annuelle.</p>
+      <div class="arrow">Ouvrir →</div>
+    </a>
+
+    <a href="/entretien-dh251" class="card c-pouf">
+      <div class="head">
+        <div class="icon">✈️</div>
+        <div class="immat">F-POUF</div>
+      </div>
+      <h2>Jodel DH 251 CNRA</h2>
+      <p>Programme CNRA — ATA100, point fixe, vol de contrôle, test transpondeur.</p>
+      <div class="arrow">Ouvrir →</div>
+    </a>
+
+  </div>
+
+  <div class="section-title">Signature d'ordre de travail</div>
+  <div class="grid">
+
+    <a href="/signer-ot" class="card c-ot">
+      <div class="head">
+        <div class="icon">✍️</div>
+      </div>
+      <h2>Signer un OT SEGA</h2>
+      <p>Importer un PDF d'OT, apposer trigramme VISA, signature manuscrite ou texte libre. Export PDF signé.</p>
+      <div class="arrow">Ouvrir →</div>
+    </a>
+
+  </div>
+
+  <footer>
+    Accès protégé · Session valide 24h · <span id="userInfo"></span>
+  </footer>
+</div>
+
+<script>
+function logout() {
+  // Clear the auth cookie by setting it expired
+  document.cookie = "arc-maint-auth=; Path=/; Max-Age=0; SameSite=Strict";
+  window.location.href = "/maintenance/login";
+}
+</script>
+</body>
+</html>

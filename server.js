@@ -1,5 +1,6 @@
 import express from "express";
 import path from "path";
+import crypto from "crypto";
 import { fileURLToPath } from "url";
 import { Resend } from "resend";
 
@@ -42,6 +43,52 @@ app.use((req, res, next) => {
 
 // ── REDIRECT / ────────────────────────────────────────────────────────
 app.get("/", (req, res) => res.redirect(301, "/home-arc"));
+
+// ── AUTH MAINTENANCE ──────────────────────────────────────────────────
+// Mot de passe partagé entre mécaniciens — défini en variable d'env Railway.
+// Token = SHA-256 du mot de passe (stocké en cookie HttpOnly).
+const MAINT_PASSWORD = process.env.MAINTENANCE_PASSWORD || "changeme-set-env-var";
+const MAINT_COOKIE = "arc-maint-auth";
+const MAINT_TOKEN = crypto.createHash("sha256").update(MAINT_PASSWORD).digest("hex");
+const MAINT_COOKIE_MAXAGE = 60 * 60 * 24; // 24h
+
+function getCookie(req, name) {
+  const raw = req.headers.cookie || "";
+  const parts = raw.split(";").map(s => s.trim());
+  for (const p of parts) {
+    if (p.startsWith(name + "=")) return p.slice(name.length + 1);
+  }
+  return null;
+}
+
+function maintAuth(req, res, next) {
+  const token = getCookie(req, MAINT_COOKIE);
+  if (token && token === MAINT_TOKEN) return next();
+  // Pour les pages HTML on redirige vers le login ; pour l'API on renvoie 401.
+  if (req.accepts("html") && req.method === "GET") {
+    const next = encodeURIComponent(req.originalUrl);
+    return res.redirect(`/maintenance/login?next=${next}`);
+  }
+  return res.status(401).json({ error: "Authentification requise" });
+}
+
+// Page login (publique)
+app.get("/maintenance/login", (req, res) => {
+  res.sendFile(path.join(__dirname, "maintenance-login.html"));
+});
+
+// API auth (publique — vérifie le mot de passe, pose le cookie)
+app.post("/api/maintenance/auth", (req, res) => {
+  const pw = (req.body && req.body.password) || "";
+  if (pw !== MAINT_PASSWORD) {
+    return res.status(401).json({ error: "Mot de passe incorrect" });
+  }
+  res.setHeader(
+    "Set-Cookie",
+    `${MAINT_COOKIE}=${MAINT_TOKEN}; Path=/; Max-Age=${MAINT_COOKIE_MAXAGE}; SameSite=Strict; HttpOnly`
+  );
+  res.json({ ok: true });
+});
 
 // ── STRIPE PAYMENT INTENT ─────────────────────────────────────────────
 app.post("/api/stripe/create-payment-intent", async (req, res) => {
@@ -296,11 +343,12 @@ app.get("/inscription",    (req, res) => res.sendFile(path.join(__dirname, "inde
 app.get("/statuts",        (req, res) => res.sendFile(path.join(__dirname, "statuts.html")));
 app.get("/reglement",      (req, res) => res.sendFile(path.join(__dirname, "reglement.html")));
 
-// ── ENTRETIEN & SIGNATURES ────────────────────────────────────────────
-app.get("/entretien-dr250", (req, res) => res.sendFile(path.join(__dirname, "entretien-dr250.html")));
-app.get("/entretien-d113",  (req, res) => res.sendFile(path.join(__dirname, "entretien-d113.html")));
-app.get("/entretien-dh251", (req, res) => res.sendFile(path.join(__dirname, "entretien-dh251.html")));
-app.get("/signer-ot",       (req, res) => res.sendFile(path.join(__dirname, "signer-ot.html")));
+// ── ATELIER MAINTENANCE (PROTÉGÉ) ─────────────────────────────────────
+app.get("/maintenance",     maintAuth, (req, res) => res.sendFile(path.join(__dirname, "maintenance.html")));
+app.get("/entretien-d113",  maintAuth, (req, res) => res.sendFile(path.join(__dirname, "entretien-d113.html")));
+app.get("/entretien-dr250", maintAuth, (req, res) => res.sendFile(path.join(__dirname, "entretien-dr250.html")));
+app.get("/entretien-dh251", maintAuth, (req, res) => res.sendFile(path.join(__dirname, "entretien-dh251.html")));
+app.get("/signer-ot",       maintAuth, (req, res) => res.sendFile(path.join(__dirname, "signer-ot.html")));
 
 app.get("/sitemap.xml", (req, res) => {
   res.setHeader("Content-Type", "application/xml");
@@ -308,7 +356,7 @@ app.get("/sitemap.xml", (req, res) => {
 });
 app.get("/robots.txt", (req, res) => {
   res.setHeader("Content-Type", "text/plain");
-  res.send("User-agent: *\nAllow: /\nDisallow: /tarifs\nDisallow: /inscription\nDisallow: /adhesion\nSitemap: https://www.aeroclub-arc.fr/sitemap.xml\n");
+  res.send("User-agent: *\nAllow: /\nDisallow: /tarifs\nDisallow: /inscription\nDisallow: /adhesion\nDisallow: /maintenance\nDisallow: /entretien-d113\nDisallow: /entretien-dr250\nDisallow: /entretien-dh251\nDisallow: /signer-ot\nSitemap: https://www.aeroclub-arc.fr/sitemap.xml\n");
 });
 
 app.listen(PORT, () => {
