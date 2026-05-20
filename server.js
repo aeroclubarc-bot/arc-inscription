@@ -64,13 +64,32 @@ function getCookie(req, name) {
 function maintAuth(req, res, next) {
   const token = getCookie(req, MAINT_COOKIE);
   if (token && token === MAINT_TOKEN) return next();
-  // Pour les pages HTML on redirige vers le login ; pour l'API on renvoie 401.
-  if (req.accepts("html") && req.method === "GET") {
-    const next = encodeURIComponent(req.originalUrl);
-    return res.redirect(`/maintenance/login?next=${next}`);
+  // Pour les pages (GET/HEAD non-API) on redirige vers le login ; pour l'API on renvoie 401 JSON.
+  const isApi = req.path.startsWith("/api/");
+  if (!isApi && (req.method === "GET" || req.method === "HEAD")) {
+    const dest = encodeURIComponent(req.originalUrl);
+    return res.redirect(`/maintenance/login?next=${dest}`);
   }
   return res.status(401).json({ error: "Authentification requise" });
 }
+
+// Bloque l'accès direct aux fichiers HTML protégés (contournement express.static)
+const PROTECTED_HTML = new Set([
+  "/maintenance.html",
+  "/maintenance-login.html",
+  "/entretien-d113.html",
+  "/entretien-dr250.html",
+  "/entretien-dh251.html",
+  "/signer-ot.html",
+]);
+app.use((req, res, next) => {
+  if (PROTECTED_HTML.has(req.path)) {
+    // Redirige vers la version sans .html (qui passe par maintAuth)
+    const cleanPath = req.path.replace(/\.html$/, "");
+    return res.redirect(302, cleanPath);
+  }
+  next();
+});
 
 // Page login (publique)
 app.get("/maintenance/login", (req, res) => {
@@ -361,4 +380,7 @@ app.get("/robots.txt", (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`ARC running on port ${PORT}`);
+  console.log(`▸ Maintenance auth: ENABLED (build 2026-05-20 v2)`);
+  console.log(`▸ Maintenance password: ${MAINT_PASSWORD === "changeme-set-env-var" ? "⚠️  DEFAULT (set MAINTENANCE_PASSWORD env var!)" : "✓ from MAINTENANCE_PASSWORD env"}`);
+  console.log(`▸ Protected routes: /maintenance, /entretien-d113, /entretien-dr250, /entretien-dh251, /signer-ot`);
 });
