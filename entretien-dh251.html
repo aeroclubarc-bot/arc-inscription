@@ -14,10 +14,491 @@
     body { background: #faf6ec; font-family: Arial, sans-serif; }
     #root { min-height: 100vh; }
     @media (max-width: 600px) { .desktop-only { display: none !important; } }
-  </style>
+  
+    /* ── TAB BAR (2-en-1) ───────────────────────────────────────── */
+    .tabbar { position:sticky; top:0; background:#fff; border-bottom:2px solid #e0c894; padding:0; z-index:100; box-shadow:0 2px 6px rgba(0,0,0,0.06); }
+    .tabbar-inner { max-width:1100px; margin:0 auto; padding:10px 14px 0; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+    .tabbar .brand { font-weight:700; color:#6b4a14; font-size:13px; margin-right:auto; padding-bottom:10px; }
+    .tabbar .tab { background:transparent; border:none; padding:9px 18px; cursor:pointer; font-size:13px; font-weight:600; color:#888; border-bottom:3px solid transparent; margin-bottom:-2px; transition:all 0.15s; }
+    .tabbar .tab:hover { color:#6b4a14; }
+    .tabbar .tab.active { color:#6b4a14; border-bottom-color:#a87830; }
+    .tabbar .tab .badge { display:inline-block; background:#a87830; color:#fff; font-size:10px; padding:1px 6px; border-radius:8px; margin-left:6px; min-width:18px; text-align:center; }
+    .tabbar .tab.muted .badge { background:#ccc; }
+    /* ── OT PANEL ────────────────────────────────────────────────── */
+    #otPanel { max-width:1100px; margin:0 auto; padding:14px; }
+    #otPanel .ot-card { background:#fff; border-radius:10px; border:1px solid #c5cce0; margin-bottom:12px; overflow:hidden; }
+    #otPanel .ot-ch { background:#a87830; color:#fff; padding:8px 14px; font-weight:bold; font-size:13px; }
+    #otPanel .ot-cb { padding:12px; }
+    #otPanel .ot-upload { border:3px dashed #e0c894; border-radius:10px; padding:30px; text-align:center; cursor:pointer; transition:all .2s; background:#fbf2e0; }
+    #otPanel .ot-upload:hover, #otPanel .ot-upload.drag-over { border-color:#a87830; background:#fbf2e0; filter:brightness(0.98); }
+    #otPanel .ot-btn { padding:7px 16px; border:none; border-radius:6px; cursor:pointer; font-size:12px; font-weight:bold; transition:all .15s; }
+    #otPanel .ot-btn-primary { background:#6b4a14; color:#fff; }
+    #otPanel .ot-btn-primary:hover { background:#a87830; }
+    #otPanel .ot-btn-primary:disabled { background:#aaa; cursor:not-allowed; }
+    #otPanel .ot-btn-green { background:#1e7a1e; color:#fff; }
+    #otPanel .ot-btn-orange { background:#e67e22; color:#fff; }
+    #otPanel .ot-btn-red { background:#c0392b; color:#fff; }
+    #otPanel .ot-btn-sm { padding:4px 10px; font-size:11px; }
+    #otPanel .ot-info-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:10px; }
+    #otPanel .ot-ifield label { display:block; font-size:10px; font-weight:bold; color:#444; text-transform:uppercase; margin-bottom:3px; }
+    #otPanel .ot-ifield input { width:100%; padding:6px 9px; border:1.5px solid #c5cce0; border-radius:5px; font-size:13px; }
+    #otPanel .ot-mode-bar { display:flex; gap:8px; flex-wrap:wrap; align-items:center; padding:8px 14px; background:#fbf2e0; border-bottom:1px solid #dde; }
+    #otPanel .ot-mode-btn { padding:6px 14px; border:2px solid #c5cce0; border-radius:20px; cursor:pointer; font-size:12px; font-weight:bold; background:#fff; color:#555; transition:all .15s; }
+    #otPanel .ot-mode-btn.active { background:#a87830; color:#fff; border-color:#a87830; }
+    #otPanel .ot-mode-btn.active-green { background:#1e7a1e; color:#fff; border-color:#1e7a1e; }
+    #otPanel .ot-mode-btn.active-amber { background:#b54708; color:#fff; border-color:#b54708; }
+    #otPanel .ot-pdf-scroll { max-height:75vh; overflow-y:auto; background:#444; border-radius:8px; padding:8px; }
+    #otPanel .ot-page-wrap { position:relative; display:inline-block; margin-bottom:12px; }
+    #otPanel .ot-page-wrap canvas { display:block; border-radius:3px; box-shadow:0 2px 6px rgba(0,0,0,.4); max-width:100%; }
+    #otPanel .ot-page-lbl { color:#eee; font-size:11px; text-align:center; padding:3px 0; }
+    #otPanel .ot-anno { position:absolute; cursor:pointer; display:flex; align-items:center; justify-content:center; border-radius:3px; user-select:none; font-weight:bold; }
+    #otPanel .ot-anno.trigram { background:rgba(34,68,170,.12); border:1.5px solid #2244aa; color:#1a1a5e; font-size:11px; min-width:36px; min-height:18px; padding:1px 4px; }
+    #otPanel .ot-anno.txt { background:rgba(255,255,255,.85); border:1.5px solid #b54708; color:#1a1a5e; font-size:12px; min-width:24px; min-height:18px; padding:2px 6px; font-weight:600; white-space:nowrap; }
+    #otPanel .ot-anno.sig { background:rgba(255,255,255,.9); border:2px solid #1e7a1e; padding:2px; flex-direction:column; min-width:120px; min-height:48px; }
+    #otPanel .ot-anno.sig img { width:100%; height:auto; display:block; }
+    #otPanel .ot-anno.sig .sname { font-size:7px; color:#1a1a5e; text-align:center; padding:1px 3px; white-space:nowrap; }
+    #otPanel .ot-anno .del { position:absolute; top:-8px; right:-8px; background:#c0392b; color:#fff; border:none; border-radius:50%; width:16px; height:16px; cursor:pointer; font-size:10px; display:none; align-items:center; justify-content:center; z-index:10; }
+    #otPanel .ot-anno:hover .del { display:flex; }
+    #otPanel .ot-sigpad { border:2px dashed #8a8; border-radius:6px; background:#f9fff9; cursor:crosshair; touch-action:none; display:block; }
+    #otPanel .ot-toolbar { display:flex; gap:8px; flex-wrap:wrap; align-items:center; padding:8px; background:#fbf2e0; border-bottom:1px solid #dde; border-radius:0; }
+    #otPanel .ot-zoom-lbl { font-size:12px; padding:4px 10px; background:#eee; border-radius:4px; min-width:52px; text-align:center; }
+    #otPanel .ot-cta-next { display:flex; justify-content:flex-end; padding-top:8px; }
+    #otPanel .ot-cta-next button { background:#6b4a14; color:#fff; border:none; padding:10px 22px; border-radius:8px; cursor:pointer; font-size:13px; font-weight:bold; }
+    #otPanel .ot-cta-next button:hover { background:#a87830; }
+  
+</style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 </head>
 <body>
-<div id="root"></div>
+<div class="tabbar">
+  <div class="tabbar-inner">
+    <div class="brand">DH 251 — F-POUF · Atelier méca</div>
+    <button class="tab active" id="tabOT" onclick="window.__switchTab('ot')">📋 1. Ordre de Travail <span class="badge" id="otBadge">0</span></button>
+    <button class="tab muted" id="tabInspect" onclick="window.__switchTab('inspect')">🔧 2. Programme d'entretien</button>
+  </div>
+</div>
+
+<div id="otPanel">
+
+  <!-- ÉTAPE A : Upload PDF -->
+  <div class="ot-card">
+    <div class="ot-ch">📤 Upload de l'OT (PDF) — optionnel</div>
+    <div class="ot-cb">
+      <div class="ot-upload" id="ot-dz" onclick="document.getElementById('ot-fi').click()">
+        <div style="font-size:38px;margin-bottom:8px">📄</div>
+        <div style="font-size:14px;font-weight:bold;color:#6b4a14;margin-bottom:4px">Glisser-déposer l'OT PDF ici, ou cliquer</div>
+        <div style="font-size:12px;color:#888">Si pas d'OT à joindre, passez directement à l'étape 2.</div>
+      </div>
+      <input type="file" id="ot-fi" accept=".pdf" style="display:none">
+      <div id="ot-uploadOK" style="margin-top:8px;font-size:13px;color:#1e7a1e;display:none">✅ <span id="ot-fname"></span></div>
+    </div>
+  </div>
+
+  <!-- ÉTAPE B : Infos méca (visible après upload) -->
+  <div class="ot-card" id="ot-infoCard" style="display:none">
+    <div class="ot-ch">👤 Informations OT</div>
+    <div class="ot-cb">
+      <div class="ot-info-grid">
+        <div class="ot-ifield"><label>Immatriculation</label><input id="ot-immat" value="F-POUF" style="font-weight:bold;text-transform:uppercase"></div>
+        <div class="ot-ifield"><label>N° OT</label><input id="ot-otNum" placeholder="ex: POUF2026-03"></div>
+        <div class="ot-ifield"><label>Mécanicien</label><input id="ot-mechName" placeholder="Nom Prénom"></div>
+        <div class="ot-ifield"><label>Trigramme VISA</label><input id="ot-trigram" maxlength="4" style="font-weight:bold;font-size:16px;text-align:center;text-transform:uppercase" placeholder="ex: RCA"></div>
+        <div class="ot-ifield"><label>N° Licence</label><input id="ot-mechLic" placeholder="ex: FR.66.0097.16"></div>
+        <div class="ot-ifield"><label>Date APRS</label><input id="ot-aprsDate" type="date"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ÉTAPE C : Annoter (visible après upload) -->
+  <div class="ot-card" id="ot-annotCard" style="display:none">
+    <div class="ot-ch">✍️ Annoter le document (trigramme VISA · signature · texte)</div>
+    <div class="ot-mode-bar">
+      <span style="font-size:12px;font-weight:bold;color:#444">Mode :</span>
+      <button class="ot-mode-btn active" id="ot-mTrig" onclick="window.__otMode('trigram')">🔤 Trigramme VISA</button>
+      <button class="ot-mode-btn" id="ot-mSig" onclick="window.__otMode('sig')">✍️ Signature</button>
+      <button class="ot-mode-btn" id="ot-mTxt" onclick="window.__otMode('text')">📝 Saisie texte</button>
+      <div style="width:1px;height:24px;background:#ccc;margin:0 4px"></div>
+      <span id="ot-modeHint" style="font-size:12px;color:#555">Cliquez sur une case VISA pour apposer le trigramme</span>
+      <div style="flex:1"></div>
+      <button class="ot-btn ot-btn-sm ot-btn-orange" onclick="window.__otUndo()">↩️ Annuler dernier</button>
+    </div>
+    <div class="ot-cb" style="padding:10px">
+      <!-- Pad signature -->
+      <div id="ot-sigBlock" style="display:none;margin-bottom:12px;background:#f4f8f4;padding:12px;border-radius:8px;border:1px solid #b8d0b8">
+        <div style="font-weight:bold;color:#6b4a14;font-size:13px;margin-bottom:8px">✍️ Dessinez votre signature :</div>
+        <canvas id="ot-sigPad" class="ot-sigpad" width="480" height="110"></canvas>
+        <div style="display:flex;gap:8px;margin-top:6px;align-items:center">
+          <button class="ot-btn ot-btn-sm ot-btn-red" onclick="window.__otClearSig()">✕ Effacer</button>
+          <button class="ot-btn ot-btn-sm ot-btn-green" onclick="window.__otValidateSig()">✓ Valider</button>
+          <span id="ot-sigStatus" style="font-size:12px;color:#888">Signez puis validez, ensuite cliquez sur la page pour placer</span>
+        </div>
+      </div>
+      <!-- Saisie texte -->
+      <div id="ot-txtBlock" style="display:none;margin-bottom:12px;background:#fff8ee;padding:12px;border-radius:8px;border:1px solid #f0c060">
+        <div style="font-weight:bold;color:#6b4a14;font-size:13px;margin-bottom:8px">📝 Texte à apposer :</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <input id="ot-txtInput" placeholder="Texte (numéro, date, observation…)" style="flex:1;min-width:240px;padding:7px 11px;border:1.5px solid #c5cce0;border-radius:5px;font-size:13px">
+          <label style="font-size:12px;color:#555">Taille :
+            <select id="ot-txtSize" style="padding:4px 8px;border:1.5px solid #c5cce0;border-radius:5px;font-size:12px">
+              <option value="8">Petit (8pt)</option>
+              <option value="10" selected>Normal (10pt)</option>
+              <option value="12">Moyen (12pt)</option>
+              <option value="14">Grand (14pt)</option>
+            </select>
+          </label>
+        </div>
+      </div>
+      <!-- Toolbar PDF -->
+      <div class="ot-toolbar" style="border-radius:8px 8px 0 0">
+        <button class="ot-btn ot-btn-sm ot-btn-primary" onclick="window.__otZoom(1)">🔍+</button>
+        <button class="ot-btn ot-btn-sm ot-btn-primary" onclick="window.__otZoom(-1)">🔍−</button>
+        <div class="ot-zoom-lbl" id="ot-zoomLbl">100%</div>
+        <div style="width:1px;height:24px;background:#ccc;margin:0 4px"></div>
+        <span style="font-size:12px;color:#555" id="ot-annoCount">0 annotation(s)</span>
+      </div>
+      <!-- Pages PDF -->
+      <div class="ot-pdf-scroll" id="ot-pdfPages"></div>
+    </div>
+  </div>
+
+  <!-- CTA : passer à l'inspection -->
+  <div class="ot-cta-next">
+    <button onclick="window.__switchTab('inspect')">Passer au programme d'entretien →</button>
+  </div>
+
+</div>
+<div id="root" style="display:none"></div>
+
+<script>
+(function() {
+  if (typeof pdfjsLib === 'undefined') { console.warn('[OT] pdf.js non chargé'); return; }
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+  var S = {
+    pdfDoc: null,
+    zoom: 1.0,
+    renderScale: 1.8,
+    mode: 'trigram',
+    sigDataURL: null,
+    sigValid: false,
+    annotations: [],
+    annoId: 0,
+  };
+
+  // ── UPLOAD ─────────────────────────────────────────────────────
+  var dz = document.getElementById('ot-dz');
+  dz.addEventListener('dragover', function(e){ e.preventDefault(); dz.classList.add('drag-over'); });
+  dz.addEventListener('dragleave', function(){ dz.classList.remove('drag-over'); });
+  dz.addEventListener('drop', function(e){
+    e.preventDefault(); dz.classList.remove('drag-over');
+    var f = e.dataTransfer.files[0];
+    if (f && f.type === 'application/pdf') loadPDF(f);
+    else alert('Fichier PDF requis.');
+  });
+  document.getElementById('ot-fi').addEventListener('change', function(e){
+    if (e.target.files[0]) loadPDF(e.target.files[0]);
+  });
+
+  function loadPDF(file) {
+    var r = new FileReader();
+    r.onload = function(ev) {
+      var arr = new Uint8Array(ev.target.result);
+      pdfjsLib.getDocument(arr).promise.then(function(doc) {
+        S.pdfDoc = doc;
+        document.getElementById('ot-fname').textContent = file.name + ' (' + doc.numPages + ' pages)';
+        document.getElementById('ot-uploadOK').style.display = 'block';
+        document.getElementById('ot-infoCard').style.display = '';
+        document.getElementById('ot-annotCard').style.display = '';
+        if (!document.getElementById('ot-aprsDate').value)
+          document.getElementById('ot-aprsDate').value = new Date().toISOString().slice(0,10);
+        renderAll();
+        updateBadge();
+      }).catch(function(e){ alert('Erreur PDF: ' + e.message); });
+    };
+    r.readAsArrayBuffer(file);
+  }
+
+  // ── MODE ───────────────────────────────────────────────────────
+  window.__otMode = function(m) {
+    S.mode = m;
+    document.getElementById('ot-mTrig').className = 'ot-mode-btn' + (m==='trigram'?' active':'');
+    document.getElementById('ot-mSig').className  = 'ot-mode-btn' + (m==='sig'?' active-green':'');
+    document.getElementById('ot-mTxt').className  = 'ot-mode-btn' + (m==='text'?' active-amber':'');
+    document.getElementById('ot-sigBlock').style.display = m==='sig' ? 'block' : 'none';
+    document.getElementById('ot-txtBlock').style.display = m==='text' ? 'block' : 'none';
+    var hint = '';
+    if (m==='trigram') hint = 'Cliquez sur une case VISA pour apposer le trigramme';
+    else if (m==='sig') hint = S.sigValid ? 'Cliquez sur la page pour placer la signature' : 'Dessinez et validez votre signature ci-dessus';
+    else hint = 'Tapez votre texte puis cliquez sur la page pour le placer';
+    document.getElementById('ot-modeHint').textContent = hint;
+  };
+
+  // ── SIGNATURE PAD ──────────────────────────────────────────────
+  var sp = document.getElementById('ot-sigPad');
+  var sc = sp.getContext('2d');
+  var spDraw = false;
+  sp.addEventListener('mousedown', function(e){ spDraw=true; var r=sp.getBoundingClientRect(); sc.beginPath(); sc.moveTo(e.clientX-r.left, e.clientY-r.top); });
+  sp.addEventListener('mousemove', function(e){ if(!spDraw)return; var r=sp.getBoundingClientRect(); sc.lineWidth=2; sc.lineCap='round'; sc.strokeStyle='#1a1a5e'; sc.lineTo(e.clientX-r.left, e.clientY-r.top); sc.stroke(); });
+  sp.addEventListener('mouseup', function(){ spDraw=false; });
+  sp.addEventListener('mouseleave', function(){ spDraw=false; });
+  sp.addEventListener('touchstart', function(e){ e.preventDefault(); spDraw=true; var r=sp.getBoundingClientRect(); sc.beginPath(); sc.moveTo(e.touches[0].clientX-r.left, e.touches[0].clientY-r.top); }, {passive:false});
+  sp.addEventListener('touchmove', function(e){ e.preventDefault(); if(!spDraw)return; var r=sp.getBoundingClientRect(); sc.lineWidth=2; sc.lineCap='round'; sc.strokeStyle='#1a1a5e'; sc.lineTo(e.touches[0].clientX-r.left, e.touches[0].clientY-r.top); sc.stroke(); }, {passive:false});
+  sp.addEventListener('touchend', function(){ spDraw=false; });
+
+  window.__otClearSig = function() {
+    sc.clearRect(0, 0, sp.width, sp.height);
+    S.sigValid = false; S.sigDataURL = null;
+    document.getElementById('ot-sigStatus').textContent = 'Signez puis validez, ensuite cliquez sur la page pour placer';
+    document.getElementById('ot-sigStatus').style.color = '#888';
+  };
+  window.__otValidateSig = function() {
+    S.sigDataURL = sp.toDataURL('image/png'); S.sigValid = true;
+    document.getElementById('ot-sigStatus').textContent = '✅ Validée — Cliquez sur la page pour placer';
+    document.getElementById('ot-sigStatus').style.color = '#1e7a1e';
+    document.getElementById('ot-modeHint').textContent = 'Cliquez sur la page pour placer la signature';
+  };
+
+  // ── RENDER PDF ─────────────────────────────────────────────────
+  function renderAll() {
+    var cont = document.getElementById('ot-pdfPages');
+    cont.innerHTML = '';
+    for (var p = 1; p <= S.pdfDoc.numPages; p++) {
+      (function(pn) {
+        var wrap = document.createElement('div');
+        wrap.style.cssText = 'text-align:center';
+        var lbl = document.createElement('div');
+        lbl.className = 'ot-page-lbl'; lbl.textContent = 'Page ' + pn;
+        wrap.appendChild(lbl);
+        var pw = document.createElement('div');
+        pw.className = 'ot-page-wrap'; pw.dataset.page = pn;
+        S.pdfDoc.getPage(pn).then(function(page) {
+          var vp = page.getViewport({scale: S.renderScale * S.zoom});
+          var cv = document.createElement('canvas');
+          cv.width = vp.width; cv.height = vp.height; cv.style.maxWidth = '100%';
+          page.render({canvasContext: cv.getContext('2d'), viewport: vp}).promise.then(function() {
+            pw.appendChild(cv);
+            cv.addEventListener('click', function(e) {
+              var r = cv.getBoundingClientRect();
+              var xR = (e.clientX - r.left) / r.width;
+              var yR = (e.clientY - r.top) / r.height;
+              handleClick(pw, cv, pn, xR, yR);
+            });
+            redrawAnnos(pw, cv, pn);
+          });
+        });
+        wrap.appendChild(pw);
+        cont.appendChild(wrap);
+      })(p);
+    }
+  }
+
+  function handleClick(pw, cv, pn, xR, yR) {
+    if (S.mode === 'trigram') placeTrigram(pw, cv, pn, xR, yR);
+    else if (S.mode === 'text') {
+      var txt = document.getElementById('ot-txtInput').value.trim();
+      if (!txt) { alert('Veuillez taper le texte à insérer.'); document.getElementById('ot-txtInput').focus(); return; }
+      placeText(pw, cv, pn, xR, yR, txt);
+    } else {
+      if (!S.sigValid) { alert("Veuillez d'abord valider votre signature."); return; }
+      placeSig(pw, cv, pn, xR, yR);
+    }
+  }
+
+  function placeTrigram(pw, cv, pn, xR, yR) {
+    var trig = document.getElementById('ot-trigram').value.toUpperCase() || 'VIS';
+    var id = ++S.annoId;
+    var anno = { id:id, page:pn, type:'trig', xR:xR, yR:yR, wR:0.04, hR:0.025, text:trig };
+    S.annotations.push(anno); drawTrigramEl(pw, cv, anno); updateBadge();
+  }
+  function placeText(pw, cv, pn, xR, yR, txt) {
+    var size = parseInt(document.getElementById('ot-txtSize').value, 10) || 10;
+    var id = ++S.annoId;
+    var anno = { id:id, page:pn, type:'txt', xR:xR, yR:yR, wR:0.1, hR:0.02, text:txt, size:size };
+    S.annotations.push(anno); drawTextEl(pw, cv, anno); updateBadge();
+  }
+  function placeSig(pw, cv, pn, xR, yR) {
+    var id = ++S.annoId;
+    var mechName = document.getElementById('ot-mechName').value;
+    var lic = document.getElementById('ot-mechLic').value;
+    var date = document.getElementById('ot-aprsDate').value;
+    var anno = { id:id, page:pn, type:'sig', xR:xR-0.1, yR:yR-0.04, wR:0.22, hR:0.08, dataURL:S.sigDataURL, name:mechName, lic:lic, date:date };
+    S.annotations.push(anno); drawSigEl(pw, cv, anno); updateBadge();
+  }
+
+  function drawTrigramEl(pw, cv, anno) {
+    var el = document.createElement('div');
+    el.className = 'ot-anno trigram'; el.dataset.id = anno.id;
+    el.style.cssText = 'position:absolute;left:' + (anno.xR*100-2) + '%;top:' + (anno.yR*100-1.5) + '%;';
+    el.textContent = anno.text;
+    var del = document.createElement('button');
+    del.className = 'del'; del.textContent = '×';
+    del.onclick = function(e){ e.stopPropagation(); removeAnno(anno.id); pw.removeChild(el); updateBadge(); };
+    el.appendChild(del); makeDrag(el, pw, anno); pw.appendChild(el);
+  }
+  function drawTextEl(pw, cv, anno) {
+    var el = document.createElement('div');
+    el.className = 'ot-anno txt'; el.dataset.id = anno.id;
+    el.style.cssText = 'position:absolute;left:' + (anno.xR*100) + '%;top:' + (anno.yR*100-1) + '%;font-size:' + (anno.size||10) + 'px;';
+    el.textContent = anno.text;
+    var del = document.createElement('button');
+    del.className = 'del'; del.textContent = '×';
+    del.onclick = function(e){ e.stopPropagation(); removeAnno(anno.id); pw.removeChild(el); updateBadge(); };
+    el.appendChild(del); makeDrag(el, pw, anno); pw.appendChild(el);
+  }
+  function drawSigEl(pw, cv, anno) {
+    var el = document.createElement('div');
+    el.className = 'ot-anno sig'; el.dataset.id = anno.id;
+    el.style.cssText = 'position:absolute;left:' + (anno.xR*100) + '%;top:' + (anno.yR*100) + '%;width:' + (anno.wR*100) + '%;';
+    var img = document.createElement('img');
+    img.src = anno.dataURL; img.style.cssText = 'width:100%;display:block;';
+    el.appendChild(img);
+    var nameDiv = document.createElement('div');
+    nameDiv.className = 'sname';
+    var d = anno.date ? new Date(anno.date).toLocaleDateString('fr-FR') : '';
+    nameDiv.textContent = anno.name + ' · ' + anno.lic + (d ? ' · ' + d : '');
+    el.appendChild(nameDiv);
+    var del = document.createElement('button');
+    del.className = 'del'; del.textContent = '×';
+    del.onclick = function(e){ e.stopPropagation(); removeAnno(anno.id); pw.removeChild(el); updateBadge(); };
+    el.appendChild(del); makeDrag(el, pw, anno); pw.appendChild(el);
+  }
+
+  function redrawAnnos(pw, cv, pn) {
+    S.annotations.forEach(function(anno) {
+      if (anno.page !== pn) return;
+      if (anno.type === 'trig') drawTrigramEl(pw, cv, anno);
+      else if (anno.type === 'txt') drawTextEl(pw, cv, anno);
+      else drawSigEl(pw, cv, anno);
+    });
+  }
+
+  function removeAnno(id) {
+    S.annotations = S.annotations.filter(function(a) { return a.id !== id; });
+  }
+
+  window.__otUndo = function() {
+    if (!S.annotations.length) return;
+    var last = S.annotations[S.annotations.length - 1];
+    S.annotations.pop();
+    var el = document.querySelector('[data-id="' + last.id + '"]');
+    if (el) el.remove();
+    updateBadge();
+  };
+
+  function makeDrag(el, parent, anno) {
+    var dragging = false, sx, sy, ox, oy;
+    el.addEventListener('mousedown', function(e) {
+      if (e.target.classList.contains('del')) return;
+      dragging = true; sx = e.clientX; sy = e.clientY;
+      ox = parseFloat(el.style.left) || 0; oy = parseFloat(el.style.top) || 0;
+      e.preventDefault();
+    });
+    document.addEventListener('mousemove', function(e) {
+      if (!dragging) return;
+      var pr = parent.getBoundingClientRect();
+      var dx = (e.clientX - sx) / pr.width * 100;
+      var dy = (e.clientY - sy) / pr.height * 100;
+      el.style.left = (ox + dx) + '%'; el.style.top = (oy + dy) + '%';
+      anno.xR = (ox + dx) / 100; anno.yR = (oy + dy) / 100;
+    });
+    document.addEventListener('mouseup', function() { dragging = false; });
+  }
+
+  window.__otZoom = function(dir) {
+    if (dir > 0) S.zoom = Math.min(S.zoom + 0.25, 3);
+    else S.zoom = Math.max(S.zoom - 0.25, 0.5);
+    document.getElementById('ot-zoomLbl').textContent = Math.round(S.zoom * 100) + '%';
+    if (S.pdfDoc) renderAll();
+  };
+
+  function updateBadge() {
+    var n = S.annotations.length;
+    document.getElementById('ot-annoCount').textContent = n + ' annotation(s)';
+    var badge = document.getElementById('otBadge');
+    if (badge) badge.textContent = n;
+  }
+
+  // ── TAB SWITCH ─────────────────────────────────────────────────
+  window.__switchTab = function(t) {
+    document.getElementById('otPanel').style.display = t === 'ot' ? '' : 'none';
+    document.getElementById('root').style.display    = t === 'inspect' ? '' : 'none';
+    document.getElementById('tabOT').classList.toggle('active', t === 'ot');
+    document.getElementById('tabOT').classList.toggle('muted', t !== 'ot');
+    document.getElementById('tabInspect').classList.toggle('active', t === 'inspect');
+    document.getElementById('tabInspect').classList.toggle('muted', t !== 'inspect');
+    window.scrollTo(0, 0);
+  };
+
+  // ── EXPORT API (consommé par la fonction dlPDF du React) ──────
+  window.OT = {
+    hasOT: function() { return S.pdfDoc !== null; },
+    getOTNum: function() {
+      var v = (document.getElementById('ot-otNum')||{}).value || '';
+      return v.replace(/[^A-Za-z0-9-_]/g, '');
+    },
+    annoCount: function() { return S.annotations.length; },
+    /**
+     * Rend les pages d'OT (avec annotations) dans le jsPDF doc fourni.
+     * - Pose la première page d'OT sur la page courante (assumed blank).
+     * - Pour les pages suivantes : doc.addPage().
+     * - Après l'appel, l'appelant doit faire doc.addPage() pour démarrer une page fraîche.
+     */
+    renderToDoc: async function(jdoc) {
+      if (!S.pdfDoc) return;
+      var PW = 210, PH = 297;
+      for (var pn = 1; pn <= S.pdfDoc.numPages; pn++) {
+        if (pn > 1) jdoc.addPage();
+        var page = await S.pdfDoc.getPage(pn);
+        var vp = page.getViewport({scale: 3.0});
+        var cv = document.createElement('canvas');
+        cv.width = vp.width; cv.height = vp.height;
+        await page.render({canvasContext: cv.getContext('2d'), viewport: vp}).promise;
+        jdoc.addImage(cv.toDataURL('image/jpeg', 0.93), 'JPEG', 0, 0, PW, PH);
+        var annosThisPage = S.annotations.filter(function(a) { return a.page === pn; });
+        for (var i = 0; i < annosThisPage.length; i++) {
+          var anno = annosThisPage[i];
+          var x = anno.xR * PW, y = anno.yR * PH;
+          if (anno.type === 'trig') {
+            jdoc.setFillColor(235, 240, 255);
+            jdoc.setDrawColor(34, 68, 170);
+            jdoc.setLineWidth(0.3);
+            jdoc.rect(x - 0.5, y - 3, 10, 4.5, 'FD');
+            jdoc.setFont('helvetica', 'bold');
+            jdoc.setFontSize(7);
+            jdoc.setTextColor(26, 26, 94);
+            jdoc.text(anno.text, x, y, {baseline: 'bottom'});
+            jdoc.setTextColor(0, 0, 0);
+          } else if (anno.type === 'txt') {
+            var pdfFs = Math.max(6, (anno.size || 10) * 0.85);
+            jdoc.setFont('helvetica', 'normal');
+            jdoc.setFontSize(pdfFs);
+            jdoc.setTextColor(20, 20, 40);
+            jdoc.text(anno.text, x, y, {baseline: 'top'});
+            jdoc.setTextColor(0, 0, 0);
+          } else {
+            var sw = anno.wR * PW, sh = anno.hR * PH * 1.5;
+            jdoc.setFillColor(255, 255, 255);
+            jdoc.setDrawColor(30, 122, 30);
+            jdoc.setLineWidth(0.4);
+            jdoc.rect(x, y, sw, sh + 6, 'FD');
+            jdoc.addImage(anno.dataURL, 'PNG', x + 1, y + 1, sw - 2, sh - 2);
+            jdoc.setFontSize(5.5);
+            jdoc.setFont('helvetica', 'bold');
+            jdoc.setTextColor(26, 26, 94);
+            jdoc.text(anno.name + ' · ' + anno.lic, x + 1, y + sh + 2);
+            if (anno.date) {
+              jdoc.setFont('helvetica', 'normal');
+              jdoc.setTextColor(80, 80, 80);
+              jdoc.text('APRS du ' + new Date(anno.date).toLocaleDateString('fr-FR'), x + 1, y + sh + 5);
+            }
+            jdoc.setTextColor(0, 0, 0);
+          }
+        }
+      }
+    },
+  };
+})();
+</script>
 <script type="text/babel">
 const { useState, useRef, useEffect, useCallback } = React;
 
@@ -400,6 +881,14 @@ function App(){
     setPdfBusy(true);
     try{
       const doc=new window.jspdf.jsPDF({orientation:"portrait",unit:"mm",format:"a4"});
+      // ── INTÉGRATION OT : si un OT est chargé, le rendre EN PREMIER ──
+      let __otPrefix = "";
+      if (window.OT && window.OT.hasOT()) {
+        await window.OT.renderToDoc(doc);
+        doc.addPage();  // démarrer une page fraîche pour le programme d'entretien
+        const otn = window.OT.getOTNum();
+        __otPrefix = otn ? `OT-${otn}+` : "OT+";
+      }
       const PW=210,PH=297,ML=12,MR=12,MT=12,CW=186;let y=MT;
       const sp=(t,w,s=8)=>{doc.setFontSize(s);return doc.splitTextToSize(String(t||"—"),w);};
       const chk=(n=6)=>{if(y+n>PH-14){doc.addPage();y=MT;}};
@@ -538,7 +1027,7 @@ function App(){
         doc.text(`DH 251 — ${immat} — Visite ${visitType} du ${fmtD(visitDate)} — Éd.${INFO.edition}/Amend.${INFO.amendement}`,ML,PH-6.5);
         doc.text(`Page ${p}/${np}`,PW-MR,PH-6.5,{align:"right"});
       }
-      doc.save(`DH251_${immat}_${visitType}_${visitDate}.pdf`);
+      doc.save(`${__otPrefix}DH251_${immat}_${visitType}_${visitDate}.pdf`);
     }catch(e){alert("Erreur PDF : "+e.message);}
     finally{setPdfBusy(false);}
   };
