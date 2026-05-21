@@ -51,19 +51,12 @@
     <priority>0.6</priority>
   </url>
 
-  <!-- Pages de conversion — indexables -->
-  <url>
-    <loc>https://www.aeroclub-arc.fr/inscription</loc>
-    <lastmod>2026-05-07</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
+  <!-- Page de conversion — indexable -->
   <url>
     <loc>https://www.aeroclub-arc.fr/adhesion</loc>
     <lastmod>2026-05-07</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <priority>0.8</priority>
   </url>
 
   <!-- Page Aéroclub Vert — production solaire en temps réel -->

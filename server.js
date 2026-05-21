@@ -41,8 +41,10 @@ app.use((req, res, next) => {
   next();
 });
 
-// ── REDIRECT / ────────────────────────────────────────────────────────
-app.get("/", (req, res) => res.redirect(301, "/home-arc"));
+// ── PAGE D'ACCUEIL ────────────────────────────────────────────────────
+// SEO : l'URL canonique est https://www.aeroclub-arc.fr/
+// /home-arc redirige en 301 vers / pour préserver les anciens liens indexés
+app.get("/", (req, res) => res.sendFile(path.join(__dirname, "home.html")));
 
 // ── AUTH MAINTENANCE ──────────────────────────────────────────────────
 // Mot de passe partagé entre mécaniciens — défini en variable d'env Railway.
@@ -344,21 +346,27 @@ app.get("/api/ppv/today", async (req, res) => {
 app.use(express.static(path.join(__dirname)));
 
 // ── PAGES ─────────────────────────────────────────────────────────────
-app.get("/home-arc",       (req, res) => res.sendFile(path.join(__dirname, "home.html")));
+// Redirections SEO — anciennes URLs et variantes → URL canonique
+app.get("/flotte",         (req, res) => res.redirect(301, "/la-flotte"));
+app.get("/club",           (req, res) => res.redirect(301, "/leclub"));
+app.get("/instructeur",    (req, res) => res.redirect(301, "/formation"));
+app.get("/home-arc",       (req, res) => res.redirect(301, "/"));
+app.get("/le-club",        (req, res) => res.redirect(301, "/leclub"));
+app.get("/postppl",        (req, res) => res.redirect(301, "/post-ppl"));
+app.get("/tarifs",         (req, res) => res.redirect(301, "/adhesion"));
+app.get("/inscription",    (req, res) => res.redirect(301, "/adhesion"));
+
+// Pages publiques (servies en direct)
 app.get("/ppv",            (req, res) => res.sendFile(path.join(__dirname, "ppv.html")));
 app.get("/accueil",        (req, res) => res.sendFile(path.join(__dirname, "accueil.html")));
 app.get("/leclub",         (req, res) => res.sendFile(path.join(__dirname, "leclub.html")));
-app.get("/le-club",        (req, res) => res.sendFile(path.join(__dirname, "leclub.html")));
 app.get("/la-flotte",      (req, res) => res.sendFile(path.join(__dirname, "laflotte.html")));
 app.get("/formation",      (req, res) => res.sendFile(path.join(__dirname, "ppl.html")));
 app.get("/ppl",            (req, res) => res.sendFile(path.join(__dirname, "ppl.html")));
 app.get("/post-ppl",       (req, res) => res.sendFile(path.join(__dirname, "postppl.html")));
-app.get("/postppl",        (req, res) => res.sendFile(path.join(__dirname, "postppl.html")));
 app.get("/aerodrome",      (req, res) => res.sendFile(path.join(__dirname, "aerodrome.html")));
 app.get("/contact",        (req, res) => res.sendFile(path.join(__dirname, "contact.html")));
-app.get("/tarifs",         (req, res) => res.sendFile(path.join(__dirname, "index.html")));
 app.get("/adhesion",       (req, res) => res.sendFile(path.join(__dirname, "index.html")));
-app.get("/inscription",    (req, res) => res.sendFile(path.join(__dirname, "index.html")));
 app.get("/statuts",        (req, res) => res.sendFile(path.join(__dirname, "statuts.html")));
 app.get("/reglement",      (req, res) => res.sendFile(path.join(__dirname, "reglement.html")));
 
@@ -375,7 +383,7 @@ app.get("/sitemap.xml", (req, res) => {
 });
 app.get("/robots.txt", (req, res) => {
   res.setHeader("Content-Type", "text/plain");
-  res.send("User-agent: *\nAllow: /\nDisallow: /tarifs\nDisallow: /inscription\nDisallow: /adhesion\nDisallow: /maintenance\nDisallow: /entretien-d113\nDisallow: /entretien-dr250\nDisallow: /entretien-dh251\nDisallow: /signer-ot\nSitemap: https://www.aeroclub-arc.fr/sitemap.xml\n");
+  res.send("User-agent: *\nAllow: /\nDisallow: /maintenance\nDisallow: /entretien-d113\nDisallow: /entretien-dr250\nDisallow: /entretien-dh251\nDisallow: /signer-ot\nSitemap: https://www.aeroclub-arc.fr/sitemap.xml\n");
 });
 
 app.listen(PORT, () => {
