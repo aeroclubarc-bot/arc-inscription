@@ -9,6 +9,43 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// ── POSTGRES (optionnel) ──────────────────────────────────────────────
+// Si DATABASE_URL est défini (plugin Railway Postgres), on l'utilise pour
+// les notes atelier. Sinon, les notes restent en local-only (localStorage navigateur).
+let pgPool = null;
+let pgReady = false;
+if (process.env.DATABASE_URL) {
+  try {
+    const pgMod = await import("pg");
+    pgPool = new pgMod.default.Pool({
+      connectionString: process.env.DATABASE_URL,
+      ssl: process.env.DATABASE_URL.includes("railway") ? { rejectUnauthorized: false } : false,
+    });
+    // Migration idempotente
+    await pgPool.query(`
+      CREATE TABLE IF NOT EXISTS atelier_notes (
+        id INT PRIMARY KEY DEFAULT 1,
+        content TEXT NOT NULL DEFAULT '',
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        updated_by TEXT
+      );
+    `);
+    await pgPool.query(`
+      INSERT INTO atelier_notes (id, content) VALUES (1, '')
+      ON CONFLICT (id) DO NOTHING;
+    `);
+    pgReady = true;
+    console.log("✓ PostgreSQL connecté — sync notes atelier activée");
+  } catch (e) {
+    console.error("✗ PostgreSQL setup échoué :", e.message);
+    console.error("  → Les notes resteront en local navigateur uniquement.");
+    pgPool = null;
+    pgReady = false;
+  }
+} else {
+  console.log("⚠ DATABASE_URL non défini — sync notes serveur désactivée");
+}
+
 // ── MIDDLEWARE GLOBAL ──────────────────────────────────────────────────
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -41,10 +78,8 @@ app.use((req, res, next) => {
   next();
 });
 
-// ── PAGE D'ACCUEIL ────────────────────────────────────────────────────
-// SEO : l'URL canonique est https://www.aeroclub-arc.fr/
-// /home-arc redirige en 301 vers / pour préserver les anciens liens indexés
-app.get("/", (req, res) => res.sendFile(path.join(__dirname, "home.html")));
+// ── REDIRECT / ────────────────────────────────────────────────────────
+app.get("/", (req, res) => res.redirect(301, "/home-arc"));
 
 // ── AUTH MAINTENANCE ──────────────────────────────────────────────────
 // Mot de passe partagé entre mécaniciens — défini en variable d'env Railway.
@@ -109,6 +144,48 @@ app.post("/api/maintenance/auth", (req, res) => {
     `${MAINT_COOKIE}=${MAINT_TOKEN}; Path=/; Max-Age=${MAINT_COOKIE_MAXAGE}; SameSite=Strict; HttpOnly`
   );
   res.json({ ok: true });
+});
+
+// ── NOTES ATELIER (sync serveur) ──────────────────────────────────────
+// Protégé par maintAuth — seuls les mécanos authentifiés peuvent lire/écrire.
+app.get("/api/notes", maintAuth, async (req, res) => {
+  if (!pgReady) return res.status(503).json({ error: "Notes serveur indisponibles (DB non configurée)" });
+  try {
+    const { rows } = await pgPool.query(
+      "SELECT content, updated_at, updated_by FROM atelier_notes WHERE id = 1"
+    );
+    if (rows.length === 0) return res.json({ content: "", updated_at: null, updated_by: null });
+    res.json({
+      content: rows[0].content,
+      updated_at: rows[0].updated_at,
+      updated_by: rows[0].updated_by,
+    });
+  } catch (e) {
+    console.error("GET /api/notes error:", e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.post("/api/notes", maintAuth, async (req, res) => {
+  if (!pgReady) return res.status(503).json({ error: "Notes serveur indisponibles (DB non configurée)" });
+  const content = typeof req.body?.content === "string" ? req.body.content : null;
+  if (content === null) return res.status(400).json({ error: "Champ 'content' (string) requis" });
+  // Limite raisonnable pour empêcher l'abus
+  if (content.length > 200000) return res.status(413).json({ error: "Notes trop volumineuses (max 200 ko)" });
+  const updatedBy = (req.body?.updated_by || "").toString().slice(0, 80) || null;
+  try {
+    const { rows } = await pgPool.query(
+      `UPDATE atelier_notes
+       SET content = $1, updated_at = NOW(), updated_by = $2
+       WHERE id = 1
+       RETURNING updated_at`,
+      [content, updatedBy]
+    );
+    res.json({ ok: true, updated_at: rows[0].updated_at });
+  } catch (e) {
+    console.error("POST /api/notes error:", e.message);
+    res.status(500).json({ error: e.message });
+  }
 });
 
 // ── STRIPE PAYMENT INTENT ─────────────────────────────────────────────
@@ -346,27 +423,21 @@ app.get("/api/ppv/today", async (req, res) => {
 app.use(express.static(path.join(__dirname)));
 
 // ── PAGES ─────────────────────────────────────────────────────────────
-// Redirections SEO — anciennes URLs et variantes → URL canonique
-app.get("/flotte",         (req, res) => res.redirect(301, "/la-flotte"));
-app.get("/club",           (req, res) => res.redirect(301, "/leclub"));
-app.get("/instructeur",    (req, res) => res.redirect(301, "/formation"));
-app.get("/home-arc",       (req, res) => res.redirect(301, "/"));
-app.get("/le-club",        (req, res) => res.redirect(301, "/leclub"));
-app.get("/postppl",        (req, res) => res.redirect(301, "/post-ppl"));
-app.get("/tarifs",         (req, res) => res.redirect(301, "/adhesion"));
-app.get("/inscription",    (req, res) => res.redirect(301, "/adhesion"));
-
-// Pages publiques (servies en direct)
+app.get("/home-arc",       (req, res) => res.sendFile(path.join(__dirname, "home.html")));
 app.get("/ppv",            (req, res) => res.sendFile(path.join(__dirname, "ppv.html")));
 app.get("/accueil",        (req, res) => res.sendFile(path.join(__dirname, "accueil.html")));
 app.get("/leclub",         (req, res) => res.sendFile(path.join(__dirname, "leclub.html")));
+app.get("/le-club",        (req, res) => res.sendFile(path.join(__dirname, "leclub.html")));
 app.get("/la-flotte",      (req, res) => res.sendFile(path.join(__dirname, "laflotte.html")));
 app.get("/formation",      (req, res) => res.sendFile(path.join(__dirname, "ppl.html")));
 app.get("/ppl",            (req, res) => res.sendFile(path.join(__dirname, "ppl.html")));
 app.get("/post-ppl",       (req, res) => res.sendFile(path.join(__dirname, "postppl.html")));
+app.get("/postppl",        (req, res) => res.sendFile(path.join(__dirname, "postppl.html")));
 app.get("/aerodrome",      (req, res) => res.sendFile(path.join(__dirname, "aerodrome.html")));
 app.get("/contact",        (req, res) => res.sendFile(path.join(__dirname, "contact.html")));
+app.get("/tarifs",         (req, res) => res.sendFile(path.join(__dirname, "index.html")));
 app.get("/adhesion",       (req, res) => res.sendFile(path.join(__dirname, "index.html")));
+app.get("/inscription",    (req, res) => res.sendFile(path.join(__dirname, "index.html")));
 app.get("/statuts",        (req, res) => res.sendFile(path.join(__dirname, "statuts.html")));
 app.get("/reglement",      (req, res) => res.sendFile(path.join(__dirname, "reglement.html")));
 
@@ -383,12 +454,13 @@ app.get("/sitemap.xml", (req, res) => {
 });
 app.get("/robots.txt", (req, res) => {
   res.setHeader("Content-Type", "text/plain");
-  res.send("User-agent: *\nAllow: /\nDisallow: /maintenance\nDisallow: /entretien-d113\nDisallow: /entretien-dr250\nDisallow: /entretien-dh251\nDisallow: /signer-ot\nSitemap: https://www.aeroclub-arc.fr/sitemap.xml\n");
+  res.send("User-agent: *\nAllow: /\nDisallow: /tarifs\nDisallow: /inscription\nDisallow: /adhesion\nDisallow: /maintenance\nDisallow: /entretien-d113\nDisallow: /entretien-dr250\nDisallow: /entretien-dh251\nDisallow: /signer-ot\nSitemap: https://www.aeroclub-arc.fr/sitemap.xml\n");
 });
 
 app.listen(PORT, () => {
   console.log(`ARC running on port ${PORT}`);
-  console.log(`▸ Maintenance auth: ENABLED (build 2026-05-20 v2)`);
+  console.log(`▸ Maintenance auth: ENABLED (build 2026-05-22 v3 + notes sync)`);
   console.log(`▸ Maintenance password: ${MAINT_PASSWORD === "changeme-set-env-var" ? "⚠️  DEFAULT (set MAINTENANCE_PASSWORD env var!)" : "✓ from MAINTENANCE_PASSWORD env"}`);
+  console.log(`▸ Notes sync (PostgreSQL): ${pgReady ? "✓ ENABLED" : "✗ disabled (DATABASE_URL not set or DB unreachable)"}`);
   console.log(`▸ Protected routes: /maintenance, /entretien-d113, /entretien-dr250, /entretien-dh251, /signer-ot`);
 });

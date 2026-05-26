@@ -66,6 +66,78 @@
     #otPanel .ot-cta-next button { background:#6b4a14; color:#fff; border:none; padding:10px 22px; border-radius:8px; cursor:pointer; font-size:13px; font-weight:bold; }
     #otPanel .ot-cta-next button:hover { background:#a87830; }
   
+
+    /* ── NOTES FAB + DRAWER ──────────────────────────────────────── */
+    .notes-fab {
+      position: fixed; bottom: 22px; right: 22px; z-index: 200;
+      width: 56px; height: 56px; border-radius: 50%;
+      background: #6b4a14; color: #fff; border: none;
+      font-size: 26px; cursor: pointer;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+      display: flex; align-items: center; justify-content: center;
+      transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
+    }
+    .notes-fab:hover { transform: translateY(-2px) scale(1.05); box-shadow: 0 8px 22px rgba(0,0,0,0.3); background: #a87830; }
+    .notes-fab .dot {
+      position: absolute; top: 6px; right: 6px;
+      width: 10px; height: 10px; border-radius: 50%;
+      background: #ff4f4f; border: 2px solid #fff;
+      display: none;
+    }
+    .notes-fab.has-content .dot { display: block; }
+
+    .notes-drawer-backdrop {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 199;
+      opacity: 0; pointer-events: none; transition: opacity 0.2s;
+    }
+    .notes-drawer-backdrop.open { opacity: 1; pointer-events: auto; }
+
+    .notes-drawer {
+      position: fixed; top: 0; right: 0; bottom: 0; z-index: 201;
+      width: 100%; max-width: 420px;
+      background: #fff; box-shadow: -6px 0 24px rgba(0,0,0,0.18);
+      transform: translateX(100%); transition: transform 0.25s ease;
+      display: flex; flex-direction: column;
+    }
+    .notes-drawer.open { transform: translateX(0); }
+    .notes-drawer-hdr {
+      background: #6b4a14; color: #fff;
+      padding: 14px 18px; display: flex; justify-content: space-between; align-items: center;
+    }
+    .notes-drawer-hdr h3 { font-size: 15px; font-weight: 700; }
+    .notes-drawer-hdr small { display: block; font-size: 11px; opacity: 0.85; margin-top: 2px; }
+    .notes-drawer-close {
+      background: rgba(255,255,255,0.18); border: none; color: #fff;
+      width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-size: 18px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .notes-drawer-close:hover { background: rgba(255,255,255,0.3); }
+    .notes-toolbar {
+      padding: 8px 14px; background: #fbf2e0; border-bottom: 1px solid #e0c894;
+      display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+    }
+    .notes-toolbar .status { flex: 1; font-size: 12px; color: #555; }
+    .notes-toolbar .status .saved { color: #1e7a1e; font-weight: 600; }
+    .notes-toolbar button {
+      padding: 5px 12px; border: 1px solid #e0c894; background: #fff; color: #6b4a14;
+      border-radius: 5px; cursor: pointer; font-size: 12px; font-weight: 600;
+    }
+    .notes-toolbar button:hover { background: #fbf2e0; }
+    .notes-toolbar button.danger { color: #c0392b; border-color: #c0392b; }
+    .notes-toolbar button.danger:hover { background: #fdf0ef; }
+    .notes-area {
+      flex: 1; width: 100%; padding: 14px 18px; border: none; outline: none;
+      font-family: ui-monospace, 'SF Mono', Monaco, 'Cascadia Code', monospace;
+      font-size: 13px; line-height: 1.6; resize: none;
+      background: #fffef9; color: #222;
+    }
+    .notes-area::placeholder { color: #aaa; font-style: italic; }
+
+    @media (max-width: 600px) {
+      .notes-fab { width: 48px; height: 48px; font-size: 22px; bottom: 16px; right: 16px; }
+      .notes-drawer { max-width: 100%; }
+    }
+  
 </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 </head>
@@ -1414,6 +1486,335 @@ function App(){
 }
 
 ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+
+<button class="notes-fab" id="notesFab" onclick="window.__notesToggle()" title="Notes atelier (partagées entre appareils)">
+  📝<span class="dot"></span>
+</button>
+<div class="notes-drawer-backdrop" id="notesBackdrop" onclick="window.__notesToggle()"></div>
+<div class="notes-drawer" id="notesDrawer" role="dialog" aria-label="Notes mécanicien">
+  <div class="notes-drawer-hdr">
+    <div>
+      <h3>📝 Notes atelier</h3>
+      <small>Partagées entre tous les mécanos · Sync serveur</small>
+    </div>
+    <button class="notes-drawer-close" onclick="window.__notesToggle()" aria-label="Fermer">✕</button>
+  </div>
+  <div class="notes-toolbar">
+    <div class="status" id="notesStatus">—</div>
+    <button onclick="window.__notesCopy()">📋 Copier</button>
+    <button class="danger" onclick="window.__notesClear()">🗑 Vider</button>
+  </div>
+  <textarea
+    class="notes-area"
+    id="notesArea"
+    placeholder="Carnet de notes commun aux 3 appareils (F-PJIL · F-BNVA · F-POUF). &#10;Sauvegarde automatique dans ce navigateur. &#10;Utile pour : &#10; • pièces à commander &#10; • points à revoir &#10; • observations pilote à transmettre &#10; • rappels inter-visites"
+    spellcheck="true"
+  ></textarea>
+</div>
+
+<script>
+(function() {
+  var CACHE_KEY = "arc-notes-atelier";  // localStorage fallback
+  var POLL_INTERVAL_MS = 20000;
+  var SAVE_DEBOUNCE_MS = 600;
+  var fab = document.getElementById('notesFab');
+  var drawer = document.getElementById('notesDrawer');
+  var backdrop = document.getElementById('notesBackdrop');
+  var area = document.getElementById('notesArea');
+  var status = document.getElementById('notesStatus');
+  var saveTimer = null;
+  var pollTimer = null;
+  var lastSavedContent = null;       // dernier contenu confirmé (côté serveur ou cache)
+  var lastSavedAt = null;
+  var saveInFlight = false;
+  var serverAvailable = true;         // bascule sur false si /api/notes échoue
+  var pendingSave = false;            // une frappe est arrivée pendant une sauvegarde
+
+  function readCache() {
+    try {
+      var raw = localStorage.getItem(CACHE_KEY);
+      if (!raw) return { content: '', updated_at: null };
+      var obj = JSON.parse(raw);
+      return { content: obj.content || obj.text || '', updated_at: obj.updated_at || obj.savedAt || null };
+    } catch(e) { return { content: '', updated_at: null }; }
+  }
+  function writeCache(content, updated_at) {
+    try {
+      localStorage.setItem(CACHE_KEY, JSON.stringify({ content: content, updated_at: updated_at }));
+    } catch(e) {}
+  }
+
+  function fmtDate(iso) {
+    if (!iso) return '';
+    var d = new Date(iso);
+    var h = String(d.getHours()).padStart(2, '0');
+    var m = String(d.getMinutes()).padStart(2, '0');
+    var dd = String(d.getDate()).padStart(2, '0');
+    var mm = String(d.getMonth() + 1).padStart(2, '0');
+    return dd + '/' + mm + ' ' + h + ':' + m;
+  }
+
+  function setStatus(html) { status.innerHTML = html; }
+  function statusSynced(updated_at) {
+    setStatus('<span class="saved">✓ Sync serveur</span> ' + fmtDate(updated_at) + ' · ' + area.value.length + ' car.');
+  }
+  function statusLocalOnly(updated_at) {
+    setStatus('<span style="color:#e67e22">⚠ Local seulement</span> ' + (updated_at ? fmtDate(updated_at) : '') + ' · ' + area.value.length + ' car.');
+  }
+  function statusTyping() { setStatus('<span style="color:#e67e22">Saisie…</span>'); }
+  function statusSaving() { setStatus('<span style="color:#888">⏳ Sauvegarde…</span>'); }
+  function statusEmpty() { setStatus('<span style="color:#888">Aucune note</span>'); }
+
+  function updateFabDot() {
+    if (area.value && area.value.trim().length > 0) fab.classList.add('has-content');
+    else fab.classList.remove('has-content');
+  }
+
+  // ── SERVER ROUNDTRIPS ──────────────────────────────────────────
+  async function loadFromServer() {
+    try {
+      var r = await fetch('/api/notes', { credentials: 'same-origin' });
+      if (r.status === 401) {
+        // Session expirée — silencieux, on garde le local
+        serverAvailable = false;
+        return null;
+      }
+      if (!r.ok) {
+        // 503 = DB pas configurée, ou erreur serveur
+        serverAvailable = false;
+        return null;
+      }
+      serverAvailable = true;
+      var data = await r.json();
+      return data;
+    } catch (e) {
+      serverAvailable = false;
+      return null;
+    }
+  }
+
+  async function saveToServer(content) {
+    if (!serverAvailable) return null;
+    saveInFlight = true;
+    statusSaving();
+    try {
+      var r = await fetch('/api/notes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({ content: content }),
+      });
+      if (!r.ok) {
+        serverAvailable = false;
+        return null;
+      }
+      var data = await r.json();
+      lastSavedContent = content;
+      lastSavedAt = data.updated_at;
+      writeCache(content, data.updated_at);
+      return data;
+    } catch (e) {
+      serverAvailable = false;
+      return null;
+    } finally {
+      saveInFlight = false;
+      if (pendingSave) {
+        pendingSave = false;
+        scheduleSave();
+      }
+    }
+  }
+
+  function scheduleSave() {
+    clearTimeout(saveTimer);
+    statusTyping();
+    saveTimer = setTimeout(async function() {
+      if (saveInFlight) { pendingSave = true; return; }
+      var content = area.value;
+      // Toujours écrire en cache local pour résilience offline
+      writeCache(content, new Date().toISOString());
+      var data = await saveToServer(content);
+      if (data) {
+        statusSynced(data.updated_at);
+      } else {
+        // Pas pu sync serveur — note locale seulement
+        statusLocalOnly(new Date().toISOString());
+        // Re-tenter au prochain poll
+      }
+      updateFabDot();
+    }, SAVE_DEBOUNCE_MS);
+  }
+
+  // ── INIT ───────────────────────────────────────────────────────
+  // 1. Affichage immédiat depuis le cache local (pas de flash)
+  var cached = readCache();
+  area.value = cached.content;
+  if (cached.content) statusLocalOnly(cached.updated_at);
+  else statusEmpty();
+  updateFabDot();
+
+  // 2. Puis tentative de chargement serveur (qui peut écraser)
+  (async function initServerLoad() {
+    var server = await loadFromServer();
+    if (!server) return;  // pas de serveur dispo → on garde le local
+    if (server.content === area.value) {
+      // Tout est aligné
+      lastSavedContent = server.content;
+      lastSavedAt = server.updated_at;
+      if (server.content) statusSynced(server.updated_at);
+      else statusEmpty();
+      return;
+    }
+    // Conflit éventuel : on prend le serveur si on n'a pas de modif en cours
+    if (!saveInFlight && area.value === cached.content) {
+      // L'utilisateur n'a pas modifié, on accepte le serveur
+      area.value = server.content;
+      lastSavedContent = server.content;
+      lastSavedAt = server.updated_at;
+      writeCache(server.content, server.updated_at);
+      if (server.content) statusSynced(server.updated_at);
+      else statusEmpty();
+      updateFabDot();
+    } else {
+      // L'utilisateur a déjà tapé du nouveau texte → on garde le local et on sauve
+      scheduleSave();
+    }
+  })();
+
+  // ── ÉVÉNEMENTS ─────────────────────────────────────────────────
+  area.addEventListener('input', scheduleSave);
+  area.addEventListener('blur', function() {
+    // Force le save immédiat au blur
+    clearTimeout(saveTimer);
+    if (!saveInFlight) {
+      writeCache(area.value, new Date().toISOString());
+      saveToServer(area.value).then(function(data) {
+        if (data) statusSynced(data.updated_at);
+        else statusLocalOnly(new Date().toISOString());
+      });
+    }
+  });
+  window.addEventListener('beforeunload', function() {
+    // sendBeacon pour ne pas bloquer la fermeture
+    if (serverAvailable && area.value !== lastSavedContent) {
+      try {
+        navigator.sendBeacon(
+          '/api/notes',
+          new Blob([JSON.stringify({ content: area.value })], { type: 'application/json' })
+        );
+      } catch (e) {}
+    }
+    writeCache(area.value, new Date().toISOString());
+  });
+
+  // ── POLLING SERVEUR ────────────────────────────────────────────
+  // Vérifier régulièrement si quelqu'un d'autre a édité.
+  function startPolling() {
+    stopPolling();
+    pollTimer = setInterval(async function() {
+      // Pas de poll si l'utilisateur est en train d'éditer (saveTimer actif)
+      if (saveTimer || saveInFlight) return;
+      var server = await loadFromServer();
+      if (!server) return;
+      if (server.content !== area.value && server.content !== lastSavedContent) {
+        // Mise à jour distante détectée — on intègre si on n'est pas en focus
+        if (document.activeElement !== area) {
+          area.value = server.content;
+          updateFabDot();
+        }
+        lastSavedContent = server.content;
+        lastSavedAt = server.updated_at;
+        writeCache(server.content, server.updated_at);
+        statusSynced(server.updated_at);
+      }
+    }, POLL_INTERVAL_MS);
+  }
+  function stopPolling() {
+    if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+  }
+  // Démarrer le polling quand le tiroir est ouvert ; arrêter quand fermé
+  function onDrawerOpen() {
+    // Refresh immédiat à l'ouverture
+    (async function() {
+      var server = await loadFromServer();
+      if (server && server.content !== area.value && document.activeElement !== area) {
+        area.value = server.content;
+        lastSavedContent = server.content;
+        lastSavedAt = server.updated_at;
+        writeCache(server.content, server.updated_at);
+        if (server.content) statusSynced(server.updated_at); else statusEmpty();
+        updateFabDot();
+      }
+    })();
+    startPolling();
+  }
+  function onDrawerClose() {
+    stopPolling();
+  }
+
+  // Refresh aussi quand l'onglet redevient visible
+  document.addEventListener('visibilitychange', function() {
+    if (document.visibilityState === 'visible' && drawer.classList.contains('open')) {
+      onDrawerOpen();
+    }
+  });
+
+  window.__notesToggle = function() {
+    var open = drawer.classList.toggle('open');
+    backdrop.classList.toggle('open', open);
+    if (open) { setTimeout(function() { area.focus(); }, 250); onDrawerOpen(); }
+    else { onDrawerClose(); }
+  };
+
+  window.__notesClear = function() {
+    if (!area.value.trim()) return;
+    if (!confirm('Vider toutes les notes de l\'atelier ? Cette action est définitive et affecte les 3 appareils, tous mécaniciens.')) return;
+    area.value = '';
+    scheduleSave();
+    area.focus();
+  };
+
+  window.__notesCopy = function() {
+    if (!area.value) {
+      setStatus('<span style="color:#888">Aucune note à copier</span>');
+      return;
+    }
+    try {
+      navigator.clipboard.writeText(area.value).then(function() {
+        setStatus('<span style="color:#1e7a1e">✓ Copié dans le presse-papier</span>');
+        setTimeout(function() {
+          if (serverAvailable && lastSavedAt) statusSynced(lastSavedAt);
+          else statusLocalOnly(lastSavedAt);
+        }, 2000);
+      });
+    } catch(e) {
+      area.select(); document.execCommand('copy');
+      setStatus('<span style="color:#1e7a1e">✓ Copié</span>');
+      setTimeout(function() {
+        if (serverAvailable && lastSavedAt) statusSynced(lastSavedAt);
+        else statusLocalOnly(lastSavedAt);
+      }, 2000);
+    }
+  };
+
+  // Raccourci clavier : Esc pour fermer
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && drawer.classList.contains('open')) {
+      window.__notesToggle();
+    }
+  });
+
+  // Sync cross-onglets dans le même navigateur (en plus du polling serveur)
+  window.addEventListener('storage', function(e) {
+    if (e.key !== CACHE_KEY) return;
+    var s = readCache();
+    if (document.activeElement !== area && area.value !== s.content) {
+      area.value = s.content;
+      updateFabDot();
+    }
+  });
+})();
 </script>
 </body>
 </html>
