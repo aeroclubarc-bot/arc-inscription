@@ -641,5 +641,91 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   setInterval(update,120000);setInterval(updateToday,120000);
 })();
 </script>
+
+  <!-- WhatsApp Business floating button -->
+  <style>
+    .arc-whatsapp-fab {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      width: 60px;
+      height: 60px;
+      background: #25D366;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 16px rgba(10, 22, 40, 0.25), 0 2px 6px rgba(0, 0, 0, 0.15);
+      z-index: 9999;
+      text-decoration: none;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      animation: arc-wa-pulse 2.4s infinite;
+    }
+    .arc-whatsapp-fab:hover {
+      transform: scale(1.08);
+      box-shadow: 0 6px 20px rgba(10, 22, 40, 0.35), 0 3px 8px rgba(0, 0, 0, 0.2);
+      animation: none;
+    }
+    .arc-whatsapp-fab svg {
+      width: 32px;
+      height: 32px;
+      fill: #FFFFFF;
+    }
+    .arc-whatsapp-tooltip {
+      position: absolute;
+      right: 72px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: #0a1628;
+      color: #FFFFFF;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-family: 'DM Sans', -apple-system, sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+    .arc-whatsapp-tooltip::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      right: -6px;
+      transform: translateY(-50%);
+      width: 0;
+      height: 0;
+      border-top: 6px solid transparent;
+      border-bottom: 6px solid transparent;
+      border-left: 6px solid #0a1628;
+    }
+    .arc-whatsapp-fab:hover .arc-whatsapp-tooltip {
+      opacity: 1;
+    }
+    @keyframes arc-wa-pulse {
+      0% { box-shadow: 0 4px 16px rgba(10, 22, 40, 0.25), 0 0 0 0 rgba(37, 211, 102, 0.5); }
+      70% { box-shadow: 0 4px 16px rgba(10, 22, 40, 0.25), 0 0 0 14px rgba(37, 211, 102, 0); }
+      100% { box-shadow: 0 4px 16px rgba(10, 22, 40, 0.25), 0 0 0 0 rgba(37, 211, 102, 0); }
+    }
+    @media (max-width: 640px) {
+      .arc-whatsapp-fab { width: 56px; height: 56px; bottom: 20px; right: 20px; }
+      .arc-whatsapp-fab svg { width: 28px; height: 28px; }
+      .arc-whatsapp-tooltip { display: none; }
+    }
+  </style>
+  <a href="https://wa.me/33134623075?text=Bonjour%20!%20Je%20viens%20du%20site%20de%20l%27A%C3%A9roclub%20A.R.C.%20et%20j%27aimerais%20avoir%20plus%20d%27informations." 
+     class="arc-whatsapp-fab" 
+     target="_blank" 
+     rel="noopener noreferrer"
+     aria-label="Discuter sur WhatsApp">
+    <span class="arc-whatsapp-tooltip">Discuter sur WhatsApp</span>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+      <path d="M19.11 17.205c-.372 0-1.088 1.39-1.518 1.39a.63.63 0 0 1-.315-.1c-.802-.402-1.504-.817-2.163-1.447-.545-.516-1.146-1.29-1.46-1.963a.426.426 0 0 1-.073-.215c0-.33.99-.945.99-1.49 0-.143-.73-2.09-.832-2.335-.143-.372-.214-.487-.6-.487-.187 0-.36-.043-.53-.043-.302 0-.53.115-.746.315-.688.645-1.032 1.318-1.06 2.264v.114c-.015.99.472 1.977 1.017 2.78 1.23 1.82 2.506 3.41 4.554 4.34.616.287 2.035.973 2.722.973.518 0 1.06-.144 1.515-.397.546-.302.992-.94 1.117-1.554v-.36c-.057-.123-.085-.244-.114-.366-.123-.115-.293-.184-.473-.27z"/>
+      <path d="M26.293 5.422A14.84 14.84 0 0 0 15.755.95C7.555.95.928 7.732 1 15.83v.156c.024 2.55.74 5.045 2.077 7.222L1 30.99l7.954-2.046a14.81 14.81 0 0 0 6.733 1.633h.006c8.2 0 14.84-6.736 14.84-15.06 0-3.992-1.534-7.873-4.24-10.094zm-10.54 23.077a12.31 12.31 0 0 1-6.265-1.66l-.466-.27-4.658 1.214 1.245-4.498-.302-.477a12.21 12.21 0 0 1-1.92-6.583c0-6.838 5.558-12.382 12.385-12.382 3.31 0 6.418 1.293 8.75 3.63 2.337 2.336 3.83 5.446 3.823 8.747-.014 6.834-5.6 12.28-12.4 12.28z"/>
+    </svg>
+  </a>
+
 </body>
 </html>
