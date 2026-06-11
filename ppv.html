@@ -321,7 +321,7 @@ function drawGauge(power){
 async function loadPPV(){
   try{
     // Total + puissance
-    var r1=await fetch('/api/ppv/total?t='+Date.now());
+    var r1=await fetch('/api/ppv/total');
     var t1=await r1.text();
     if(r1.ok&&t1.trim().charAt(0)==='{'){
       var d=JSON.parse(t1);
@@ -349,7 +349,7 @@ async function loadPPV(){
     }
 
     // Aujourd'hui
-    var r2=await fetch('/api/ppv/today?t='+Date.now());
+    var r2=await fetch('/api/ppv/today');
     var t2=await r2.text();
     if(r2.ok&&t2.trim().charAt(0)==='{'){
       var d2=JSON.parse(t2);
@@ -393,7 +393,7 @@ loadPPV = async function(){
 // Init
 drawGauge(0);
 loadPPV();
-setInterval(loadPPV,120000);
+setInterval(loadPPV, 10*60*1000); // 10 min — le serveur ne collecte que toutes les 30 min
 </script>
 </body>
 </html>
