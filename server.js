@@ -380,44 +380,53 @@ TOTAL RÉGLÉ : ${d.montant_paye}
   }
 });
 
-// ── PROXY PPV ─────────────────────────────────────────────────────────
-app.get("/api/ppv/total", async (req, res) => {
-  try {
-    const r = await fetch("https://ppv-production.up.railway.app/total", {
-      headers: { "Accept": "application/json", "User-Agent": "ARC-Proxy/1.0" }
-    });
-    const contentType = r.headers.get("content-type") || "";
-    if (!r.ok || !contentType.includes("application/json")) {
-      const text = await r.text();
-      console.log("PPV total non-JSON:", r.status, text.slice(0, 100));
-      return res.json({ total_kwh: 0, current_power_w: 0, error: "upstream_error" });
-    }
-    const data = await r.json();
-    res.json(data);
-  } catch(e) {
-    console.log("PPV total error:", e.message);
-    res.json({ total_kwh: 0, current_power_w: 0, error: e.message });
-  }
-});
+// ── PROXY PPV (cache mémoire 60 s + timeout 5 s) ─────────────────────
+// Le service ppv-production sert déjà ses propres données depuis un cache
+// (aucun appel Solarman par requête). Ce cache-ci évite en plus de le
+// solliciter à chaque visiteur : 1 requête amont par minute maximum,
+// et le site reste réactif même si le service solaire est indisponible.
+const PPV_UPSTREAM = "https://ppv-production.up.railway.app";
+const PPV_CACHE_TTL_MS = 60 * 1000;
+const ppvCache = {}; // { [path]: { data, fetchedAt } }
 
-app.get("/api/ppv/today", async (req, res) => {
+async function ppvProxy(upstreamPath, fallback, res) {
+  const cached = ppvCache[upstreamPath];
+  const now = Date.now();
+
+  if (cached && now - cached.fetchedAt < PPV_CACHE_TTL_MS) {
+    res.set("Cache-Control", "public, max-age=60");
+    return res.json(cached.data);
+  }
+
   try {
-    const r = await fetch("https://ppv-production.up.railway.app/stats/today", {
-      headers: { "Accept": "application/json", "User-Agent": "ARC-Proxy/1.0" }
+    const r = await fetch(`${PPV_UPSTREAM}${upstreamPath}`, {
+      headers: { "Accept": "application/json", "User-Agent": "ARC-Proxy/1.0" },
+      signal: AbortSignal.timeout(5000)
     });
     const contentType = r.headers.get("content-type") || "";
     if (!r.ok || !contentType.includes("application/json")) {
       const text = await r.text();
-      console.log("PPV today non-JSON:", r.status, text.slice(0, 100));
-      return res.json({ today_kwh: 0, error: "upstream_error" });
+      console.log(`PPV ${upstreamPath} non-JSON:`, r.status, text.slice(0, 100));
+      // Mieux vaut servir la dernière valeur connue qu'un zéro
+      return res.json(cached ? cached.data : { ...fallback, error: "upstream_error" });
     }
     const data = await r.json();
+    ppvCache[upstreamPath] = { data, fetchedAt: now };
+    res.set("Cache-Control", "public, max-age=60");
     res.json(data);
-  } catch(e) {
-    console.log("PPV today error:", e.message);
-    res.json({ today_kwh: 0, error: e.message });
+  } catch (e) {
+    console.log(`PPV ${upstreamPath} error:`, e.message);
+    res.json(cached ? cached.data : { ...fallback, error: e.message });
   }
-});
+}
+
+app.get("/api/ppv/total", (req, res) =>
+  ppvProxy("/total", { total_kwh: 0, current_power_w: 0 }, res)
+);
+
+app.get("/api/ppv/today", (req, res) =>
+  ppvProxy("/stats/today", { today_kwh: 0 }, res)
+);
 
 // ── STATIC FILES (après les routes API) ──────────────────────────────
 app.use(express.static(path.join(__dirname)));
