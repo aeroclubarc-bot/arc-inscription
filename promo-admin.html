@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Codes promo — A.R.C.</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎟️</text></svg>"/>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;
+      background:radial-gradient(ellipse at center top, #1a2a3a 0%, #0f1419 70%);
+      color:#e8eef5;
+      min-height:100vh;
+      padding:32px 20px 60px;
+    }
+    .wrap{max-width:640px;margin:0 auto}
+    .logo-row{display:flex;align-items:center;gap:14px;margin-bottom:28px}
+    .logo{
+      width:52px;height:52px;border-radius:12px;flex-shrink:0;
+      background:linear-gradient(135deg,#5fa8d3,#3a7ca5);
+      display:flex;align-items:center;justify-content:center;font-size:26px;
+      box-shadow:0 8px 20px rgba(95,168,211,.35);
+    }
+    h1{font-size:20px;font-weight:700;letter-spacing:-.3px}
+    .sub{font-size:13px;color:#8b9aac;margin-top:2px}
+    .box{
+      background:#1a2129;border:1px solid #2a3540;border-radius:16px;
+      padding:26px 24px;margin-bottom:22px;
+      box-shadow:0 20px 60px rgba(0,0,0,.35);
+    }
+    .box h2{font-size:14px;font-weight:700;letter-spacing:.3px;margin-bottom:16px;color:#c9d5e0}
+    label{display:block;font-size:11px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:#8b9aac;margin-bottom:6px}
+    .field{margin-bottom:16px}
+    .row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    input[type=text],input[type=number],select{
+      width:100%;padding:11px 13px;font-size:15px;
+      background:#0f1419;border:1.5px solid #2a3540;border-radius:8px;color:#e8eef5;
+      transition:border-color .15s;
+    }
+    input:focus,select:focus{outline:none;border-color:#5fa8d3}
+    input::placeholder{color:#5b6878}
+    button{
+      padding:12px 18px;
+      background:linear-gradient(135deg,#5fa8d3,#3a7ca5);color:#fff;
+      border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;
+      transition:all .15s;letter-spacing:.3px;
+    }
+    button:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(95,168,211,.35)}
+    button:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
+    .msg{margin-top:14px;padding:10px 12px;border-radius:6px;font-size:13px;display:none}
+    .msg.ok{display:block;background:rgba(46,125,50,.15);border:1px solid rgba(46,125,50,.4);color:#8fd19e}
+    .msg.ko{display:block;background:rgba(192,57,43,.15);border:1px solid rgba(192,57,43,.4);color:#e88a82}
+    table{width:100%;border-collapse:collapse;font-size:13px}
+    th{text-align:left;color:#8b9aac;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.5px;padding:8px 10px;border-bottom:1px solid #2a3540}
+    td{padding:10px;border-bottom:1px solid #232c35;color:#dbe4ec}
+    .tag{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600}
+    .tag.free{background:rgba(95,168,211,.15);color:#5fa8d3}
+    .tag.used{background:rgba(192,57,43,.15);color:#e88a82}
+    .empty{color:#5b6878;font-size:13px;padding:16px 0;text-align:center}
+    .refresh{background:none;border:1px solid #2a3540;color:#8b9aac;font-weight:500;padding:8px 14px;font-size:12px}
+    .refresh:hover{box-shadow:none;border-color:#5fa8d3;color:#5fa8d3}
+    .box-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+    .box-head h2{margin-bottom:0}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="logo-row">
+    <div class="logo">🎟️</div>
+    <div>
+      <h1>Codes promo à usage unique</h1>
+      <div class="sub">Aéroclub A.R.C. · Chavenay</div>
+    </div>
+  </div>
+
+  <div class="box">
+    <h2>Créer un code</h2>
+    <form id="createForm" onsubmit="return createCode(event)">
+      <div class="field">
+        <label for="code">Code</label>
+        <input type="text" id="code" placeholder="Ex. OFFERT2026" required autocomplete="off"/>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label for="type">Type de réduction</label>
+          <select id="type">
+            <option value="percent">Pourcentage (%)</option>
+            <option value="fixed">Montant fixe (€)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="value">Valeur</label>
+          <input type="number" id="value" placeholder="100" min="0.01" step="0.01" required/>
+        </div>
+      </div>
+      <div class="field">
+        <label for="label">Libellé (affiché sur le formulaire d'adhésion)</label>
+        <input type="text" id="label" placeholder="Ex. Cotisation ARC offerte" autocomplete="off"/>
+      </div>
+      <button type="submit" id="createBtn">Créer le code</button>
+      <div class="msg" id="createMsg"></div>
+    </form>
+  </div>
+
+  <div class="box">
+    <div class="box-head">
+      <h2>Codes existants</h2>
+      <button class="refresh" onclick="loadCodes()">↻ Actualiser</button>
+    </div>
+    <div id="codesTableWrap"><div class="empty">Chargement...</div></div>
+  </div>
+</div>
+
+<script>
+async function createCode(e) {
+  e.preventDefault();
+  const btn = document.getElementById('createBtn');
+  const msg = document.getElementById('createMsg');
+  const code = document.getElementById('code').value.trim().toUpperCase();
+  const type = document.getElementById('type').value;
+  const value = document.getElementById('value').value;
+  const label = document.getElementById('label').value.trim();
+  msg.className = 'msg';
+  btn.disabled = true;
+  btn.textContent = 'Création...';
+  try {
+    const r = await fetch('/api/promo/create', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code, type, value, label })
+    });
+    const data = await r.json();
+    if (r.ok && data.ok) {
+      msg.textContent = '✓ Code « ' + data.code + ' » créé — ' + (type === 'percent' ? '-' + value + '%' : '-' + value + ' €');
+      msg.className = 'msg ok';
+      document.getElementById('createForm').reset();
+      loadCodes();
+    } else {
+      msg.textContent = '✗ ' + (data.error || 'Erreur lors de la création.');
+      msg.className = 'msg ko';
+    }
+  } catch (ex) {
+    msg.textContent = '✗ Erreur de connexion.';
+    msg.className = 'msg ko';
+  }
+  btn.disabled = false;
+  btn.textContent = 'Créer le code';
+  return false;
+}
+
+async function loadCodes() {
+  const wrap = document.getElementById('codesTableWrap');
+  wrap.innerHTML = '<div class="empty">Chargement...</div>';
+  try {
+    const r = await fetch('/api/promo/list');
+    if (r.status === 401) {
+      window.location.href = '/maintenance/login?next=' + encodeURIComponent(window.location.pathname);
+      return;
+    }
+    const data = await r.json();
+    if (!data.codes || data.codes.length === 0) {
+      wrap.innerHTML = '<div class="empty">Aucun code créé pour l\'instant.</div>';
+      return;
+    }
+    let html = '<table><thead><tr><th>Code</th><th>Réduction</th><th>Statut</th><th>Utilisé par</th></tr></thead><tbody>';
+    data.codes.forEach(c => {
+      const reduc = c.discount_type === 'percent' ? '-' + c.discount_value + '%' : '-' + c.discount_value + ' €';
+      const statut = c.used
+        ? '<span class="tag used">Utilisé' + (c.used_at ? ' · ' + new Date(c.used_at).toLocaleDateString('fr-FR') : '') + '</span>'
+        : '<span class="tag free">Disponible</span>';
+      html += '<tr><td><strong>' + c.code + '</strong><br><span style="color:#8b9aac;font-size:12px">' + (c.label || '') + '</span></td><td>' + reduc + '</td><td>' + statut + '</td><td>' + (c.used_by || '—') + '</td></tr>';
+    });
+    html += '</tbody></table>';
+    wrap.innerHTML = html;
+  } catch (ex) {
+    wrap.innerHTML = '<div class="empty">Erreur de chargement.</div>';
+  }
+}
+
+loadCodes();
+</script>
+</body>
+</html>
