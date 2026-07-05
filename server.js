@@ -34,6 +34,20 @@ if (process.env.DATABASE_URL) {
       INSERT INTO atelier_notes (id, content) VALUES (1, '')
       ON CONFLICT (id) DO NOTHING;
     `);
+    // Codes promo à usage unique — validés et consommés côté serveur uniquement.
+    await pgPool.query(`
+      CREATE TABLE IF NOT EXISTS single_use_promo_codes (
+        code TEXT PRIMARY KEY,
+        discount_type TEXT NOT NULL CHECK (discount_type IN ('percent','fixed')),
+        discount_value NUMERIC NOT NULL,
+        label TEXT NOT NULL,
+        used BOOLEAN NOT NULL DEFAULT FALSE,
+        used_at TIMESTAMPTZ,
+        used_by TEXT,
+        payment_intent_id TEXT,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      );
+    `);
     pgReady = true;
     console.log("✓ PostgreSQL connecté — sync notes atelier activée");
   } catch (e) {
@@ -188,12 +202,129 @@ app.post("/api/notes", maintAuth, async (req, res) => {
   }
 });
 
+// ── CODES PROMO À USAGE UNIQUE (Postgres) ─────────────────────────────
+// Ces codes sont distincts des PROMO_CODES statiques côté client (POUF2026,
+// FAMILLE, etc. — réutilisables). Ceux-ci sont créés un par un, vérifiés au
+// moment de la saisie, et consommés seulement après un paiement Stripe
+// confirmé réussi — jamais sur simple déclaration du navigateur.
+
+// Vérifie un code — appelé quand le code saisi ne matche aucun PROMO_CODES statique
+app.post("/api/promo/check", async (req, res) => {
+  if (!pgReady) return res.status(503).json({ valid: false, reason: "db_unavailable" });
+  const code = (req.body?.code || "").toString().trim().toUpperCase();
+  if (!code) return res.json({ valid: false, reason: "empty" });
+  try {
+    const { rows } = await pgPool.query(
+      "SELECT discount_type, discount_value, label, used FROM single_use_promo_codes WHERE code = $1",
+      [code]
+    );
+    if (rows.length === 0) return res.json({ valid: false, reason: "not_found" });
+    if (rows[0].used) return res.json({ valid: false, reason: "used" });
+    res.json({
+      valid: true,
+      type: rows[0].discount_type,
+      value: Number(rows[0].discount_value),
+      label: rows[0].label,
+    });
+  } catch (e) {
+    console.error("POST /api/promo/check error:", e.message);
+    res.status(500).json({ valid: false, reason: "server_error" });
+  }
+});
+
+// Consomme un code — appelé UNIQUEMENT après succès du paiement Stripe.
+// Revérifie auprès de Stripe que le PaymentIntent a bien réussi avant de marquer le code utilisé.
+app.post("/api/promo/consume", async (req, res) => {
+  if (!pgReady) return res.status(503).json({ ok: false, error: "db_unavailable" });
+  const code = (req.body?.code || "").toString().trim().toUpperCase();
+  const paymentIntentId = (req.body?.payment_intent_id || "").toString().trim();
+  if (!code || !paymentIntentId) {
+    return res.status(400).json({ ok: false, error: "code et payment_intent_id requis" });
+  }
+  const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+  if (!stripeSecretKey) return res.status(500).json({ ok: false, error: "Stripe non configuré" });
+  try {
+    // Vérification indépendante auprès de Stripe — on ne fait jamais confiance au client seul
+    const r = await fetch(`https://api.stripe.com/v1/payment_intents/${encodeURIComponent(paymentIntentId)}`, {
+      headers: { "Authorization": `Bearer ${stripeSecretKey}` },
+    });
+    const pi = await r.json();
+    if (!r.ok || pi.status !== "succeeded") {
+      return res.status(400).json({ ok: false, error: "Paiement non confirmé auprès de Stripe" });
+    }
+    const usedBy = pi.receipt_email || pi.metadata?.name || null;
+    const { rows } = await pgPool.query(
+      `UPDATE single_use_promo_codes
+       SET used = TRUE, used_at = NOW(), used_by = $2, payment_intent_id = $3
+       WHERE code = $1 AND used = FALSE
+       RETURNING code`,
+      [code, usedBy, paymentIntentId]
+    );
+    if (rows.length === 0) {
+      // Déjà consommé entre-temps (double-clic, tentative concurrente, etc.)
+      return res.status(409).json({ ok: false, error: "Code déjà utilisé" });
+    }
+    res.json({ ok: true });
+  } catch (e) {
+    console.error("POST /api/promo/consume error:", e.message);
+    res.status(500).json({ ok: false, error: e.message });
+  }
+});
+
+// Crée un nouveau code à usage unique — protégé par le mot de passe atelier/maintenance existant
+app.post("/api/promo/create", maintAuth, async (req, res) => {
+  if (!pgReady) return res.status(503).json({ ok: false, error: "db_unavailable" });
+  const code = (req.body?.code || "").toString().trim().toUpperCase();
+  const type = req.body?.type === "fixed" ? "fixed" : "percent";
+  const value = Number(req.body?.value);
+  const label = (req.body?.label || "").toString().trim() || `Code offert — ${code}`;
+  if (!code || !Number.isFinite(value) || value <= 0) {
+    return res.status(400).json({ ok: false, error: "code et value (nombre > 0) requis" });
+  }
+  try {
+    await pgPool.query(
+      `INSERT INTO single_use_promo_codes (code, discount_type, discount_value, label)
+       VALUES ($1, $2, $3, $4)
+       ON CONFLICT (code) DO NOTHING`,
+      [code, type, value, label]
+    );
+    res.json({ ok: true, code, type, value, label });
+  } catch (e) {
+    console.error("POST /api/promo/create error:", e.message);
+    res.status(500).json({ ok: false, error: e.message });
+  }
+});
+
+// Liste les codes existants et leur statut — protégée
+app.get("/api/promo/list", maintAuth, async (req, res) => {
+  if (!pgReady) return res.status(503).json({ error: "db_unavailable" });
+  try {
+    const { rows } = await pgPool.query(
+      "SELECT code, discount_type, discount_value, label, used, used_at, used_by FROM single_use_promo_codes ORDER BY created_at DESC"
+    );
+    res.json({ codes: rows });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // ── STRIPE PAYMENT INTENT ─────────────────────────────────────────────
 app.post("/api/stripe/create-payment-intent", async (req, res) => {
   try {
-    const { amount, email, name, description } = req.body;
+    const { amount, email, name, description, code_promo } = req.body;
     if (!amount || Number(amount) <= 0) {
       return res.status(400).json({ error: "Montant invalide" });
+    }
+    // Garde-fou : si un code à usage unique est déclaré, on vérifie qu'il n'est pas déjà consommé
+    // avant même de créer l'intention de paiement (bloque les tentatives de réutilisation).
+    if (code_promo && pgReady) {
+      const { rows } = await pgPool.query(
+        "SELECT used FROM single_use_promo_codes WHERE code = $1",
+        [code_promo.toString().trim().toUpperCase()]
+      );
+      if (rows.length > 0 && rows[0].used) {
+        return res.status(400).json({ error: "Ce code promo a déjà été utilisé" });
+      }
     }
     const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
     if (!stripeSecretKey) {

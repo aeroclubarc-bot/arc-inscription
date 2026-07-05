@@ -1134,7 +1134,7 @@ const PROMO_CODES = {
 
 let activePromo = null;
 
-function applyPromo() {
+async function applyPromo() {
   const code = document.getElementById('promo-input').value.trim().toUpperCase();
   const input = document.getElementById('promo-input');
   const fb = document.getElementById('promo-feedback');
@@ -1153,7 +1153,35 @@ function applyPromo() {
     document.getElementById('promo-tag-label').textContent = code + ' (' + PROMO_CODES[code].label + ')';
     tag.style.display = 'block';
     updateTotalDisplay();
-  } else {
+    return;
+  }
+  // Pas dans la liste statique — on tente un code à usage unique côté serveur
+  fb.textContent = 'Vérification du code...';
+  fb.className = 'promo-feedback';
+  try {
+    const resp = await fetch('/api/promo/check', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code })
+    });
+    const data = await resp.json();
+    if (data.valid) {
+      activePromo = { code, type: data.type, value: data.value, label: data.label, fromServer: true };
+      input.className = 'promo-input valid';
+      fb.textContent = '✓ Code accepté — ' + data.label;
+      fb.className = 'promo-feedback ok';
+      document.getElementById('promo-tag-label').textContent = code + ' (' + data.label + ')';
+      tag.style.display = 'block';
+      updateTotalDisplay();
+    } else {
+      activePromo = null;
+      input.className = 'promo-input invalid';
+      fb.textContent = '✗ Code invalide ou expiré.';
+      fb.className = 'promo-feedback ko';
+      tag.style.display = 'none';
+      updateTotalDisplay();
+    }
+  } catch (e) {
     activePromo = null;
     input.className = 'promo-input invalid';
     fb.textContent = '✗ Code invalide ou expiré.';
@@ -1381,7 +1409,8 @@ async function payWithStripe() {
         amount: total,
         email: email,
         name: prenom + ' ' + nom,
-        description: 'Adhésion ARC 2026 — ' + prenom + ' ' + nom
+        description: 'Adhésion ARC 2026 — ' + prenom + ' ' + nom,
+        code_promo: activePromo ? activePromo.code : null
       })
     });
     const data = await resp.json();
@@ -1407,6 +1436,16 @@ async function payWithStripe() {
       // GTM — événement de conversion adhésion
       if(typeof dataLayer !== 'undefined'){
         dataLayer.push({ event: 'adhesion_submit', value: total, currency: 'EUR' });
+      }
+      // Si un code à usage unique a été utilisé, on le consomme maintenant que le paiement est confirmé
+      if (activePromo && activePromo.fromServer) {
+        try {
+          await fetch('/api/promo/consume', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ code: activePromo.code, payment_intent_id: result.paymentIntent.id })
+          });
+        } catch (e) { /* le paiement a déjà réussi, on n'interrompt pas le parcours pour ça */ }
       }
       await submitInscription(total, result.paymentIntent.id);
       setTimeout(() => {
