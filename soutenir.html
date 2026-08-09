@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- ── SEO ─────────────────────────────────────────────────────────── -->
+<title>Nous soutenir — Dons, mécénat et parrainage | Aéroclub A.R.C. Chavenay</title>
+<meta name="description" content="Bénévoles, mécènes, sponsors : soutenez l'Aéroclub A.R.C. de Chavenay (LFPX). Reconnu d'intérêt général, le club délivre des reçus fiscaux — 66 % de réduction d'impôt pour les particuliers, 60 % au titre du mécénat d'entreprise.">
+<link rel="canonical" href="https://www.aeroclub-arc.fr/soutenir">
+<meta name="robots" content="index, follow">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="Nous soutenir — Aéroclub A.R.C. Chavenay">
+<meta property="og:description" content="Formez les jeunes au BIA, faites voler les Jodel. Votre don ouvre droit à 66 % de réduction d'impôt.">
+<meta property="og:url" content="https://www.aeroclub-arc.fr/soutenir">
+<meta property="og:image" content="https://www.aeroclub-arc.fr/og-soutenir.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="La côte vue depuis un Jodel de l'Aéroclub A.R.C.">
+<meta property="og:locale" content="fr_FR">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+
+<style>
+/* ══ DESIGN SYSTEM ARC ══════════════════════════════════════════════ */
+:root{
+  --navy:#0a1628;
+  --blue:#1a3a6b;
+  --gold:#c8a84b;
+  --cream:#f8f5f0;
+  --light:#e8e4dd;
+  --text:#2c3e50;
+  --muted:#6b7c8f;
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;
+  color:var(--text);
+  line-height:1.7;
+  background:#fff;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4{font-family:'Libre Baskerville',Georgia,serif;line-height:1.3;font-weight:700}
+a{color:var(--blue)}
+:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+
+.container{max-width:1140px;margin:0 auto;padding:0 24px}
+
+/* ══ HERO ═══════════════════════════════════════════════════════════ */
+.page-hero{
+  background:linear-gradient(135deg,var(--navy) 0%,var(--blue) 100%);
+  color:#fff;padding:110px 0 90px;text-align:center;
+}
+.page-hero .eyebrow{
+  font-size:.82rem;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--gold);font-weight:700;margin-bottom:20px;
+}
+.page-hero h1{font-size:clamp(2.1rem,5vw,3.3rem);color:#fff;margin-bottom:22px}
+.page-hero .subtitle{
+  font-size:1.15rem;color:rgba(255,255,255,.82);
+  max-width:720px;margin:0 auto 38px;
+}
+
+.hero-stats{
+  display:flex;justify-content:center;flex-wrap:wrap;gap:56px;
+  margin-top:56px;padding-top:36px;border-top:1px solid rgba(255,255,255,.16);
+}
+.hero-stat .num{
+  font-family:'Libre Baskerville',serif;font-size:2.3rem;
+  color:var(--gold);line-height:1;display:block;margin-bottom:8px;
+}
+.hero-stat .lbl{
+  font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;
+  color:rgba(255,255,255,.7);
+}
+
+/* ══ BOUTONS ════════════════════════════════════════════════════════ */
+.btn{
+  display:inline-block;padding:15px 34px;border-radius:4px;
+  font-weight:700;font-size:.95rem;letter-spacing:.03em;
+  text-decoration:none;cursor:pointer;border:2px solid transparent;
+  transition:all .25s ease;
+}
+.btn-gold{background:var(--gold);color:var(--navy)}
+.btn-gold:hover{background:#d9bb60;transform:translateY(-2px);box-shadow:0 8px 20px rgba(200,168,75,.3)}
+.btn-outline-light{border-color:rgba(255,255,255,.5);color:#fff}
+.btn-outline-light:hover{background:#fff;color:var(--navy);transform:translateY(-2px)}
+.btn-navy{background:var(--navy);color:#fff}
+.btn-navy:hover{background:var(--blue);transform:translateY(-2px);box-shadow:0 8px 20px rgba(10,22,40,.25)}
+.btn-outline-navy{border-color:var(--navy);color:var(--navy)}
+.btn-outline-navy:hover{background:var(--navy);color:#fff;transform:translateY(-2px)}
+.btn-row{display:flex;flex-wrap:wrap;gap:16px;justify-content:center}
+
+/* ══ SECTIONS ═══════════════════════════════════════════════════════ */
+.section{padding:88px 0}
+.section.light{background:#fff}
+.section.cream{background:var(--cream)}
+.section.dark{background:var(--navy);color:#fff}
+.section.dark h2,.section.dark h3{color:#fff}
+
+.section-head{text-align:center;max-width:760px;margin:0 auto 52px}
+.section-head .eyebrow{
+  font-size:.78rem;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--gold);font-weight:700;margin-bottom:14px;
+}
+.section-head h2{font-size:clamp(1.7rem,3.6vw,2.4rem);color:var(--navy);margin-bottom:16px}
+.section.dark .section-head h2{color:#fff}
+.section-head p{color:var(--muted);font-size:1.05rem}
+.section.dark .section-head p{color:rgba(255,255,255,.72)}
+
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:52px;align-items:start}
+.two-col p{margin-bottom:16px}
+.two-col p:last-child{margin-bottom:0}
+
+.pull{
+  border-left:4px solid var(--gold);
+  background:var(--cream);border-radius:0 8px 8px 0;
+  padding:22px 26px;color:var(--text);
+}
+.section.cream .pull{background:#fff}
+
+/* ══ CARTES ═════════════════════════════════════════════════════════ */
+.card-grid{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+.card{
+  background:#fff;border:1px solid var(--light);border-radius:8px;
+  padding:36px 32px;transition:transform .25s ease,box-shadow .25s ease;
+}
+.card:hover{transform:translateY(-4px);box-shadow:0 14px 34px rgba(10,22,40,.1)}
+.card h3{font-size:1.35rem;color:var(--navy);margin-bottom:6px}
+.card .rate{
+  font-size:.82rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--gold);font-weight:700;margin-bottom:20px;
+}
+.card ul{list-style:none;padding:0}
+.card li{position:relative;padding-left:24px;margin-bottom:12px;color:var(--muted)}
+.card li::before{content:"›";position:absolute;left:6px;top:-2px;color:var(--gold);font-size:1.3rem;line-height:1.5}
+.card li strong{color:var(--navy)}
+
+/* ══ CALCULATEUR ════════════════════════════════════════════════════ */
+.calc{
+  background:linear-gradient(135deg,var(--navy) 0%,var(--blue) 100%);
+  border-radius:8px;padding:44px;color:#fff;
+  box-shadow:0 20px 50px rgba(10,22,40,.22);
+  max-width:820px;margin:0 auto 48px;
+}
+.calc-tabs{
+  display:flex;border:1px solid rgba(255,255,255,.24);
+  border-radius:4px;overflow:hidden;margin-bottom:36px;
+}
+.calc-tab{
+  flex:1;background:transparent;border:0;color:rgba(255,255,255,.68);
+  font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:700;
+  letter-spacing:.06em;padding:14px 8px;cursor:pointer;transition:all .2s ease;
+}
+.calc-tab[aria-selected="true"]{background:var(--gold);color:var(--navy)}
+
+.calc-amount{
+  font-family:'Libre Baskerville',serif;font-size:clamp(2.6rem,8vw,3.8rem);
+  line-height:1;display:block;margin-bottom:8px;
+}
+.calc-amount-lbl{
+  display:block;font-size:.78rem;letter-spacing:.18em;text-transform:uppercase;
+  color:rgba(255,255,255,.62);margin-bottom:30px;
+}
+.calc-field{
+  display:flex;align-items:baseline;justify-content:center;gap:10px;
+  border-bottom:2px solid var(--gold);padding-bottom:10px;margin-bottom:14px;
+  transition:border-color .2s ease;
+}
+.calc-field.is-invalid{border-bottom-color:#e6a09a}
+.calc-input{
+  font-family:'Libre Baskerville',Georgia,serif;
+  font-size:clamp(2.6rem,8vw,3.8rem);line-height:1;
+  background:transparent;border:0;color:#fff;text-align:right;
+  width:min(320px,68vw);padding:0;
+}
+.calc-input:focus{outline:none}
+.calc-input::-webkit-outer-spin-button,
+.calc-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.calc-input[type=number]{-moz-appearance:textfield}
+.calc-euro{
+  font-family:'Libre Baskerville',Georgia,serif;
+  font-size:clamp(1.8rem,5vw,2.6rem);color:var(--gold);
+}
+.calc-hint{
+  font-size:.8rem;color:rgba(255,255,255,.5);text-align:center;margin-bottom:22px;
+}
+.calc-hint.is-invalid{color:#f0b3ac}
+.calc-chips{
+  display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-bottom:32px;
+}
+.calc-chip{
+  background:transparent;border:1px solid rgba(255,255,255,.26);border-radius:4px;
+  color:rgba(255,255,255,.8);font-family:'DM Sans',sans-serif;font-size:.9rem;
+  font-weight:500;padding:9px 20px;cursor:pointer;transition:all .2s ease;
+}
+.calc-chip:hover{border-color:var(--gold);color:#fff}
+.calc-chip[aria-pressed="true"]{background:var(--gold);border-color:var(--gold);color:var(--navy);font-weight:700}
+.calc-bar{display:flex;height:10px;border-radius:4px;overflow:hidden;margin-bottom:26px}
+.calc-bar-a{background:var(--gold);transition:width .25s ease}
+.calc-bar-b{background:rgba(255,255,255,.24);transition:width .25s ease}
+.calc-res{display:grid;grid-template-columns:1fr 1fr;gap:26px;margin:0}
+.calc-res dt{
+  font-size:.76rem;letter-spacing:.15em;text-transform:uppercase;
+  color:rgba(255,255,255,.62);margin-bottom:6px;
+}
+.calc-res dd{font-family:'Libre Baskerville',serif;font-size:2rem;line-height:1.15;margin:0}
+.calc-res .is-gold dd{color:var(--gold)}
+.calc-fine{
+  font-size:.85rem;color:rgba(255,255,255,.58);margin-top:30px;
+  padding-top:22px;border-top:1px solid rgba(255,255,255,.14);
+}
+.calc-pay{margin-top:28px;text-align:center}
+.calc-pay .btn{min-width:280px}
+.calc-secure{
+  font-size:.78rem;color:rgba(255,255,255,.5);margin-top:14px;
+  letter-spacing:.04em;
+}
+.calc-error{
+  margin-top:14px;font-size:.88rem;color:#f5b7b1;
+  background:rgba(192,57,43,.22);border-radius:4px;padding:10px 14px;
+}
+.btn[disabled]{opacity:.6;cursor:progress;transform:none!important;box-shadow:none!important}
+
+/* ══ PACKS ══════════════════════════════════════════════════════════ */
+.pack-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:26px}
+.pack{
+  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.16);
+  border-radius:8px;padding:32px 28px;
+  transition:transform .25s ease,box-shadow .25s ease;
+}
+.pack:hover{transform:translateY(-4px);box-shadow:0 14px 34px rgba(0,0,0,.28)}
+.pack.featured{border-color:var(--gold);background:rgba(200,168,75,.1)}
+.pack h3{font-size:1.3rem;margin-bottom:4px}
+.pack .price{
+  font-family:'Libre Baskerville',serif;font-size:1.9rem;
+  color:var(--gold);display:block;margin-bottom:16px;
+}
+.pack p{color:rgba(255,255,255,.72);font-size:.95rem}
+
+/* ══ CTA FINAL ══════════════════════════════════════════════════════ */
+.cta-final{background:var(--navy);color:#fff;padding:84px 0;text-align:center}
+.cta-final h2{font-size:clamp(1.8rem,4vw,2.6rem);color:#fff;margin-bottom:16px}
+.cta-final p{color:rgba(255,255,255,.75);max-width:560px;margin:0 auto 34px}
+.cta-contact{
+  margin-top:40px;padding-top:28px;border-top:1px solid rgba(255,255,255,.14);
+  font-size:.92rem;color:rgba(255,255,255,.62);
+}
+.cta-contact a{color:var(--gold);text-decoration:none}
+.cta-contact a:hover{text-decoration:underline}
+
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* ══ RESPONSIVE ═════════════════════════════════════════════════════ */
+@media(max-width:900px){
+  .two-col,.card-grid,.calc-res{grid-template-columns:1fr}
+  .pack-grid{grid-template-columns:1fr}
+  .section{padding:60px 0}
+  .page-hero{padding:80px 0 64px}
+  .calc{padding:30px 24px}
+  .hero-stats{gap:34px}
+  .btn{width:100%;text-align:center}
+}
+@media(prefers-reduced-motion:reduce){
+  *{transition:none!important;animation:none!important}
+  html{scroll-behavior:auto}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     ⚠️  COLLER ICI le bloc <nav class="arc-nav"> ... </nav>
+     copié depuis tarifs.html (logo CDN + burger identiques)
+     ═══════════════════════════════════════════════════════════════ -->
+
+<!-- ══ HERO ══ -->
+<header class="page-hero">
+  <div class="container">
+    <p class="eyebrow">Dons · Mécénat · Parrainage</p>
+    <h1>Aidez-nous à faire voler la relève</h1>
+    <p class="subtitle">Bénévoles, mécènes, sponsors : vous pouvez faire vivre l'aéroclub. Depuis Chavenay, nous préparons les jeunes au BIA et leur offrons leur premier vol. Votre don ouvre droit à un reçu fiscal.</p>
+    <div class="btn-row">
+      <a class="btn btn-gold" href="#don">Faire un don</a>
+      <a class="btn btn-outline-light" href="/contact">Nous contacter</a>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat"><span class="num">66 %</span><span class="lbl">de réduction d'impôt</span></div>
+      <div class="hero-stat"><span class="num">3</span><span class="lbl">Jodel à entretenir</span></div>
+      <div class="hero-stat"><span class="num">1971</span><span class="lbl">année de fondation</span></div>
+    </div>
+  </div>
+</header>
+
+<!-- ══ POURQUOI ══ -->
+<section class="section light">
+  <div class="container">
+    <div class="section-head">
+      <p class="eyebrow">Pourquoi votre soutien compte</p>
+      <h2>Un club engagé pour les jeunes, à prix coûtant</h2>
+    </div>
+    <div class="two-col">
+      <div>
+        <p>Nous sommes engagés auprès des jeunes afin de leur faire connaître et vivre l'aéronautique : préparation au <strong>Brevet d'Initiation Aéronautique (BIA)</strong> et vols découverte offerts.</p>
+        <p>Nos tarifs sont maintenus au plus bas pour permettre à tous de découvrir le monde aéronautique. Mais les avions doivent être entretenus, révisés et renouvelés.</p>
+      </div>
+      <div>
+        <p>Tout cela a un coût, et l'équilibre budgétaire de l'association est un défi à relever chaque année. C'est la raison pour laquelle nous faisons appel à toutes les générosités.</p>
+        <div class="pull">Chaque euro versé va à l'entretien de la flotte et aux actions jeunesse. Un don n'ouvre droit à aucune contrepartie de vol.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ INTÉRÊT GÉNÉRAL ══ -->
+<section class="section cream">
+  <div class="container">
+    <div class="section-head">
+      <p class="eyebrow">Cadre fiscal</p>
+      <h2>Une œuvre d'intérêt général reconnue</h2>
+    </div>
+    <div class="two-col">
+      <div>
+        <div class="pull">Nous avons effectué les démarches nécessaires auprès des services fiscaux : l'aéroclub est officiellement reconnu comme <strong>œuvre d'intérêt général</strong>. À ce titre, il peut recevoir des dons de particuliers comme d'entreprises et émettre les reçus fiscaux correspondants.</div>
+      </div>
+      <div>
+        <p>Chaque début d'année, tous les dons donnent lieu à l'émission d'un <strong>reçu fiscal</strong> — Cerfa 11580 pour les particuliers, imprimé 2041-MEC pour les entreprises. Il vous permet de déclarer la somme versée au titre des « dons versés à des associations d'utilité publique et à des organismes d'intérêt général ».</p>
+        <p>Cette somme se reporte <strong>ligne 7UF</strong> de votre déclaration de revenus.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ CALCULATEUR ══ -->
+<section class="section light" id="don">
+  <div class="container">
+    <div class="section-head">
+      <p class="eyebrow">Ce que coûte réellement un don</p>
+      <h2>Déplacez le curseur</h2>
+      <p>La réduction d'impôt fait la plus grande partie du chemin. Voyez ce qu'il vous reste à charge.</p>
+    </div>
+
+    <div class="calc">
+      <div class="calc-tabs" role="tablist" aria-label="Type de donateur">
+        <button class="calc-tab" id="tab-part" role="tab" aria-selected="true" aria-controls="calc-panel">Particulier — 66 %</button>
+        <button class="calc-tab" id="tab-ent" role="tab" aria-selected="false" aria-controls="calc-panel">Entreprise — 60 %</button>
+      </div>
+
+      <div id="calc-panel" role="tabpanel" aria-labelledby="tab-part">
+        <label class="calc-amount-lbl" for="calc-input">Montant de votre don</label>
+        <div class="calc-field" id="calc-field">
+          <input type="number" id="calc-input" class="calc-input" value="100"
+                 min="10" max="50000" step="1" inputmode="numeric"
+                 autocomplete="off" aria-describedby="calc-hint">
+          <span class="calc-euro" aria-hidden="true">€</span>
+        </div>
+        <p class="calc-hint" id="calc-hint">Montant libre, de 10 € à 50 000 €</p>
+
+        <div class="calc-chips" role="group" aria-label="Montants suggérés">
+          <button type="button" class="calc-chip" data-montant="50">50 €</button>
+          <button type="button" class="calc-chip" data-montant="100" aria-pressed="true">100 €</button>
+          <button type="button" class="calc-chip" data-montant="250">250 €</button>
+          <button type="button" class="calc-chip" data-montant="500">500 €</button>
+          <button type="button" class="calc-chip" data-montant="1000">1 000 €</button>
+        </div>
+
+        <div class="calc-bar" aria-hidden="true">
+          <div class="calc-bar-a" id="bar-a" style="width:66%"></div>
+          <div class="calc-bar-b" id="bar-b" style="width:34%"></div>
+        </div>
+
+        <dl class="calc-res">
+          <div><dt>Coût réel pour vous</dt><dd id="calc-cost">34 €</dd></div>
+          <div class="is-gold"><dt>Réduction d'impôt</dt><dd id="calc-save">66 €</dd></div>
+        </dl>
+
+        <p class="calc-fine" id="calc-fine">Réduction de 66 % du montant versé, dans la limite de 20 % du revenu imposable. L'excédent est reportable sur les 5 années suivantes.</p>
+
+        <div class="calc-pay">
+          <button type="button" class="btn btn-gold" id="calc-submit">Faire un don de 100 €</button>
+          <p class="calc-secure">Paiement sécurisé par Stripe · CB, Apple&nbsp;Pay, Google&nbsp;Pay</p>
+          <p class="calc-error" id="calc-error" role="alert" hidden></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-grid">
+      <article class="card">
+        <h3>Vous êtes un particulier</h3>
+        <p class="rate">66 % de réduction d'impôt</p>
+        <ul>
+          <li>Un don de <strong>100 €</strong> vous permet de récupérer <strong>66 €</strong> : il ne vous en coûte que <strong>34 €</strong>.</li>
+          <li>Plafond : <strong>20 % du revenu imposable</strong>, excédent reportable 5 ans.</li>
+          <li>Reçu fiscal envoyé en début d'année, à reporter <strong>ligne 7UF</strong>.</li>
+        </ul>
+      </article>
+      <article class="card">
+        <h3>Vous êtes une entreprise</h3>
+        <p class="rate">60 % au titre du mécénat</p>
+        <ul>
+          <li>Réduction d'impôt de <strong>60 %</strong> du versement (40 % au-delà de 2 M€ de dons).</li>
+          <li>Plafond : <strong>20 000 €</strong> ou <strong>5 ‰ du chiffre d'affaires HT</strong>, le montant le plus élevé étant retenu.</li>
+          <li>Excédent reportable sur les <strong>5 exercices</strong> suivants.</li>
+        </ul>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ══ PACKS PARTENAIRES ══ -->
+<section class="section dark">
+  <div class="container">
+    <div class="section-head">
+      <p class="eyebrow">Parrainage d'entreprise</p>
+      <h2>Trois façons d'associer votre nom à nos avions</h2>
+      <p>Au-delà du don simple, nos packs partenaires offrent une visibilité sur la flotte, l'aérodrome et nos supports de communication.</p>
+    </div>
+
+    <div class="pack-grid">
+      <div class="pack featured">
+        <h3>Pack Rafale</h3>
+        <span class="price">10 000 €</span>
+        <p>Visibilité maximale : marquage avion, présence sur tous nos supports, vols partenaires et invitations aux événements du club.</p>
+      </div>
+      <div class="pack">
+        <h3>Pack Airbus</h3>
+        <span class="price">5 000 €</span>
+        <p>Logo sur un aéronef et sur le site, mention dans nos communications et présence lors des journées portes ouvertes.</p>
+      </div>
+      <div class="pack">
+        <h3>Pack Jodel</h3>
+        <span class="price">3 000 €</span>
+        <p>Présence sur le site et les supports du club, remerciements publics et invitation aux temps forts de l'aéroclub.</p>
+      </div>
+    </div>
+
+    <div class="btn-row" style="margin-top:40px">
+      <a class="btn btn-gold" href="/docs/ARC_Parrainage_Mecenat.pdf" download>Télécharger la plaquette</a>
+    </div>
+  </div>
+</section>
+
+<!-- ══ CTA FINAL ══ -->
+<section class="cta-final">
+  <div class="container">
+    <h2>Réduire les barrières, élever les carrières</h2>
+    <p>Votre don abaisse le coût du premier vol et fait décoller des vocations. Un doute sur le montant, la forme du don ou le reçu fiscal ? Écrivez-nous, nous répondons sous 48 h.</p>
+    <div class="btn-row">
+      <a class="btn btn-gold" href="#don">Faire un don</a>
+      <a class="btn btn-outline-light" href="/contact">Nous contacter</a>
+    </div>
+    <p class="cta-contact">
+      Aéroclub A.R.C. — Aérodrome de Chavenay-Villepreux (LFPX), 78450 Chavenay<br>
+      <a href="mailto:contact@aeroclub-arc.fr">contact@aeroclub-arc.fr</a>
+    </p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     ⚠️  COLLER ICI le bloc <footer> ... </footer> copié depuis tarifs.html
+     ═══════════════════════════════════════════════════════════════ -->
+
+<script>
+(function(){
+  var MIN=10, MAX=50000;
+
+  var input = document.getElementById('calc-input'),
+      field = document.getElementById('calc-field'),
+      hint  = document.getElementById('calc-hint'),
+      elCost= document.getElementById('calc-cost'),
+      elSave= document.getElementById('calc-save'),
+      elFine= document.getElementById('calc-fine'),
+      barA  = document.getElementById('bar-a'),
+      barB  = document.getElementById('bar-b'),
+      panel = document.getElementById('calc-panel'),
+      tabP  = document.getElementById('tab-part'),
+      tabE  = document.getElementById('tab-ent'),
+      btn   = document.getElementById('calc-submit'),
+      err   = document.getElementById('calc-error'),
+      chips = Array.prototype.slice.call(document.querySelectorAll('.calc-chip'));
+
+  var taux = 0.66, estParticulier = true;
+
+  var FINE_P = "Réduction de 66 % du montant versé, dans la limite de 20 % du revenu imposable. L'excédent est reportable sur les 5 années suivantes.";
+  var FINE_E = "Réduction de 60 % du versement, dans la limite de 20 000 € ou 5 ‰ du chiffre d'affaires HT (le plus élevé des deux). Taux de 40 % au-delà de 2 M€ de dons. Excédent reportable sur 5 exercices.";
+  var HINT_OK = "Montant libre, de 10 € à 50 000 €";
+
+  function eur(n){ return n.toLocaleString('fr-FR') + ' €'; }
+
+  function montantSaisi(){
+    var v = parseInt(input.value, 10);
+    return Number.isFinite(v) ? v : null;
+  }
+
+  function render(){
+    var don = montantSaisi();
+    var valide = don !== null && don >= MIN && don <= MAX;
+
+    barA.style.width = (taux*100) + '%';
+    barB.style.width = ((1-taux)*100) + '%';
+
+    chips.forEach(function(c){
+      c.setAttribute('aria-pressed', String(valide && +c.dataset.montant === don));
+    });
+
+    if(!valide){
+      field.classList.add('is-invalid');
+      hint.classList.add('is-invalid');
+      hint.textContent = don === null
+        ? "Saisissez un montant en euros"
+        : (don < MIN ? "Minimum " + eur(MIN) : "Maximum " + eur(MAX) + " — au-delà, contactez-nous");
+      elCost.textContent = '—';
+      elSave.textContent = '—';
+      btn.textContent = 'Faire un don';
+      btn.disabled = true;
+      btn.dataset.montant = '';
+      return;
+    }
+
+    field.classList.remove('is-invalid');
+    hint.classList.remove('is-invalid');
+    hint.textContent = HINT_OK;
+
+    var save = Math.round(don * taux);
+    elSave.textContent = eur(save);
+    elCost.textContent = eur(don - save);
+    btn.textContent = 'Faire un don de ' + eur(don);
+    btn.disabled = false;
+    btn.dataset.montant = don;
+  }
+
+  function setTab(isP){
+    estParticulier = isP;
+    taux = isP ? 0.66 : 0.60;
+    tabP.setAttribute('aria-selected', isP);
+    tabE.setAttribute('aria-selected', !isP);
+    panel.setAttribute('aria-labelledby', isP ? 'tab-part' : 'tab-ent');
+    elFine.textContent = isP ? FINE_P : FINE_E;
+    render();
+  }
+
+  input.addEventListener('input', render);
+  input.addEventListener('focus', function(){ input.select(); });
+  input.addEventListener('keydown', function(e){
+    if(e.key === 'Enter' && !btn.disabled){ e.preventDefault(); btn.click(); }
+  });
+
+  chips.forEach(function(c){
+    c.addEventListener('click', function(){
+      input.value = c.dataset.montant;
+      render();
+    });
+  });
+
+  tabP.addEventListener('click', function(){ setTab(true); });
+  tabE.addEventListener('click', function(){ setTab(false); });
+
+  btn.addEventListener('click', function(){
+    var montant = parseInt(btn.dataset.montant, 10);
+    if(!Number.isFinite(montant)) return;
+
+    err.hidden = true;
+    btn.disabled = true;
+    btn.textContent = 'Redirection…';
+
+    fetch('/api/don/checkout', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ montant: montant, profil: estParticulier ? 'particulier' : 'entreprise' })
+    })
+    .then(function(r){
+      return r.json().then(function(d){ if(!r.ok) throw new Error(d.error || 'Erreur serveur'); return d; });
+    })
+    .then(function(d){
+      if(!d.url) throw new Error('Session de paiement indisponible');
+      window.location.href = d.url;
+    })
+    .catch(function(e){
+      err.textContent = "Le paiement n'a pas pu démarrer : " + e.message + ". Réessayez ou écrivez-nous à contact@aeroclub-arc.fr.";
+      err.hidden = false;
+      render();
+    });
+  });
+
+  render();
+})();
+</script>
+
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"NGO",
+  "name":"Aéroclub A.R.C. — Aviation et Relations Culturelles",
+  "url":"https://www.aeroclub-arc.fr",
+  "email":"contact@aeroclub-arc.fr",
+  "foundingDate":"1971",
+  "address":{
+    "@type":"PostalAddress",
+    "streetAddress":"Aérodrome de Chavenay-Villepreux (LFPX)",
+    "postalCode":"78450",
+    "addressLocality":"Chavenay",
+    "addressCountry":"FR"
+  },
+  "potentialAction":{
+    "@type":"DonateAction",
+    "name":"Faire un don à l'Aéroclub A.R.C.",
+    "target":"https://www.aeroclub-arc.fr/don"
+  }
+}
+</script>
+
+</body>
+</html>

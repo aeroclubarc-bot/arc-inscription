@@ -48,6 +48,21 @@ if (process.env.DATABASE_URL) {
         created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
       );
     `);
+    // Dons — enregistrés après vérification du paiement auprès de Stripe.
+    await pgPool.query(`
+      CREATE TABLE IF NOT EXISTS dons (
+        id             SERIAL PRIMARY KEY,
+        session_id     TEXT UNIQUE NOT NULL,
+        numero_recu    TEXT,
+        montant_cents  INTEGER NOT NULL,
+        profil         TEXT NOT NULL,
+        nom            TEXT,
+        email          TEXT,
+        adresse        TEXT,
+        recu_envoye    BOOLEAN NOT NULL DEFAULT FALSE,
+        cree_le        TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      );
+    `);
     pgReady = true;
     console.log("✓ PostgreSQL connecté — sync notes atelier activée");
   } catch (e) {
@@ -581,6 +596,178 @@ app.get("/adhesion",       (req, res) => res.sendFile(path.join(__dirname, "inde
 app.get("/inscription",    (req, res) => res.sendFile(path.join(__dirname, "index.html")));
 app.get("/statuts",        (req, res) => res.sendFile(path.join(__dirname, "statuts.html")));
 app.get("/reglement",      (req, res) => res.sendFile(path.join(__dirname, "reglement.html")));
+
+// ══ DONS / MÉCÉNAT ════════════════════════════════════════════════════
+app.get("/soutenir", (req, res) => res.sendFile(path.join(__dirname, "soutenir.html")));
+app.get("/don",      (req, res) => res.redirect(302, "/soutenir#don"));
+
+const DON_MIN = 10;      // €
+const DON_MAX = 50000;   // €
+
+// Crée la session Stripe Checkout — appel REST direct, comme /api/promo/consume
+app.post("/api/don/checkout", async (req, res) => {
+  const montant = Math.round(Number(req.body?.montant));
+  const profil  = req.body?.profil === "entreprise" ? "entreprise" : "particulier";
+
+  if (!Number.isFinite(montant) || montant < DON_MIN || montant > DON_MAX) {
+    return res.status(400).json({
+      error: `Le montant doit être compris entre ${DON_MIN} € et ${DON_MAX.toLocaleString("fr-FR")} €`,
+    });
+  }
+
+  const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+  if (!stripeSecretKey) return res.status(500).json({ error: "Stripe non configuré" });
+
+  const base = `https://${CANONICAL}`;
+  const params = new URLSearchParams({
+    "mode": "payment",
+    "locale": "fr",
+    "submit_type": "donate",
+    "billing_address_collection": "required",   // nom + adresse : requis pour le reçu fiscal
+    "customer_creation": "always",
+    "line_items[0][quantity]": "1",
+    "line_items[0][price_data][currency]": "eur",
+    "line_items[0][price_data][unit_amount]": String(montant * 100),
+    "line_items[0][price_data][product_data][name]": "Don à l'Aéroclub A.R.C.",
+    "line_items[0][price_data][product_data][description]":
+      profil === "entreprise"
+        ? "Mécénat d'entreprise (art. 238 bis CGI) — reçu 2041-MEC délivré en début d'année"
+        : "Don d'un particulier (art. 200 CGI) — reçu Cerfa 11580 délivré en début d'année",
+    "metadata[type]": "don",
+    "metadata[profil]": profil,
+    "payment_intent_data[description]": `Don ${profil} — ${montant} € — Aéroclub A.R.C.`,
+    "success_url": `${base}/don/merci?session_id={CHECKOUT_SESSION_ID}`,
+    "cancel_url": `${base}/soutenir#don`,
+  });
+
+  try {
+    const r = await fetch("https://api.stripe.com/v1/checkout/sessions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${stripeSecretKey}`,
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: params,
+    });
+    const session = await r.json();
+    if (!r.ok || !session.url) {
+      console.error("[don] Stripe:", session.error?.message || r.status);
+      return res.status(502).json({ error: "Session de paiement indisponible" });
+    }
+    res.json({ url: session.url });
+  } catch (e) {
+    console.error("POST /api/don/checkout error:", e.message);
+    res.status(500).json({ error: "Création de la session impossible" });
+  }
+});
+
+// Relit le statut auprès de Stripe puis enregistre — on ne fait jamais
+// confiance au seul retour navigateur.
+async function enregistrerDon(sessionId) {
+  const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+  if (!stripeSecretKey || !sessionId) return null;
+
+  const r = await fetch(
+    `https://api.stripe.com/v1/checkout/sessions/${encodeURIComponent(sessionId)}`,
+    { headers: { "Authorization": `Bearer ${stripeSecretKey}` } }
+  );
+  const s = await r.json();
+  if (!r.ok || s.payment_status !== "paid" || s.metadata?.type !== "don") return null;
+
+  const d = s.customer_details || {};
+  const a = d.address || {};
+  const adresse = [a.line1, a.line2, `${a.postal_code || ""} ${a.city || ""}`.trim(), a.country]
+    .filter(Boolean).join(", ");
+
+  let nouveau = false;
+  if (pgPool) {
+    const { rows } = await pgPool.query(
+      `INSERT INTO dons (session_id, montant_cents, profil, nom, email, adresse)
+       VALUES ($1,$2,$3,$4,$5,$6)
+       ON CONFLICT (session_id) DO NOTHING
+       RETURNING id`,
+      [s.id, s.amount_total, s.metadata.profil, d.name, d.email, adresse]
+    );
+    nouveau = rows.length > 0;   // false = page rechargée, pas de second mail
+  }
+
+  if (nouveau) {
+    const montant = (s.amount_total / 100).toLocaleString("fr-FR");
+    const resendKey = process.env.RESEND_API_KEY;
+    if (resendKey) {
+      const resend = new Resend(resendKey);
+      try {
+        await resend.emails.send({
+          from: "Aéroclub A.R.C. <contact@aeroclub-arc.fr>",
+          to: d.email,
+          subject: `Merci pour votre don de ${montant} €`,
+          html: `
+            <p>Bonjour${d.name ? " " + d.name : ""},</p>
+            <p>Nous avons bien reçu votre don de <strong>${montant} €</strong>. Merci.</p>
+            <p>Il financera directement l'entretien de nos Jodel et nos actions auprès des
+               jeunes : préparation au BIA et vols découverte.</p>
+            <p>Votre <strong>reçu fiscal</strong> vous sera adressé en début d'année prochaine :
+               Cerfa 11580 pour un particulier, à reporter ligne 7UF de votre déclaration de
+               revenus ; imprimé 2041-MEC au titre du mécénat d'entreprise.</p>
+            <p>Bons vols,<br>A. Drieu — Président<br>
+               Aéroclub A.R.C., Aérodrome de Chavenay-Villepreux (LFPX)</p>`,
+        });
+      } catch (e) { console.error("[don] mail donateur:", e.message); }
+
+      try {
+        await resend.emails.send({
+          from: "Site A.R.C. <contact@aeroclub-arc.fr>",
+          to: "contact@aeroclub-arc.fr",
+          subject: `Nouveau don : ${montant} € (${s.metadata.profil})`,
+          html: `<p><strong>${montant} €</strong> — ${s.metadata.profil}</p>
+                 <p>${d.name || "—"}<br>${d.email || "—"}<br>${adresse || "—"}</p>
+                 <p style="color:#888;font-size:12px">Session ${s.id}</p>`,
+        });
+      } catch (e) { console.error("[don] mail interne:", e.message); }
+    }
+  }
+  return s;
+}
+
+app.get("/don/merci", async (req, res) => {
+  try {
+    await enregistrerDon((req.query.session_id || "").toString());
+  } catch (e) {
+    // Le donateur a payé : on ne lui affiche jamais d'erreur ici.
+    console.error("[don] enregistrement:", e.message);
+  }
+  res.sendFile(path.join(__dirname, "merci-don.html"));
+});
+
+// Export CSV pour l'édition des reçus en janvier — protégé par maintAuth
+app.get("/api/dons/export", maintAuth, async (req, res) => {
+  if (!pgPool) return res.status(503).send("Base indisponible");
+  const annee = parseInt(req.query.annee, 10) || new Date().getFullYear();
+  try {
+    const { rows } = await pgPool.query(
+      `SELECT cree_le, montant_cents, profil, nom, email, adresse, numero_recu, recu_envoye
+         FROM dons WHERE EXTRACT(YEAR FROM cree_le) = $1 ORDER BY cree_le`,
+      [annee]
+    );
+    const csv = ["Date;Montant EUR;Profil;Nom;Email;Adresse;N recu;Recu envoye"]
+      .concat(rows.map(r => [
+        r.cree_le.toISOString().slice(0, 10),
+        (r.montant_cents / 100).toFixed(2).replace(".", ","),
+        r.profil, r.nom || "", r.email || "",
+        (r.adresse || "").replace(/;/g, ","),
+        r.numero_recu || "",
+        r.recu_envoye ? "oui" : "non",
+      ].join(";")))
+      .join("\n");
+    res.setHeader("Content-Type", "text/csv; charset=utf-8");
+    res.setHeader("Content-Disposition", `attachment; filename="dons-${annee}.csv"`);
+    res.send("\uFEFF" + csv);   // BOM pour Excel
+  } catch (e) {
+    console.error("GET /api/dons/export error:", e.message);
+    res.status(500).send("Erreur export");
+  }
+});
+// ══════════════════════════════════════════════════════════════════════
 
 // ── ATELIER MAINTENANCE (PROTÉGÉ) ─────────────────────────────────────
 app.get("/maintenance",     maintAuth, (req, res) => res.sendFile(path.join(__dirname, "maintenance.html")));

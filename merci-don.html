@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Merci pour votre don — Aéroclub A.R.C.</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0a1628;--blue:#1a3a6b;--gold:#c8a84b;--cream:#f8f5f0;--light:#e8e4dd;--text:#2c3e50;--muted:#6b7c8f}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;color:var(--text);line-height:1.7;background:var(--cream);
+     -webkit-font-smoothing:antialiased;display:flex;flex-direction:column;min-height:100vh}
+h1,h2{font-family:'Libre Baskerville',Georgia,serif;line-height:1.3}
+.container{max-width:720px;margin:0 auto;padding:0 24px}
+:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+
+.merci{
+  flex:1;display:flex;align-items:center;
+  background:linear-gradient(135deg,var(--navy) 0%,var(--blue) 100%);
+  color:#fff;padding:96px 0;text-align:center;
+}
+.seal{
+  width:78px;height:78px;border-radius:50%;border:2px solid var(--gold);
+  display:flex;align-items:center;justify-content:center;margin:0 auto 30px;
+  color:var(--gold);font-size:2rem;
+}
+.merci h1{font-size:clamp(2rem,5vw,3rem);color:#fff;margin-bottom:20px}
+.merci .lede{font-size:1.12rem;color:rgba(255,255,255,.82);margin-bottom:34px}
+.receipt{
+  background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);
+  border-radius:8px;padding:28px 30px;text-align:left;margin-bottom:34px;
+}
+.receipt h2{font-size:1.05rem;color:var(--gold);margin-bottom:12px}
+.receipt p{color:rgba(255,255,255,.78);font-size:.96rem;margin-bottom:10px}
+.receipt p:last-child{margin-bottom:0}
+.btn{
+  display:inline-block;padding:15px 34px;border-radius:4px;font-weight:700;
+  font-size:.95rem;text-decoration:none;border:2px solid transparent;transition:all .25s ease;
+}
+.btn-gold{background:var(--gold);color:var(--navy)}
+.btn-gold:hover{background:#d9bb60;transform:translateY(-2px)}
+.btn-outline-light{border-color:rgba(255,255,255,.5);color:#fff;margin-left:12px}
+.btn-outline-light:hover{background:#fff;color:var(--navy);transform:translateY(-2px)}
+.sign{margin-top:38px;padding-top:24px;border-top:1px solid rgba(255,255,255,.14);
+      font-size:.9rem;color:rgba(255,255,255,.6)}
+.sign a{color:var(--gold);text-decoration:none}
+@media(max-width:640px){
+  .btn{display:block;width:100%;text-align:center}
+  .btn-outline-light{margin:12px 0 0}
+  .merci{padding:64px 0}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<!-- ⚠️ Coller ici la <nav class="arc-nav"> du site si vous la voulez sur cette page -->
+
+<main class="merci">
+  <div class="container">
+    <div class="seal" aria-hidden="true">✓</div>
+    <h1>Merci, votre don est enregistré</h1>
+    <p class="lede">Il financera directement l'entretien de nos Jodel et nos actions auprès des jeunes : préparation au BIA et vols découverte.</p>
+
+    <div class="receipt">
+      <h2>Et maintenant ?</h2>
+      <p><strong>Un accusé de réception</strong> vient de partir à l'adresse e-mail saisie lors du paiement. Vérifiez vos indésirables s'il n'apparaît pas.</p>
+      <p><strong>Votre reçu fiscal</strong> vous sera adressé en début d'année prochaine : Cerfa 11580 si vous êtes un particulier, à reporter ligne 7UF de votre déclaration de revenus ; imprimé 2041-MEC si vous donnez au titre du mécénat d'entreprise.</p>
+      <p>Une question, un changement d'adresse ? Écrivez-nous, nous répondons sous 48 h.</p>
+    </div>
+
+    <div>
+      <a class="btn btn-gold" href="/">Retour à l'accueil</a>
+      <a class="btn btn-outline-light" href="/contact">Nous contacter</a>
+    </div>
+
+    <p class="sign">
+      A. Drieu — Président<br>
+      Aéroclub A.R.C., Aérodrome de Chavenay-Villepreux (LFPX), 78450 Chavenay<br>
+      <a href="mailto:contact@aeroclub-arc.fr">contact@aeroclub-arc.fr</a>
+    </p>
+  </div>
+</main>
+
+<!-- ⚠️ Coller ici le <footer> du site -->
+
+</body>
+</html>
