@@ -107,8 +107,12 @@ app.use((req, res, next) => {
   next();
 });
 
-// ── REDIRECT / ────────────────────────────────────────────────────────
-app.get("/", (req, res) => res.redirect(301, "/home-arc"));
+// ── PAGE D'ACCUEIL ────────────────────────────────────────────────────
+// `/` SERT la page d'accueil (elle déclare <link rel=canonical href="/">).
+// L'ancienne URL /home-arc redirige vers elle. Ne pas réinverser : cela
+// recréerait la boucle canonique qui a désindexé l'accueil.
+app.get("/", (req, res) => res.sendFile(path.join(__dirname, "home.html")));
+app.get("/home-arc", (req, res) => res.redirect(301, "/"));
 
 // ── AUTH MAINTENANCE ──────────────────────────────────────────────────
 // Mot de passe partagé entre mécaniciens — défini en variable d'env Railway.
@@ -576,10 +580,41 @@ app.get("/api/ppv/today", (req, res) =>
 );
 
 // ── STATIC FILES (après les routes API) ──────────────────────────────
+// ── REDIRECTIONS 301 ──────────────────────────────────────────────────
+// Anciennes URLs Webflow encore explorées par Google (404 en Search Console).
+const REDIRECTIONS_HERITEES = {
+  "/flotte":      "/la-flotte",
+  "/club":        "/leclub",
+  "/instructeur": "/leclub",
+};
+for (const [ancienne, cible] of Object.entries(REDIRECTIONS_HERITEES)) {
+  app.get(ancienne, (req, res) => res.redirect(301, cible));
+}
+
+// Chaque page est aussi servie en .html par express.static, ce qui crée un
+// doublon pour Google. On renvoie vers l'URL propre. Les pages protégées
+// (entretien-*, maintenance, signer-ot, promo-admin) ne sont pas listées :
+// elles restent gérées par le middleware d'authentification.
+const URLS_PROPRES = {
+  "home": "/", "accueil": "/accueil", "leclub": "/leclub",
+  "laflotte": "/la-flotte", "ppl": "/formation", "postppl": "/post-ppl",
+  "aerodrome": "/aerodrome", "contact": "/contact", "ppv": "/ppv",
+  "statuts": "/statuts", "reglement": "/reglement", "soutenir": "/soutenir",
+  "index": "/adhesion", "arc-inscription": "/adhesion",
+  "merci-don": "/don/merci",
+};
+app.use((req, res, next) => {
+  const m = req.path.match(/^\/([a-z0-9-]+)\.html$/i);
+  if (m) {
+    const cible = URLS_PROPRES[m[1].toLowerCase()];
+    if (cible) return res.redirect(301, cible);
+  }
+  next();
+});
+
 app.use(express.static(path.join(__dirname)));
 
 // ── PAGES ─────────────────────────────────────────────────────────────
-app.get("/home-arc",       (req, res) => res.sendFile(path.join(__dirname, "home.html")));
 app.get("/ppv",            (req, res) => res.sendFile(path.join(__dirname, "ppv.html")));
 app.get("/accueil",        (req, res) => res.sendFile(path.join(__dirname, "accueil.html")));
 app.get("/leclub",         (req, res) => res.sendFile(path.join(__dirname, "leclub.html")));
@@ -783,7 +818,7 @@ app.get("/sitemap.xml", (req, res) => {
 });
 app.get("/robots.txt", (req, res) => {
   res.setHeader("Content-Type", "text/plain");
-  res.send("User-agent: *\nAllow: /\nDisallow: /tarifs\nDisallow: /inscription\nDisallow: /adhesion\nDisallow: /maintenance\nDisallow: /entretien-d113\nDisallow: /entretien-dr250\nDisallow: /entretien-dh251\nDisallow: /signer-ot\nDisallow: /promo-admin\nSitemap: https://www.aeroclub-arc.fr/sitemap.xml\n");
+  res.send("User-agent: *\nAllow: /\nDisallow: /maintenance\nDisallow: /entretien-d113\nDisallow: /entretien-dr250\nDisallow: /entretien-dh251\nDisallow: /signer-ot\nDisallow: /promo-admin\nSitemap: https://www.aeroclub-arc.fr/sitemap.xml\n");
 });
 
 app.listen(PORT, () => {
