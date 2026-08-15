@@ -48,6 +48,7 @@
     #otPanel .ot-mode-btn.active-green { background:#1e7a1e; color:#fff; border-color:#1e7a1e; }
     #otPanel .ot-mode-btn.active-amber { background:#b54708; color:#fff; border-color:#b54708; }
     #otPanel .ot-mode-btn.active-indigo { background:#4338ca; color:#fff; border-color:#4338ca; }
+    #otPanel .ot-mode-btn.active-teal { background:#0f766e; color:#fff; border-color:#0f766e; }
     #otPanel .ot-pdf-scroll { max-height:75vh; overflow-y:auto; background:#444; border-radius:8px; padding:8px; }
     #otPanel .ot-page-wrap { position:relative; display:inline-block; margin-bottom:12px; }
     #otPanel .ot-page-wrap canvas { display:block; border-radius:3px; box-shadow:0 2px 6px rgba(0,0,0,.4); max-width:100%; }
@@ -191,6 +192,7 @@
       <button class="ot-mode-btn" id="ot-mSig" onclick="window.__otMode('sig')">✍️ Signature</button>
       <button class="ot-mode-btn" id="ot-mTxt" onclick="window.__otMode('text')">📝 Saisie texte</button>
       <button class="ot-mode-btn" id="ot-mName" onclick="window.__otMode('name')">👤 Nom Prénom</button>
+      <button class="ot-mode-btn" id="ot-mLic" onclick="window.__otMode('lic')">🎫 N° Licence</button>
       <div style="width:1px;height:24px;background:#ccc;margin:0 4px"></div>
       <span id="ot-modeHint" style="font-size:12px;color:#555">Cliquez sur une case VISA pour apposer le trigramme</span>
       <div style="flex:1"></div>
@@ -201,10 +203,21 @@
       <div id="ot-sigBlock" style="display:none;margin-bottom:12px;background:#f4f8f4;padding:12px;border-radius:8px;border:1px solid #b8d0b8">
         <div style="font-weight:bold;color:#6b4a14;font-size:13px;margin-bottom:8px">✍️ Dessinez votre signature :</div>
         <canvas id="ot-sigPad" class="ot-sigpad" width="480" height="110"></canvas>
-        <div style="display:flex;gap:8px;margin-top:6px;align-items:center">
+        <div style="display:flex;gap:8px;margin-top:6px;align-items:center;flex-wrap:wrap">
           <button class="ot-btn ot-btn-sm ot-btn-red" onclick="window.__otClearSig()">✕ Effacer</button>
           <button class="ot-btn ot-btn-sm ot-btn-green" onclick="window.__otValidateSig()">✓ Valider</button>
           <span id="ot-sigStatus" style="font-size:12px;color:#888">Signez puis validez, ensuite cliquez sur la page pour placer</span>
+        </div>
+        <div style="margin-top:10px;padding-top:10px;border-top:1px dashed #b8d0b8">
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+            <span style="font-size:12px;color:#555;font-weight:bold">ou importer une image :</span>
+            <button class="ot-btn ot-btn-sm ot-btn-primary" onclick="document.getElementById('ot-sigFile').click()">📁 Choisir un fichier…</button>
+            <input type="file" id="ot-sigFile" accept="image/png,image/jpeg,image/webp" style="display:none">
+            <label style="font-size:12px;color:#555;display:flex;align-items:center;gap:5px">
+              <input type="checkbox" id="ot-sigDetour" checked style="margin:0"> Rendre le fond blanc transparent
+            </label>
+          </div>
+          <div style="font-size:11px;color:#777;margin-top:6px">PNG, JPG ou WEBP — photo ou scan d'une signature sur papier blanc. Le détourage évite qu'un cartouche opaque masque le formulaire.</div>
         </div>
       </div>
       <!-- Saisie texte -->
@@ -237,6 +250,22 @@
           </label>
         </div>
         <div style="font-size:11px;color:#666;margin-top:7px">Repris du champ « Mécanicien » des informations OT ci-dessus — modifiez-le là pour le changer.</div>
+      </div>
+      <!-- N° Licence -->
+      <div id="ot-licBlock" style="display:none;margin-bottom:12px;background:#e6f4f2;padding:12px;border-radius:8px;border:1px solid #9ccfc8">
+        <div style="font-weight:bold;color:#1a1a6e;font-size:13px;margin-bottom:8px">🎫 Numéro de licence à apposer :</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+          <div id="ot-licPreview" style="flex:1;min-width:200px;padding:7px 11px;background:#fff;border:1.5px solid #c5cce0;border-radius:5px;font-size:14px;font-weight:600;color:#1a1a6e"></div>
+          <label style="font-size:12px;color:#555">Taille :
+            <select id="ot-licSize" style="padding:4px 8px;border:1.5px solid #c5cce0;border-radius:5px;font-size:12px">
+              <option value="8">Petit (8pt)</option>
+              <option value="10" selected>Normal (10pt)</option>
+              <option value="11">Moyen (11pt)</option>
+              <option value="13">Grand (13pt)</option>
+            </select>
+          </label>
+        </div>
+        <div style="font-size:11px;color:#666;margin-top:7px">Repris du champ « N° Licence » des informations OT ci-dessus — modifiez-le là pour le changer.</div>
       </div>
       <!-- Toolbar PDF -->
       <div class="ot-toolbar" style="border-radius:8px 8px 0 0">
@@ -271,6 +300,7 @@
     mode: 'trigram',
     sigDataURL: null,
     sigValid: false,
+    sigAspect: null,   // hauteur/largeur réelle (pad tracé ou image importée)
     annotations: [],
     annoId: 0,
   };
@@ -309,36 +339,55 @@
   }
 
   // ── MODE ───────────────────────────────────────────────────────
+  // Modes qui apposent la valeur d'un champ des informations OT.
+  // Ajouter un champ = une entrée ici + un bouton + un bloc de réglage.
+  var STAMP = {
+    name: { btn:'ot-mName', cls:'active-indigo', block:'ot-nameBlock', input:'ot-mechName',
+            prev:'ot-namePreview', size:'ot-nameSize', label:'Mécanicien',
+            hint:'Cliquez sur une case NOM pour apposer le nom du mécanicien' },
+    lic:  { btn:'ot-mLic',  cls:'active-teal',   block:'ot-licBlock',  input:'ot-mechLic',
+            prev:'ot-licPreview',  size:'ot-licSize',  label:'N° Licence',
+            hint:'Cliquez sur une case LICENCE pour apposer le numéro' }
+  };
+
+  function stampValue(kind) {
+    var cfg = STAMP[kind];
+    return cfg ? (document.getElementById(cfg.input).value || '').trim() : '';
+  }
+  function refreshStampPreview(kind) {
+    var cfg = STAMP[kind];
+    if (!cfg) return;
+    var v = stampValue(kind), el = document.getElementById(cfg.prev);
+    if (v) { el.textContent = v; el.style.color = '#1a1a6e'; el.style.fontStyle = 'normal'; }
+    else { el.textContent = 'Champ « ' + cfg.label + ' » non renseigné'; el.style.color = '#b00'; el.style.fontStyle = 'italic'; }
+  }
+
   window.__otMode = function(m) {
     S.mode = m;
     document.getElementById('ot-mTrig').className = 'ot-mode-btn' + (m==='trigram'?' active':'');
     document.getElementById('ot-mSig').className  = 'ot-mode-btn' + (m==='sig'?' active-green':'');
     document.getElementById('ot-mTxt').className  = 'ot-mode-btn' + (m==='text'?' active-amber':'');
-    document.getElementById('ot-mName').className = 'ot-mode-btn' + (m==='name'?' active-indigo':'');
-    document.getElementById('ot-sigBlock').style.display  = m==='sig'  ? 'block' : 'none';
-    document.getElementById('ot-txtBlock').style.display  = m==='text' ? 'block' : 'none';
-    document.getElementById('ot-nameBlock').style.display = m==='name' ? 'block' : 'none';
-    if (m==='name') refreshNamePreview();
+    document.getElementById('ot-sigBlock').style.display = m==='sig'  ? 'block' : 'none';
+    document.getElementById('ot-txtBlock').style.display = m==='text' ? 'block' : 'none';
+    Object.keys(STAMP).forEach(function(k) {
+      var cfg = STAMP[k];
+      document.getElementById(cfg.btn).className = 'ot-mode-btn' + (m===k ? ' ' + cfg.cls : '');
+      document.getElementById(cfg.block).style.display = m===k ? 'block' : 'none';
+      if (m === k) refreshStampPreview(k);
+    });
     var hint = '';
     if (m==='trigram') hint = 'Cliquez sur une case VISA pour apposer le trigramme';
     else if (m==='sig') hint = S.sigValid ? 'Cliquez sur la page pour placer la signature' : 'Dessinez et validez votre signature ci-dessus';
-    else if (m==='name') hint = 'Cliquez sur une case NOM pour apposer le nom du mécanicien';
+    else if (STAMP[m]) hint = STAMP[m].hint;
     else hint = 'Tapez votre texte puis cliquez sur la page pour le placer';
     document.getElementById('ot-modeHint').textContent = hint;
   };
 
-  function mechName() {
-    return (document.getElementById('ot-mechName').value || '').trim();
-  }
-  function refreshNamePreview() {
-    var n = mechName();
-    var el = document.getElementById('ot-namePreview');
-    if (n) { el.textContent = n; el.style.color = '#1a1a6e'; el.style.fontStyle = 'normal'; }
-    else { el.textContent = 'Champ « Mécanicien » non renseigné'; el.style.color = '#b00'; el.style.fontStyle = 'italic'; }
-  }
-  // Garder l'aperçu à jour si le nom est modifié pendant l'annotation
-  document.getElementById('ot-mechName').addEventListener('input', function() {
-    if (S.mode === 'name') refreshNamePreview();
+  // Garder les aperçus à jour si les champs sont modifiés pendant l'annotation
+  Object.keys(STAMP).forEach(function(k) {
+    document.getElementById(STAMP[k].input).addEventListener('input', function() {
+      if (S.mode === k) refreshStampPreview(k);
+    });
   });
 
   // ── SIGNATURE PAD ──────────────────────────────────────────────
@@ -355,16 +404,100 @@
 
   window.__otClearSig = function() {
     sc.clearRect(0, 0, sp.width, sp.height);
-    S.sigValid = false; S.sigDataURL = null;
+    S.sigValid = false; S.sigDataURL = null; S.sigAspect = null;
+    document.getElementById('ot-sigFile').value = '';
     document.getElementById('ot-sigStatus').textContent = 'Signez puis validez, ensuite cliquez sur la page pour placer';
     document.getElementById('ot-sigStatus').style.color = '#888';
   };
   window.__otValidateSig = function() {
-    S.sigDataURL = sp.toDataURL('image/png'); S.sigValid = true;
+    S.sigDataURL = sp.toDataURL('image/png');
+    S.sigAspect = sp.height / sp.width;
+    S.sigValid = true;
     document.getElementById('ot-sigStatus').textContent = '✅ Validée — Cliquez sur la page pour placer';
     document.getElementById('ot-sigStatus').style.color = '#1e7a1e';
     document.getElementById('ot-modeHint').textContent = 'Cliquez sur la page pour placer la signature';
   };
+
+  // ── IMPORT D'UNE IMAGE DE SIGNATURE ────────────────────────────
+  var MAX_SIG_W = 1000;  // largeur max conservée (bien au-delà du besoin d'impression)
+
+  document.getElementById('ot-sigFile').addEventListener('change', function(e) {
+    var f = e.target.files && e.target.files[0];
+    if (!f) return;
+    var st = document.getElementById('ot-sigStatus');
+    if (!/^image[/]/.test(f.type)) {
+      st.textContent = 'Fichier image requis (PNG, JPG ou WEBP).';
+      st.style.color = '#c0392b';
+      return;
+    }
+    st.textContent = 'Chargement de l image...';
+    st.style.color = '#888';
+    var r = new FileReader();
+    r.onload = function(ev) {
+      var img = new Image();
+      img.onload = function() {
+        try { importSigImage(img); }
+        catch (err) {
+          st.textContent = 'Erreur de traitement : ' + err.message;
+          st.style.color = '#c0392b';
+        }
+      };
+      img.onerror = function() {
+        st.textContent = 'Image illisible.';
+        st.style.color = '#c0392b';
+      };
+      img.src = ev.target.result;
+    };
+    r.onerror = function() {
+      st.textContent = 'Lecture du fichier impossible.';
+      st.style.color = '#c0392b';
+    };
+    r.readAsDataURL(f);
+  });
+
+  function importSigImage(img) {
+    var w = img.naturalWidth || img.width;
+    var h = img.naturalHeight || img.height;
+    if (!w || !h) throw new Error('dimensions nulles');
+    // Réduction si nécessaire (limite le poids du PDF final)
+    var scale = w > MAX_SIG_W ? MAX_SIG_W / w : 1;
+    var ow = Math.max(1, Math.round(w * scale));
+    var oh = Math.max(1, Math.round(h * scale));
+    var off = document.createElement('canvas');
+    off.width = ow; off.height = oh;
+    var octx = off.getContext('2d');
+    octx.drawImage(img, 0, 0, ow, oh);
+
+    if (document.getElementById('ot-sigDetour').checked) {
+      var data = octx.getImageData(0, 0, ow, oh);
+      var d = data.data;
+      for (var i = 0; i < d.length; i += 4) {
+        // Luminance perçue
+        var lum = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
+        if (lum >= 240) {
+          d[i + 3] = 0;                                  // fond : transparent
+        } else if (lum > 160) {
+          d[i + 3] = Math.round((240 - lum) / 80 * 255);  // bord : dégradé (anti-crénelage)
+        }
+      }
+      octx.putImageData(data, 0, 0);
+    }
+
+    S.sigDataURL = off.toDataURL('image/png');
+    S.sigAspect = oh / ow;
+    S.sigValid = true;
+
+    // Aperçu dans le pad (image ajustée et centrée, fond damier implicite)
+    sc.clearRect(0, 0, sp.width, sp.height);
+    var k = Math.min(sp.width / ow, sp.height / oh);
+    var pw2 = ow * k, ph2 = oh * k;
+    sc.drawImage(off, (sp.width - pw2) / 2, (sp.height - ph2) / 2, pw2, ph2);
+
+    var st = document.getElementById('ot-sigStatus');
+    st.textContent = '✅ Image importée (' + ow + 'x' + oh + ') — Cliquez sur la page pour placer';
+    st.style.color = '#1e7a1e';
+    document.getElementById('ot-modeHint').textContent = 'Cliquez sur la page pour placer la signature';
+  }
 
   // ── RENDER PDF ─────────────────────────────────────────────────
   function renderAll() {
@@ -406,15 +539,16 @@
       var txt = document.getElementById('ot-txtInput').value.trim();
       if (!txt) { alert('Veuillez taper le texte à insérer.'); document.getElementById('ot-txtInput').focus(); return; }
       placeText(pw, cv, pn, xR, yR, txt);
-    } else if (S.mode === 'name') {
-      var nm = mechName();
-      if (!nm) {
-        alert('Renseignez d\'abord le champ « Mécanicien » dans les informations OT.');
-        document.getElementById('ot-mechName').focus();
+    } else if (STAMP[S.mode]) {
+      var cfg = STAMP[S.mode];
+      var val = stampValue(S.mode);
+      if (!val) {
+        alert("Renseignez d'abord le champ « " + cfg.label + " » dans les informations OT.");
+        document.getElementById(cfg.input).focus();
         return;
       }
-      var nsz = parseInt(document.getElementById('ot-nameSize').value, 10) || 11;
-      placeText(pw, cv, pn, xR, yR, nm, nsz);
+      var ssz = parseInt(document.getElementById(cfg.size).value, 10) || 11;
+      placeText(pw, cv, pn, xR, yR, val, ssz);
     } else {
       if (!S.sigValid) { alert("Veuillez d'abord valider votre signature."); return; }
       placeSig(pw, cv, pn, xR, yR);
@@ -438,7 +572,7 @@
     var mechName = document.getElementById('ot-mechName').value;
     var lic = document.getElementById('ot-mechLic').value;
     var date = document.getElementById('ot-aprsDate').value;
-    var anno = { id:id, page:pn, type:'sig', xR:xR-0.1, yR:yR-0.04, wR:0.22, hR:0.08, aspect:(sp.height/sp.width), dataURL:S.sigDataURL, name:mechName, lic:lic, date:date };
+    var anno = { id:id, page:pn, type:'sig', xR:xR-0.1, yR:yR-0.04, wR:0.22, hR:0.08, aspect:(S.sigAspect || sp.height/sp.width), dataURL:S.sigDataURL, name:mechName, lic:lic, date:date };
     S.annotations.push(anno); drawSigEl(pw, cv, anno); updateBadge();
   }
 
