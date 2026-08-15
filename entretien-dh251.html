@@ -47,6 +47,7 @@
     #otPanel .ot-mode-btn.active { background:#a87830; color:#fff; border-color:#a87830; }
     #otPanel .ot-mode-btn.active-green { background:#1e7a1e; color:#fff; border-color:#1e7a1e; }
     #otPanel .ot-mode-btn.active-amber { background:#b54708; color:#fff; border-color:#b54708; }
+    #otPanel .ot-mode-btn.active-indigo { background:#4338ca; color:#fff; border-color:#4338ca; }
     #otPanel .ot-pdf-scroll { max-height:75vh; overflow-y:auto; background:#444; border-radius:8px; padding:8px; }
     #otPanel .ot-page-wrap { position:relative; display:inline-block; margin-bottom:12px; }
     #otPanel .ot-page-wrap canvas { display:block; border-radius:3px; box-shadow:0 2px 6px rgba(0,0,0,.4); max-width:100%; }
@@ -189,6 +190,7 @@
       <button class="ot-mode-btn active" id="ot-mTrig" onclick="window.__otMode('trigram')">🔤 Trigramme VISA</button>
       <button class="ot-mode-btn" id="ot-mSig" onclick="window.__otMode('sig')">✍️ Signature</button>
       <button class="ot-mode-btn" id="ot-mTxt" onclick="window.__otMode('text')">📝 Saisie texte</button>
+      <button class="ot-mode-btn" id="ot-mName" onclick="window.__otMode('name')">👤 Nom Prénom</button>
       <div style="width:1px;height:24px;background:#ccc;margin:0 4px"></div>
       <span id="ot-modeHint" style="font-size:12px;color:#555">Cliquez sur une case VISA pour apposer le trigramme</span>
       <div style="flex:1"></div>
@@ -219,6 +221,22 @@
             </select>
           </label>
         </div>
+      </div>
+      <!-- Nom Prénom -->
+      <div id="ot-nameBlock" style="display:none;margin-bottom:12px;background:#eef0ff;padding:12px;border-radius:8px;border:1px solid #b9c0f0">
+        <div style="font-weight:bold;color:#1a1a6e;font-size:13px;margin-bottom:8px">👤 Nom à apposer :</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+          <div id="ot-namePreview" style="flex:1;min-width:200px;padding:7px 11px;background:#fff;border:1.5px solid #c5cce0;border-radius:5px;font-size:14px;font-weight:600;color:#1a1a6e"></div>
+          <label style="font-size:12px;color:#555">Taille :
+            <select id="ot-nameSize" style="padding:4px 8px;border:1.5px solid #c5cce0;border-radius:5px;font-size:12px">
+              <option value="8">Petit (8pt)</option>
+              <option value="10">Normal (10pt)</option>
+              <option value="11" selected>Moyen (11pt)</option>
+              <option value="13">Grand (13pt)</option>
+            </select>
+          </label>
+        </div>
+        <div style="font-size:11px;color:#666;margin-top:7px">Repris du champ « Mécanicien » des informations OT ci-dessus — modifiez-le là pour le changer.</div>
       </div>
       <!-- Toolbar PDF -->
       <div class="ot-toolbar" style="border-radius:8px 8px 0 0">
@@ -296,14 +314,32 @@
     document.getElementById('ot-mTrig').className = 'ot-mode-btn' + (m==='trigram'?' active':'');
     document.getElementById('ot-mSig').className  = 'ot-mode-btn' + (m==='sig'?' active-green':'');
     document.getElementById('ot-mTxt').className  = 'ot-mode-btn' + (m==='text'?' active-amber':'');
-    document.getElementById('ot-sigBlock').style.display = m==='sig' ? 'block' : 'none';
-    document.getElementById('ot-txtBlock').style.display = m==='text' ? 'block' : 'none';
+    document.getElementById('ot-mName').className = 'ot-mode-btn' + (m==='name'?' active-indigo':'');
+    document.getElementById('ot-sigBlock').style.display  = m==='sig'  ? 'block' : 'none';
+    document.getElementById('ot-txtBlock').style.display  = m==='text' ? 'block' : 'none';
+    document.getElementById('ot-nameBlock').style.display = m==='name' ? 'block' : 'none';
+    if (m==='name') refreshNamePreview();
     var hint = '';
     if (m==='trigram') hint = 'Cliquez sur une case VISA pour apposer le trigramme';
     else if (m==='sig') hint = S.sigValid ? 'Cliquez sur la page pour placer la signature' : 'Dessinez et validez votre signature ci-dessus';
+    else if (m==='name') hint = 'Cliquez sur une case NOM pour apposer le nom du mécanicien';
     else hint = 'Tapez votre texte puis cliquez sur la page pour le placer';
     document.getElementById('ot-modeHint').textContent = hint;
   };
+
+  function mechName() {
+    return (document.getElementById('ot-mechName').value || '').trim();
+  }
+  function refreshNamePreview() {
+    var n = mechName();
+    var el = document.getElementById('ot-namePreview');
+    if (n) { el.textContent = n; el.style.color = '#1a1a6e'; el.style.fontStyle = 'normal'; }
+    else { el.textContent = 'Champ « Mécanicien » non renseigné'; el.style.color = '#b00'; el.style.fontStyle = 'italic'; }
+  }
+  // Garder l'aperçu à jour si le nom est modifié pendant l'annotation
+  document.getElementById('ot-mechName').addEventListener('input', function() {
+    if (S.mode === 'name') refreshNamePreview();
+  });
 
   // ── SIGNATURE PAD ──────────────────────────────────────────────
   var sp = document.getElementById('ot-sigPad');
@@ -370,6 +406,15 @@
       var txt = document.getElementById('ot-txtInput').value.trim();
       if (!txt) { alert('Veuillez taper le texte à insérer.'); document.getElementById('ot-txtInput').focus(); return; }
       placeText(pw, cv, pn, xR, yR, txt);
+    } else if (S.mode === 'name') {
+      var nm = mechName();
+      if (!nm) {
+        alert('Renseignez d\'abord le champ « Mécanicien » dans les informations OT.');
+        document.getElementById('ot-mechName').focus();
+        return;
+      }
+      var nsz = parseInt(document.getElementById('ot-nameSize').value, 10) || 11;
+      placeText(pw, cv, pn, xR, yR, nm, nsz);
     } else {
       if (!S.sigValid) { alert("Veuillez d'abord valider votre signature."); return; }
       placeSig(pw, cv, pn, xR, yR);
@@ -382,8 +427,8 @@
     var anno = { id:id, page:pn, type:'trig', xR:xR, yR:yR, wR:0.04, hR:0.025, text:trig };
     S.annotations.push(anno); drawTrigramEl(pw, cv, anno); updateBadge();
   }
-  function placeText(pw, cv, pn, xR, yR, txt) {
-    var size = parseInt(document.getElementById('ot-txtSize').value, 10) || 10;
+  function placeText(pw, cv, pn, xR, yR, txt, sizeOverride) {
+    var size = sizeOverride || parseInt(document.getElementById('ot-txtSize').value, 10) || 10;
     var id = ++S.annoId;
     var anno = { id:id, page:pn, type:'txt', xR:xR, yR:yR, wR:0.1, hR:0.02, text:txt, size:size };
     S.annotations.push(anno); drawTextEl(pw, cv, anno); updateBadge();
