@@ -393,14 +393,15 @@
     var mechName = document.getElementById('ot-mechName').value;
     var lic = document.getElementById('ot-mechLic').value;
     var date = document.getElementById('ot-aprsDate').value;
-    var anno = { id:id, page:pn, type:'sig', xR:xR-0.1, yR:yR-0.04, wR:0.22, hR:0.08, dataURL:S.sigDataURL, name:mechName, lic:lic, date:date };
+    var anno = { id:id, page:pn, type:'sig', xR:xR-0.1, yR:yR-0.04, wR:0.22, hR:0.08, aspect:(sp.height/sp.width), dataURL:S.sigDataURL, name:mechName, lic:lic, date:date };
     S.annotations.push(anno); drawSigEl(pw, cv, anno); updateBadge();
   }
 
   function drawTrigramEl(pw, cv, anno) {
     var el = document.createElement('div');
     el.className = 'ot-anno trigram'; el.dataset.id = anno.id;
-    el.style.cssText = 'position:absolute;left:' + (anno.xR*100-2) + '%;top:' + (anno.yR*100-1.5) + '%;';
+    el.style.cssText = 'position:absolute;';
+    posEl(el, anno);
     el.textContent = anno.text;
     var del = document.createElement('button');
     del.className = 'del'; del.textContent = '×';
@@ -410,7 +411,8 @@
   function drawTextEl(pw, cv, anno) {
     var el = document.createElement('div');
     el.className = 'ot-anno txt'; el.dataset.id = anno.id;
-    el.style.cssText = 'position:absolute;left:' + (anno.xR*100) + '%;top:' + (anno.yR*100-1) + '%;font-size:' + (anno.size||10) + 'px;';
+    el.style.cssText = 'position:absolute;font-size:' + (anno.size||10) + 'px;';
+    posEl(el, anno);
     el.textContent = anno.text;
     var del = document.createElement('button');
     del.className = 'del'; del.textContent = '×';
@@ -420,7 +422,8 @@
   function drawSigEl(pw, cv, anno) {
     var el = document.createElement('div');
     el.className = 'ot-anno sig'; el.dataset.id = anno.id;
-    el.style.cssText = 'position:absolute;left:' + (anno.xR*100) + '%;top:' + (anno.yR*100) + '%;width:' + (anno.wR*100) + '%;';
+    el.style.cssText = 'position:absolute;width:' + (anno.wR*100) + '%;';
+    posEl(el, anno);
     var img = document.createElement('img');
     img.src = anno.dataURL; img.style.cssText = 'width:100%;display:block;';
     el.appendChild(img);
@@ -457,23 +460,40 @@
     updateBadge();
   };
 
+  // Décalage d'affichage par type (le badge est centré sur le point cliqué).
+  // Draw ET drag utilisent la même formule : plus de dérive au déplacement.
+  var ANNO_OFFSET = { trig: [-2, -1.5], txt: [0, -1], sig: [0, 0] };
+  function posEl(el, anno) {
+    var o = ANNO_OFFSET[anno.type] || [0, 0];
+    el.style.left = (anno.xR * 100 + o[0]) + '%';
+    el.style.top  = (anno.yR * 100 + o[1]) + '%';
+  }
+
   function makeDrag(el, parent, anno) {
-    var dragging = false, sx, sy, ox, oy;
-    el.addEventListener('mousedown', function(e) {
-      if (e.target.classList.contains('del')) return;
-      dragging = true; sx = e.clientX; sy = e.clientY;
-      ox = parseFloat(el.style.left) || 0; oy = parseFloat(el.style.top) || 0;
+    var dragging = false, sx, sy, sxr, syr;
+    function down(e) {
+      if (e.target.classList && e.target.classList.contains('del')) return;
+      var p = e.touches ? e.touches[0] : e;
+      dragging = true; sx = p.clientX; sy = p.clientY;
+      sxr = anno.xR; syr = anno.yR;
       e.preventDefault();
-    });
-    document.addEventListener('mousemove', function(e) {
+    }
+    function move(e) {
       if (!dragging) return;
+      var p = e.touches ? e.touches[0] : e;
       var pr = parent.getBoundingClientRect();
-      var dx = (e.clientX - sx) / pr.width * 100;
-      var dy = (e.clientY - sy) / pr.height * 100;
-      el.style.left = (ox + dx) + '%'; el.style.top = (oy + dy) + '%';
-      anno.xR = (ox + dx) / 100; anno.yR = (oy + dy) / 100;
-    });
-    document.addEventListener('mouseup', function() { dragging = false; });
+      anno.xR = sxr + (p.clientX - sx) / pr.width;
+      anno.yR = syr + (p.clientY - sy) / pr.height;
+      posEl(el, anno);
+      if (e.touches) e.preventDefault();
+    }
+    function up() { dragging = false; }
+    el.addEventListener('mousedown', down);
+    el.addEventListener('touchstart', down, {passive: false});
+    document.addEventListener('mousemove', move);
+    document.addEventListener('touchmove', move, {passive: false});
+    document.addEventListener('mouseup', up);
+    document.addEventListener('touchend', up);
   }
 
   window.__otZoom = function(dir) {
@@ -515,6 +535,7 @@
      * - Pour les pages suivantes : doc.addPage().
      * - Après l'appel, l'appelant doit faire doc.addPage() pour démarrer une page fraîche.
      */
+    pageCount: function() { return S.pdfDoc ? S.pdfDoc.numPages : 0; },
     renderToDoc: async function(jdoc) {
       if (!S.pdfDoc) return;
       var PW = 210, PH = 297;
@@ -525,20 +546,22 @@
         var cv = document.createElement('canvas');
         cv.width = vp.width; cv.height = vp.height;
         await page.render({canvasContext: cv.getContext('2d'), viewport: vp}).promise;
-        jdoc.addImage(cv.toDataURL('image/jpeg', 0.93), 'JPEG', 0, 0, PW, PH);
+        // Conserver le ratio d'origine de l'OT (centré) au lieu de l'étirer en A4
+        var srcRatio = vp.height / vp.width;
+        var dw = PW, dh = PW * srcRatio;
+        if (dh > PH) { dh = PH; dw = PH / srcRatio; }
+        var dx0 = (PW - dw) / 2, dy0 = (PH - dh) / 2;
+        jdoc.addImage(cv.toDataURL('image/jpeg', 0.93), 'JPEG', dx0, dy0, dw, dh);
         var annosThisPage = S.annotations.filter(function(a) { return a.page === pn; });
         for (var i = 0; i < annosThisPage.length; i++) {
           var anno = annosThisPage[i];
-          var x = anno.xR * PW, y = anno.yR * PH;
+          var x = dx0 + anno.xR * dw, y = dy0 + anno.yR * dh;
           if (anno.type === 'trig') {
-            jdoc.setFillColor(235, 240, 255);
-            jdoc.setDrawColor(34, 68, 170);
-            jdoc.setLineWidth(0.3);
-            jdoc.rect(x - 0.5, y - 3, 10, 4.5, 'FD');
+            // Texte seul : ne jamais masquer la case VISA du document d'origine
             jdoc.setFont('helvetica', 'bold');
-            jdoc.setFontSize(7);
-            jdoc.setTextColor(26, 26, 94);
-            jdoc.text(anno.text, x, y, {baseline: 'bottom'});
+            jdoc.setFontSize(8);
+            jdoc.setTextColor(20, 40, 120);
+            jdoc.text(anno.text, x, y, {baseline: 'middle'});
             jdoc.setTextColor(0, 0, 0);
           } else if (anno.type === 'txt') {
             var pdfFs = Math.max(6, (anno.size || 10) * 0.85);
@@ -548,20 +571,19 @@
             jdoc.text(anno.text, x, y, {baseline: 'top'});
             jdoc.setTextColor(0, 0, 0);
           } else {
-            var sw = anno.wR * PW, sh = anno.hR * PH * 1.5;
-            jdoc.setFillColor(255, 255, 255);
-            jdoc.setDrawColor(30, 122, 30);
-            jdoc.setLineWidth(0.4);
-            jdoc.rect(x, y, sw, sh + 6, 'FD');
-            jdoc.addImage(anno.dataURL, 'PNG', x + 1, y + 1, sw - 2, sh - 2);
+            // Hauteur déduite du ratio réel de la signature (PNG transparent :
+            // pas de cartouche blanc, le formulaire dessous reste lisible)
+            var sw = anno.wR * dw;
+            var sh = sw * (anno.aspect || 0.229);
+            jdoc.addImage(anno.dataURL, 'PNG', x, y, sw, sh);
             jdoc.setFontSize(5.5);
             jdoc.setFont('helvetica', 'bold');
             jdoc.setTextColor(26, 26, 94);
-            jdoc.text(anno.name + ' · ' + anno.lic, x + 1, y + sh + 2);
+            jdoc.text(anno.name + (anno.lic ? ' · ' + anno.lic : ''), x, y + sh + 2);
             if (anno.date) {
               jdoc.setFont('helvetica', 'normal');
               jdoc.setTextColor(80, 80, 80);
-              jdoc.text('APRS du ' + new Date(anno.date).toLocaleDateString('fr-FR'), x + 1, y + sh + 5);
+              jdoc.text('APRS du ' + new Date(anno.date).toLocaleDateString('fr-FR'), x, y + sh + 4.6);
             }
             jdoc.setTextColor(0, 0, 0);
           }
@@ -954,9 +976,10 @@ function App(){
     try{
       const doc=new window.jspdf.jsPDF({orientation:"portrait",unit:"mm",format:"a4"});
       // ── INTÉGRATION OT : si un OT est chargé, le rendre EN PREMIER ──
-      let __otPrefix = "";
+      let __otPrefix = "", __otPages = 0;
       if (window.OT && window.OT.hasOT()) {
         await window.OT.renderToDoc(doc);
+        __otPages = window.OT.pageCount();
         doc.addPage();  // démarrer une page fraîche pour le programme d'entretien
         const otn = window.OT.getOTNum();
         __otPrefix = otn ? `OT-${otn}+` : "OT+";
@@ -1017,53 +1040,60 @@ function App(){
         });
         y+=3;
       });
-      // Point fixe
-      chk(50);doc.setFillColor(26,58,26);doc.rect(ML,y,CW,6,"F");
-      doc.setTextColor(255,255,255);doc.setFontSize(8.5);doc.setFont("helvetica","bold");
-      doc.text("RAPPORT DE POINT FIXE MOTEUR",ML+2,y+4.2);doc.setTextColor(0,0,0);y+=8;
+      // Point fixe — seules les lignes réellement renseignées sont imprimées
+      const _V=v=>String(v==null?"":v).trim();
+      const _row=(label,parts,fmt)=>parts.every(p=>!_V(p))?null:[label,fmt.apply(null,parts.map(p=>_V(p)||"—"))];
       const pfRows=[
-        ["Date / Lieu",`${pf.date||"—"} — ${pf.lieu||"—"}`],
-        ["Conditions (T° / QNH / Zp)",`${pf.temp||"—"}°C / ${pf.qnh||"—"} hPa / ${pf.zp||"—"} ft`],
-        ["Régime plein gaz",pf.pleinGaz+" tr/mn"],
-        ["600 tr/mn — P.huile / T°huile",`${pf.r600p||"—"} / ${pf.r600t||"—"}°C`],
-        ["1800 tr/mn — P.huile / T°huile",`${pf.r1800p||"—"} / ${pf.r1800t||"—"}°C`],
-        ["2200 tr/mn — P.huile / T°huile",`${pf.r2200p||"—"} / ${pf.r2200t||"—"}°C`],
-        ["Magnétos 1800 tr/mn — 1+2 / 1 / 2",`${pf.mag12||"—"} / ${pf.mag1||"—"} / ${pf.mag2||"—"} tr/mn`],
-        ["Réchauffe carbu — Avec / Sans",`${pf.rechAv||"—"} / ${pf.rechSans||"—"} tr/mn`],
-        ["Compressions C1/C2/C3/C4",`${pf.comp1||"—"} / ${pf.comp2||"—"} / ${pf.comp3||"—"} / ${pf.comp4||"—"} PSI`],
-        ["Tension batterie / Feu anti-collision",`${pf.batTension||"—"} V / ${pf.feuAnti||"—"}`],
-      ];
-      pfRows.forEach(([k,v])=>{
-        chk(5);doc.setFont("helvetica","bold");doc.setFontSize(7.5);doc.setTextColor(26,58,26);
-        doc.text(k+" :",ML+2,y+3.5);doc.setFont("helvetica","normal");doc.setTextColor(0,0,0);
-        doc.text(v||"—",ML+90,y+3.5);y+=5;
-      });
-      y+=5;
-      // Vol contrôle
-      chk(50);doc.setFillColor(26,58,26);doc.rect(ML,y,CW,6,"F");
-      doc.setTextColor(255,255,255);doc.setFontSize(8.5);doc.setFont("helvetica","bold");
-      doc.text("RAPPORT DE VOL DE CONTRÔLE",ML+2,y+4.2);doc.setTextColor(0,0,0);y+=8;
+        _row("Date / Lieu",[pf.date,pf.lieu],(a,b)=>`${a} — ${b}`),
+        _row("Conditions (T° / QNH / Zp)",[pf.temp,pf.qnh,pf.zp],(a,b,c)=>`${a}°C / ${b} hPa / ${c} ft`),
+        _row("Régime plein gaz",[pf.pleinGaz],a=>`${a} tr/mn`),
+        _row("600 tr/mn — P.huile / T°huile",[pf.r600p,pf.r600t],(a,b)=>`${a} / ${b}°C`),
+        _row("1800 tr/mn — P.huile / T°huile",[pf.r1800p,pf.r1800t],(a,b)=>`${a} / ${b}°C`),
+        _row("2200 tr/mn — P.huile / T°huile",[pf.r2200p,pf.r2200t],(a,b)=>`${a} / ${b}°C`),
+        _row("Magnétos 1800 tr/mn — 1+2 / 1 / 2",[pf.mag12,pf.mag1,pf.mag2],(a,b,c)=>`${a} / ${b} / ${c} tr/mn`),
+        _row("Réchauffe carbu — Avec / Sans",[pf.rechAv,pf.rechSans],(a,b)=>`${a} / ${b} tr/mn`),
+        _row("Compressions C1/C2/C3/C4",[pf.comp1,pf.comp2,pf.comp3,pf.comp4],(a,b,c,d)=>`${a} / ${b} / ${c} / ${d} PSI`),
+        _row("Tension batterie / Feu anti-collision",[pf.batTension,pf.feuAnti],(a,b)=>`${a} V / ${b}`),
+      ].filter(Boolean);
+      if(pfRows.length){
+        chk(50);doc.setFillColor(26,58,26);doc.rect(ML,y,CW,6,"F");
+        doc.setTextColor(255,255,255);doc.setFontSize(8.5);doc.setFont("helvetica","bold");
+        doc.text("RAPPORT DE POINT FIXE MOTEUR",ML+2,y+4.2);doc.setTextColor(0,0,0);y+=8;
+        pfRows.forEach(([k,v])=>{
+          chk(5);doc.setFont("helvetica","bold");doc.setFontSize(7.5);doc.setTextColor(26,58,26);
+          doc.text(k+" :",ML+2,y+3.5);doc.setFont("helvetica","normal");doc.setTextColor(0,0,0);
+          doc.text(v,ML+90,y+3.5);y+=5;
+        });
+        y+=5;
+      }
+      // Vol de contrôle — seules les lignes réellement renseignées sont imprimées
       const vfRows=[
-        ["Date / Lieu",`${vf.date||"—"} — ${vf.lieu||"—"}`],
-        ["Conditions (T° / QNH / Zp)",`${vf.temp||"—"}°C / ${vf.qnh||"—"} / ${vf.zp||"—"} ft`],
-        ["Décollage — tr/mn",vf.rpm],
-        ["Montée alt.1 — Zp/Vi/tr/mn/P.huil/T°huil",`${vf.alti1||"—"} / ${vf.vi1||"—"} / ${vf.rpm1||"—"} / ${vf.phuil1||"—"} / ${vf.thuil1||"—"}`],
-        ["Montée alt.2 — Zp/Vi/tr/mn/P.huil/T°huil",`${vf.alti2||"—"} / ${vf.vi2||"—"} / ${vf.rpm2||"—"} / ${vf.phuil2||"—"} / ${vf.thuil2||"—"}`],
-        ["Palier — Zp/Vi/tr/mn/P.huil/T°huil",`${vf.palAlt||"—"} / ${vf.palVi||"—"} / ${vf.palRpm||"—"} / ${vf.palPhuil||"—"} / ${vf.palThuil||"—"}`],
-        ["Maniabilité",vf.maniabilite],["Instruments",vf.instruments],
-        ["Ventilation / Réchauffe carbu",`${vf.ventilation||"—"} / ${vf.rechCarbu||"—"}`],
-        ["Essai réservoirs",vf.essaiResa],
-        ["Décrochage — Lisse / Décollage / Atterrissage (Vi)",`${vf.decrochLisseV||"—"} / ${vf.decrochDecolV||"—"} / ${vf.decrochAtterrV||"—"} kt`],
-        ["Piqué à VNE",vf.piqueVNE],
-        ["Descente — Correcteur d'altitude / Étouffoir",`${vf.descCorr||"—"} / ${vf.descEtouf||"—"}`],
-      ];
-      vfRows.forEach(([k,v])=>{
-        chk(5);doc.setFont("helvetica","bold");doc.setFontSize(7.5);doc.setTextColor(26,58,26);
-        doc.text(k+" :",ML+2,y+3.5);doc.setFont("helvetica","normal");doc.setTextColor(0,0,0);
-        const ls=sp(v||"—",CW-85,7.5);ls.forEach((l,li)=>{chk(4);doc.text(l,ML+85,y+3.5+li*3.8);});
-        y+=Math.max(5,ls.length*3.8+1);
-      });
-      y+=5;
+        _row("Date / Lieu",[vf.date,vf.lieu],(a,b)=>`${a} — ${b}`),
+        _row("Conditions (T° / QNH / Zp)",[vf.temp,vf.qnh,vf.zp],(a,b,c)=>`${a}°C / ${b} / ${c} ft`),
+        _row("Décollage — tr/mn",[vf.rpm],a=>`${a}`),
+        _row("Montée alt.1 — Zp/Vi/tr/mn/P.huil/T°huil",[vf.alti1,vf.vi1,vf.rpm1,vf.phuil1,vf.thuil1],(a,b,c,d,e)=>`${a} / ${b} / ${c} / ${d} / ${e}`),
+        _row("Montée alt.2 — Zp/Vi/tr/mn/P.huil/T°huil",[vf.alti2,vf.vi2,vf.rpm2,vf.phuil2,vf.thuil2],(a,b,c,d,e)=>`${a} / ${b} / ${c} / ${d} / ${e}`),
+        _row("Palier — Zp/Vi/tr/mn/P.huil/T°huil",[vf.palAlt,vf.palVi,vf.palRpm,vf.palPhuil,vf.palThuil],(a,b,c,d,e)=>`${a} / ${b} / ${c} / ${d} / ${e}`),
+        _row("Maniabilité",[vf.maniabilite],a=>`${a}`),
+        _row("Instruments",[vf.instruments],a=>`${a}`),
+        _row("Ventilation / Réchauffe carbu",[vf.ventilation,vf.rechCarbu],(a,b)=>`${a} / ${b}`),
+        _row("Essai réservoirs",[vf.essaiResa],a=>`${a}`),
+        _row("Décrochage — Lisse / Décollage / Atterrissage (Vi)",[vf.decrochLisseV,vf.decrochDecolV,vf.decrochAtterrV],(a,b,c)=>`${a} / ${b} / ${c} kt`),
+        _row("Piqué à VNE",[vf.piqueVNE],a=>`${a}`),
+        _row("Descente — Correcteur d'altitude / Étouffoir",[vf.descCorr,vf.descEtouf],(a,b)=>`${a} / ${b}`),
+      ].filter(Boolean);
+      if(vfRows.length){
+        chk(50);doc.setFillColor(26,58,26);doc.rect(ML,y,CW,6,"F");
+        doc.setTextColor(255,255,255);doc.setFontSize(8.5);doc.setFont("helvetica","bold");
+        doc.text("RAPPORT DE VOL DE CONTRÔLE",ML+2,y+4.2);doc.setTextColor(0,0,0);y+=8;
+        vfRows.forEach(([k,v])=>{
+          chk(5);doc.setFont("helvetica","bold");doc.setFontSize(7.5);doc.setTextColor(26,58,26);
+          doc.text(k+" :",ML+2,y+3.5);doc.setFont("helvetica","normal");doc.setTextColor(0,0,0);
+          const ls=sp(v,CW-85,7.5);ls.forEach((l,li)=>{chk(4);doc.text(l,ML+85,y+3.5+li*3.8);});
+          y+=Math.max(5,ls.length*3.8+1);
+        });
+        y+=5;
+      }
       // Travaux
       chk(25);doc.setFillColor(45,106,45);doc.rect(ML,y,CW,6,"F");
       doc.setTextColor(255,255,255);doc.setFontSize(8.5);doc.setFont("helvetica","bold");
@@ -1093,11 +1123,14 @@ function App(){
       if(sig)doc.addImage(sig,"PNG",sx+1,sy+5,63,22);
       // Footer
       const np=doc.getNumberOfPages();
-      for(let p=1;p<=np;p++){
+      const nEnt=np-__otPages;
+      // Le pied de page ne s'applique qu'aux pages du programme d'entretien :
+      // les pages de l'OT gardent leur propre mise en page et leur propre pagination.
+      for(let p=__otPages+1;p<=np;p++){
         doc.setPage(p);doc.setDrawColor(184,208,184);doc.line(ML,PH-10,PW-MR,PH-10);
         doc.setFontSize(6.5);doc.setFont("helvetica","normal");doc.setTextColor(130,150,130);
         doc.text(`DH 251 — ${immat} — Visite ${visitType} du ${fmtD(visitDate)} — Éd.${INFO.edition}/Amend.${INFO.amendement}`,ML,PH-6.5);
-        doc.text(`Page ${p}/${np}`,PW-MR,PH-6.5,{align:"right"});
+        doc.text(`Page ${p-__otPages}/${nEnt}`,PW-MR,PH-6.5,{align:"right"});
       }
       doc.save(`${__otPrefix}DH251_${immat}_${visitType}_${visitDate}.pdf`);
     }catch(e){alert("Erreur PDF : "+e.message);}
