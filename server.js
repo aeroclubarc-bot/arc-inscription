@@ -113,6 +113,7 @@ app.use((req, res, next) => {
 // recréerait la boucle canonique qui a désindexé l'accueil.
 app.get("/", (req, res) => res.sendFile(path.join(__dirname, "home.html")));
 app.get("/home-arc", (req, res) => res.redirect(301, "/"));
+app.get("/accueil", (req, res) => res.redirect(301, "/"));
 
 // ── AUTH MAINTENANCE ──────────────────────────────────────────────────
 // Mot de passe partagé entre mécaniciens — défini en variable d'env Railway.
@@ -596,7 +597,7 @@ for (const [ancienne, cible] of Object.entries(REDIRECTIONS_HERITEES)) {
 // (entretien-*, maintenance, signer-ot, promo-admin) ne sont pas listées :
 // elles restent gérées par le middleware d'authentification.
 const URLS_PROPRES = {
-  "home": "/", "accueil": "/accueil", "leclub": "/leclub",
+  "home": "/", "accueil": "/", "leclub": "/leclub",
   "laflotte": "/la-flotte", "ppl": "/formation", "postppl": "/post-ppl",
   "aerodrome": "/aerodrome", "contact": "/contact", "ppv": "/ppv",
   "statuts": "/statuts", "reglement": "/reglement", "soutenir": "/soutenir",
@@ -616,7 +617,6 @@ app.use(express.static(path.join(__dirname)));
 
 // ── PAGES ─────────────────────────────────────────────────────────────
 app.get("/ppv",            (req, res) => res.sendFile(path.join(__dirname, "ppv.html")));
-app.get("/accueil",        (req, res) => res.sendFile(path.join(__dirname, "accueil.html")));
 app.get("/leclub",         (req, res) => res.sendFile(path.join(__dirname, "leclub.html")));
 app.get("/le-club",        (req, res) => res.sendFile(path.join(__dirname, "leclub.html")));
 app.get("/la-flotte",      (req, res) => res.sendFile(path.join(__dirname, "laflotte.html")));
