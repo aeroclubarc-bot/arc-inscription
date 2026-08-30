@@ -39,6 +39,15 @@
       transition:border-color .15s;
     }
     input:focus,select:focus{outline:none;border-color:#5fa8d3}
+    .scope{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px}
+    .scope label{display:flex;align-items:center;gap:8px;background:#131c27;border:1px solid #263444;
+      border-radius:6px;padding:9px 11px;cursor:pointer;font-size:14px;color:#c7d3e0;margin:0;
+      text-transform:none;letter-spacing:0}
+    .scope label:hover{border-color:#3d5064}
+    .scope input{width:auto;margin:0;accent-color:#5fa8d3}
+    .scope label.on{border-color:#5fa8d3;background:#16222f}
+    .hint{font-size:12px;color:#8b9aac;margin-top:7px;line-height:1.45}
+    @media(max-width:520px){.scope{grid-template-columns:1fr}}
     input::placeholder{color:#5b6878}
     button{
       padding:12px 18px;
@@ -95,6 +104,16 @@
         </div>
       </div>
       <div class="field">
+        <label>Postes concernés par la réduction</label>
+        <div class="scope" id="scopeBox">
+          <label class="on"><input type="checkbox" value="arc" checked/> Cotisation ARC</label>
+          <label><input type="checkbox" value="ffa"/> Licence FFA</label>
+          <label><input type="checkbox" value="annexes"/> Options et forfaits</label>
+          <label><input type="checkbox" value="caution"/> Caution de permanence</label>
+        </div>
+        <div class="hint" id="scopeHint"></div>
+      </div>
+      <div class="field">
         <label for="label">Libellé (affiché sur le formulaire d'adhésion)</label>
         <input type="text" id="label" placeholder="Ex. Cotisation ARC offerte" autocomplete="off"/>
       </div>
@@ -113,6 +132,47 @@
 </div>
 
 <script>
+const SCOPE_LABELS = {
+  arc: 'cotisation ARC',
+  ffa: 'licence FFA',
+  annexes: 'options et forfaits',
+  caution: 'caution de permanence',
+};
+
+function getScope() {
+  return Array.from(document.querySelectorAll('#scopeBox input:checked')).map(i => i.value);
+}
+
+// Met à jour le surlignage des cases et l'aperçu de l'effet du code
+function syncScope() {
+  document.querySelectorAll('#scopeBox label').forEach(l => {
+    l.classList.toggle('on', l.querySelector('input').checked);
+  });
+  const sc = getScope();
+  const type = document.getElementById('type').value;
+  const val = parseFloat(document.getElementById('value').value);
+  const hint = document.getElementById('scopeHint');
+  if (sc.length === 0) {
+    hint.textContent = 'Sélectionnez au moins un poste, sinon le code sera refusé.';
+    return;
+  }
+  const noms = sc.map(k => SCOPE_LABELS[k]);
+  const liste = noms.length > 1
+    ? noms.slice(0, -1).join(', ') + ' et ' + noms[noms.length - 1]
+    : noms[0];
+  let txt = 'La réduction portera sur : ' + liste + '. La cotisation AUDACE (5 €) reste toujours due.';
+  if (type === 'percent' && val === 100 && sc.length === 4) {
+    txt = 'Adhésion intégralement offerte — seule la cotisation AUDACE (5 €) restera à régler.';
+  } else if (type === 'percent' && val === 100) {
+    txt = liste.charAt(0).toUpperCase() + liste.slice(1) + ' offert(e) intégralement. Le reste demeure à la charge de l\'adhérent.';
+  }
+  hint.textContent = txt;
+}
+
+document.getElementById('scopeBox').addEventListener('change', syncScope);
+document.getElementById('type').addEventListener('change', syncScope);
+document.getElementById('value').addEventListener('input', syncScope);
+
 async function createCode(e) {
   e.preventDefault();
   const btn = document.getElementById('createBtn');
@@ -121,20 +181,27 @@ async function createCode(e) {
   const type = document.getElementById('type').value;
   const value = document.getElementById('value').value;
   const label = document.getElementById('label').value.trim();
+  const scope = getScope();
   msg.className = 'msg';
+  if (scope.length === 0) {
+    msg.textContent = '✗ Sélectionnez au moins un poste concerné.';
+    msg.className = 'msg ko';
+    return false;
+  }
   btn.disabled = true;
   btn.textContent = 'Création...';
   try {
     const r = await fetch('/api/promo/create', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ code, type, value, label })
+      body: JSON.stringify({ code, type, value, scope, label })
     });
     const data = await r.json();
     if (r.ok && data.ok) {
       msg.textContent = '✓ Code « ' + data.code + ' » créé — ' + (type === 'percent' ? '-' + value + '%' : '-' + value + ' €');
       msg.className = 'msg ok';
       document.getElementById('createForm').reset();
+      syncScope();
       loadCodes();
     } else {
       msg.textContent = '✗ ' + (data.error || 'Erreur lors de la création.');
@@ -163,13 +230,15 @@ async function loadCodes() {
       wrap.innerHTML = '<div class="empty">Aucun code créé pour l\'instant.</div>';
       return;
     }
-    let html = '<table><thead><tr><th>Code</th><th>Réduction</th><th>Statut</th><th>Utilisé par</th></tr></thead><tbody>';
+    let html = '<table><thead><tr><th>Code</th><th>Réduction</th><th>Postes</th><th>Statut</th><th>Utilisé par</th></tr></thead><tbody>';
     data.codes.forEach(c => {
       const reduc = c.discount_type === 'percent' ? '-' + c.discount_value + '%' : '-' + c.discount_value + ' €';
+      const sc = (c.scope && c.scope.length) ? c.scope : ['arc'];
+      const postes = sc.map(k => SCOPE_LABELS[k] || k).join(', ');
       const statut = c.used
         ? '<span class="tag used">Utilisé' + (c.used_at ? ' · ' + new Date(c.used_at).toLocaleDateString('fr-FR') : '') + '</span>'
         : '<span class="tag free">Disponible</span>';
-      html += '<tr><td><strong>' + c.code + '</strong><br><span style="color:#8b9aac;font-size:12px">' + (c.label || '') + '</span></td><td>' + reduc + '</td><td>' + statut + '</td><td>' + (c.used_by || '—') + '</td></tr>';
+      html += '<tr><td><strong>' + c.code + '</strong><br><span style="color:#8b9aac;font-size:12px">' + (c.label || '') + '</span></td><td>' + reduc + '</td><td><span style="font-size:12px;color:#a9b8c8">' + postes + '</span></td><td>' + statut + '</td><td>' + (c.used_by || '—') + '</td></tr>';
     });
     html += '</tbody></table>';
     wrap.innerHTML = html;
@@ -178,6 +247,7 @@ async function loadCodes() {
   }
 }
 
+syncScope();
 loadCodes();
 </script>
 </body>

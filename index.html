@@ -1112,13 +1112,20 @@ let state = {
 };
 
 // AUDACE (5€) et Caution (50€) toujours inclus
-const FIXED_OPTIONS = 5 + 50; // AUDACE + Caution
+const AUDACE_AMOUNT  = 5;   // cotisation AUDACE — jamais remisable
+const CAUTION_AMOUNT = 50;  // caution de permanence (remboursable)
+const FIXED_OPTIONS  = AUDACE_AMOUNT + CAUTION_AMOUNT;
 
-function getTotal() {
-  let t = state.arcAmount + state.ffaAmount + FIXED_OPTIONS;
+// Annexes = options FFA (assurances) + forfait DC obligatoire
+function getAnnexesTotal() {
+  let t = 0;
   Object.values(state.ffaOptions).forEach(v => t += v);
   if (state.dcRequired) t += 50;
   return t;
+}
+
+function getTotal() {
+  return state.arcAmount + state.ffaAmount + FIXED_OPTIONS + getAnnexesTotal();
 }
 
 
@@ -1127,11 +1134,29 @@ function getTotal() {
 // Codes promo — s'appliquent UNIQUEMENT sur la cotisation ARC (state.arcAmount)
 // Pas d'effet sur la licence FFA, l'assurance, les options FFA ni la caution
 const PROMO_CODES = {
-  'POUF2026':  { type: 'percent', value: 10,  label: '-10% sur l\'adhésion ARC' },
-  'PILOTE50':  { type: 'fixed',   value: 50,  label: '-50 € sur l\'adhésion ARC' },
-  'FAMILLE':   { type: 'percent', value: 15,  label: '-15% sur l\'adhésion ARC' },
-  'WELCOME50': { type: 'percent', value: 50,  label: '-50% sur l\'adhésion ARC — Offre de bienvenue' },
+  'POUF2026':  { type: 'percent', value: 10,  scope: ['arc'], label: '-10% sur l\'adhésion ARC' },
+  'PILOTE50':  { type: 'fixed',   value: 50,  scope: ['arc'], label: '-50 € sur l\'adhésion ARC' },
+  'FAMILLE':   { type: 'percent', value: 15,  scope: ['arc'], label: '-15% sur l\'adhésion ARC' },
+  'WELCOME50': { type: 'percent', value: 50,  scope: ['arc'], label: '-50% sur l\'adhésion ARC — Offre de bienvenue' },
 };
+
+// Assiette d'une réduction : postes sur lesquels elle s'applique.
+// AUDACE en est toujours exclu (montant minimum systématiquement dû).
+const SCOPE_LABELS = {
+  arc:     'cotisation ARC',
+  ffa:     'licence FFA',
+  annexes: 'options et forfaits',
+  caution: 'caution de permanence',
+};
+
+function getAssiette(scope) {
+  let a = 0;
+  if (scope.includes('arc'))     a += state.arcAmount;
+  if (scope.includes('ffa'))     a += state.ffaAmount;
+  if (scope.includes('annexes')) a += getAnnexesTotal();
+  if (scope.includes('caution')) a += CAUTION_AMOUNT;
+  return a;
+}
 
 let activePromo = null;
 
@@ -1167,7 +1192,7 @@ async function applyPromo() {
     });
     const data = await resp.json();
     if (data.valid) {
-      activePromo = { code, type: data.type, value: data.value, label: data.label, fromServer: true };
+      activePromo = { code, type: data.type, value: data.value, scope: data.scope, label: data.label, fromServer: true };
       input.className = 'promo-input valid';
       fb.textContent = '✓ Code accepté — ' + data.label;
       fb.className = 'promo-feedback ok';
@@ -1205,16 +1230,15 @@ function removePromo() {
 function getTotalAfterPromo() {
   const base = getTotal();
   if (!activePromo) return base;
-  // Réduction sur la cotisation ARC — si pas encore sélectionnée, on tente quand même
-  const arcBase = state.arcAmount > 0 ? state.arcAmount : base;
-  let arcDiscounted;
-  if (activePromo.type === 'percent') {
-    arcDiscounted = Math.round(arcBase * (1 - activePromo.value / 100));
-  } else {
-    arcDiscounted = Math.max(0, arcBase - activePromo.value);
-  }
-  const rest = state.arcAmount > 0 ? base - state.arcAmount : 0;
-  return arcDiscounted + rest;
+  const scope = (Array.isArray(activePromo.scope) && activePromo.scope.length)
+    ? activePromo.scope : ['arc'];
+  const assiette = getAssiette(scope);
+  if (assiette <= 0) return base; // postes concernés pas encore sélectionnés
+  const remise = activePromo.type === 'percent'
+    ? Math.round(assiette * activePromo.value / 100)
+    : Math.min(assiette, activePromo.value);
+  // AUDACE reste dû en toute circonstance
+  return Math.max(AUDACE_AMOUNT, base - remise);
 }
 
 function updateTotalDisplay() {
@@ -1224,9 +1248,17 @@ function updateTotalDisplay() {
   if (display2) {
     if (activePromo && t !== base) {
       const saving = base - t;
+      const sc = (Array.isArray(activePromo.scope) && activePromo.scope.length) ? activePromo.scope : ['arc'];
+      const noms = sc.map(k => SCOPE_LABELS[k] || k);
+      const surQuoi = noms.length > 1
+        ? noms.slice(0, -1).join(', ') + ' et ' + noms[noms.length - 1]
+        : noms[0];
+      const mention = (t === AUDACE_AMOUNT)
+        ? saving + ' € offerts — seule la cotisation AUDACE reste à régler'
+        : 'dont ' + saving + ' € de réduction sur ' + surQuoi;
       display2.innerHTML = '<span style="text-decoration:line-through;opacity:0.4;font-size:20px;margin-right:8px;">' + base + ' €</span>'
         + '<span style="color:var(--gold);">' + t + ' €</span>'
-        + '<span style="display:block;font-size:11px;color:#4caf50;margin-top:3px;">dont ' + saving + ' € de réduction sur l\'adhésion ARC</span>';
+        + '<span style="display:block;font-size:11px;color:#4caf50;margin-top:3px;">' + mention + '</span>';
     } else {
       display2.textContent = t + ' €';
     }

@@ -40,6 +40,7 @@ if (process.env.DATABASE_URL) {
         code TEXT PRIMARY KEY,
         discount_type TEXT NOT NULL CHECK (discount_type IN ('percent','fixed')),
         discount_value NUMERIC NOT NULL,
+        scope TEXT[] NOT NULL DEFAULT ARRAY['arc']::TEXT[],
         label TEXT NOT NULL,
         used BOOLEAN NOT NULL DEFAULT FALSE,
         used_at TIMESTAMPTZ,
@@ -47,6 +48,12 @@ if (process.env.DATABASE_URL) {
         payment_intent_id TEXT,
         created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
       );
+    `);
+    // Migration : assiette de la réduction sur les bases créées avant cette colonne.
+    // Les codes existants conservent leur comportement (cotisation ARC seule).
+    await pgPool.query(`
+      ALTER TABLE single_use_promo_codes
+      ADD COLUMN IF NOT EXISTS scope TEXT[] NOT NULL DEFAULT ARRAY['arc']::TEXT[];
     `);
     // Dons — enregistrés après vérification du paiement auprès de Stripe.
     await pgPool.query(`
@@ -236,7 +243,7 @@ app.post("/api/promo/check", async (req, res) => {
   if (!code) return res.json({ valid: false, reason: "empty" });
   try {
     const { rows } = await pgPool.query(
-      "SELECT discount_type, discount_value, label, used FROM single_use_promo_codes WHERE code = $1",
+      "SELECT discount_type, discount_value, scope, label, used FROM single_use_promo_codes WHERE code = $1",
       [code]
     );
     if (rows.length === 0) return res.json({ valid: false, reason: "not_found" });
@@ -245,6 +252,7 @@ app.post("/api/promo/check", async (req, res) => {
       valid: true,
       type: rows[0].discount_type,
       value: Number(rows[0].discount_value),
+      scope: rows[0].scope && rows[0].scope.length ? rows[0].scope : ["arc"],
       label: rows[0].label,
     });
   } catch (e) {
@@ -299,17 +307,28 @@ app.post("/api/promo/create", maintAuth, async (req, res) => {
   const type = req.body?.type === "fixed" ? "fixed" : "percent";
   const value = Number(req.body?.value);
   const label = (req.body?.label || "").toString().trim() || `Code offert — ${code}`;
+  // Assiette : postes sur lesquels porte la réduction. AUDACE en est toujours exclu.
+  const SCOPES = ["arc", "ffa", "annexes", "caution"];
+  const scope = Array.isArray(req.body?.scope)
+    ? req.body.scope.filter((k) => SCOPES.includes(k))
+    : ["arc"];
   if (!code || !Number.isFinite(value) || value <= 0) {
     return res.status(400).json({ ok: false, error: "code et value (nombre > 0) requis" });
   }
+  if (scope.length === 0) {
+    return res.status(400).json({ ok: false, error: "au moins un poste doit être sélectionné" });
+  }
+  if (type === "percent" && value > 100) {
+    return res.status(400).json({ ok: false, error: "un pourcentage ne peut excéder 100" });
+  }
   try {
     await pgPool.query(
-      `INSERT INTO single_use_promo_codes (code, discount_type, discount_value, label)
-       VALUES ($1, $2, $3, $4)
+      `INSERT INTO single_use_promo_codes (code, discount_type, discount_value, scope, label)
+       VALUES ($1, $2, $3, $4, $5)
        ON CONFLICT (code) DO NOTHING`,
-      [code, type, value, label]
+      [code, type, value, scope, label]
     );
-    res.json({ ok: true, code, type, value, label });
+    res.json({ ok: true, code, type, value, scope, label });
   } catch (e) {
     console.error("POST /api/promo/create error:", e.message);
     res.status(500).json({ ok: false, error: e.message });
@@ -321,7 +340,7 @@ app.get("/api/promo/list", maintAuth, async (req, res) => {
   if (!pgReady) return res.status(503).json({ error: "db_unavailable" });
   try {
     const { rows } = await pgPool.query(
-      "SELECT code, discount_type, discount_value, label, used, used_at, used_by FROM single_use_promo_codes ORDER BY created_at DESC"
+      "SELECT code, discount_type, discount_value, scope, label, used, used_at, used_by FROM single_use_promo_codes ORDER BY created_at DESC"
     );
     res.json({ codes: rows });
   } catch (e) {
@@ -826,5 +845,5 @@ app.listen(PORT, () => {
   console.log(`▸ Maintenance auth: ENABLED (build 2026-05-22 v3 + notes sync)`);
   console.log(`▸ Maintenance password: ${MAINT_PASSWORD === "changeme-set-env-var" ? "⚠️  DEFAULT (set MAINTENANCE_PASSWORD env var!)" : "✓ from MAINTENANCE_PASSWORD env"}`);
   console.log(`▸ Notes sync (PostgreSQL): ${pgReady ? "✓ ENABLED" : "✗ disabled (DATABASE_URL not set or DB unreachable)"}`);
-  console.log(`▸ Protected routes: /maintenance, /entretien-d113, /entretien-dr250, /entretien-dh251, /signer-ot`);
+  console.log(`▸ Protected routes: /maintenance, /entretien-d113, /entretien-dr250, /entretien-dh251, /signer-ot, /promo-admin`);
 });
