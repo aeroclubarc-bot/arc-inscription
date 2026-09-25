@@ -70,6 +70,28 @@ if (process.env.DATABASE_URL) {
         cree_le        TIMESTAMPTZ NOT NULL DEFAULT NOW()
       );
     `);
+    // Réinscriptions — paiement par prélèvement sur compte pilote (Aerogest).
+    // Le solde n'étant pas interrogeable automatiquement, chaque demande reste
+    // "en_attente" jusqu'à ce que le trésorier vérifie le solde et débite le compte.
+    await pgPool.query(`
+      CREATE TABLE IF NOT EXISTS reinscriptions (
+        id           SERIAL PRIMARY KEY,
+        reference    TEXT UNIQUE NOT NULL,
+        saison       TEXT NOT NULL,
+        nom          TEXT NOT NULL,
+        prenom       TEXT NOT NULL,
+        email        TEXT NOT NULL,
+        licence_ffa  TEXT,
+        montant      NUMERIC NOT NULL,
+        code_promo   TEXT,
+        detail       JSONB NOT NULL,
+        statut       TEXT NOT NULL DEFAULT 'en_attente'
+                     CHECK (statut IN ('en_attente','validee','refusee')),
+        motif        TEXT,
+        cree_le      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        traite_le    TIMESTAMPTZ
+      );
+    `);
     pgReady = true;
     console.log("✓ PostgreSQL connecté — sync notes atelier activée");
   } catch (e) {
@@ -160,6 +182,7 @@ const PROTECTED_HTML = new Set([
   "/entretien-dh251.html",
   "/signer-ot.html",
   "/promo-admin.html",
+  "/reinscriptions-admin.html",
 ]);
 app.use((req, res, next) => {
   if (PROTECTED_HTML.has(req.path)) {
@@ -379,7 +402,7 @@ app.post("/api/stripe/create-payment-intent", async (req, res) => {
       body: new URLSearchParams({
         amount: String(Math.round(Number(amount) * 100)),
         currency: "eur",
-        description: description || "Adhésion ARC 2026",
+        description: description || "Adhésion ARC 2026-2027",
         "receipt_email": email || "",
         "metadata[name]": name || "",
         "metadata[source]": "arc-inscription",
@@ -465,6 +488,8 @@ app.post("/api/inscription/submit", async (req, res) => {
     const d = req.body;
     const emailBody = `NOUVELLE ADHÉSION — AÉROCLUB A.R.C.
 ════════════════════════════════════════
+Saison : ${d.saison || '2026-2027 (01/10/2026 au 31/12/2027)'}
+Parcours : ${d.parcours || 'Première adhésion'}
 Date : ${d.date_inscription}
 Stripe ID : ${d.stripe_payment_id}
 Montant réglé : ${d.montant_paye}
@@ -547,6 +572,210 @@ TOTAL RÉGLÉ : ${d.montant_paye}
     res.json({ ok: true, emailId: data.id });
   } catch(e) {
     console.error("Erreur inscription submit:", e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// ── RÉINSCRIPTION (prélèvement sur compte pilote) ─────────────────────
+// Parcours réservé aux membres en renouvellement. Aucun paiement en ligne :
+// la demande est enregistrée "en_attente", le trésorier vérifie le solde du
+// compte pilote dans Aerogest, débite le montant puis valide la demande.
+// Si le solde est insuffisant, la demande est refusée et la réinscription
+// n'est pas validée.
+const SAISON = "2026-2027";
+const SAISON_LIBELLE = "du 1er octobre 2026 au 31 décembre 2027";
+// Ouverture de la campagne (heure de Paris). Pour tester avant cette date,
+// définir REINSCRIPTION_OUVERTURE sur Railway (ex. 2026-09-01T00:00:00+02:00).
+const REINSCRIPTION_OUVERTURE = new Date(process.env.REINSCRIPTION_OUVERTURE || "2026-10-01T00:00:00+02:00");
+const MAIL_FROM = "Aéroclub A.R.C. <contact@aeroclub-arc.fr>";
+
+const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => (
+  { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]
+));
+const euros = (n) => Number(n).toLocaleString("fr-FR", { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + " €";
+
+function lignesTexte(lignes) {
+  if (!Array.isArray(lignes)) return "";
+  return lignes.map((l) => `${String(l.label).padEnd(48, " ")} ${euros(l.amount)}`).join("\n");
+}
+
+app.post("/api/reinscription/submit", async (req, res) => {
+  if (!pgReady) return res.status(503).json({ error: "Service momentanément indisponible. Réessayez dans quelques minutes." });
+  if (new Date() < REINSCRIPTION_OUVERTURE) {
+    return res.status(403).json({ error: "La campagne de réinscription ouvre le 1er octobre 2026." });
+  }
+  try {
+    const d = req.body || {};
+    const nom = (d.nom || "").toString().trim();
+    const prenom = (d.prenom || "").toString().trim();
+    const email = (d.email || "").toString().trim().toLowerCase();
+    const licence = (d.licence_ffa || "").toString().trim();
+    const montant = Number(d.montant);
+    if (!nom || !prenom || !email || !licence) {
+      return res.status(400).json({ error: "Nom, prénom, email et numéro de licence FFA sont requis." });
+    }
+    if (!Number.isFinite(montant) || montant <= 0 || montant > 3000) {
+      return res.status(400).json({ error: "Montant invalide." });
+    }
+    if (d.autorisation_prelevement !== true) {
+      return res.status(400).json({ error: "L'autorisation de prélèvement sur le compte pilote est requise." });
+    }
+
+    // Une seule demande en attente par membre
+    const { rows: enCours } = await pgPool.query(
+      "SELECT reference FROM reinscriptions WHERE statut = 'en_attente' AND (lower(email) = $1 OR licence_ffa = $2) LIMIT 1",
+      [email, licence]
+    );
+    if (enCours.length) {
+      return res.status(409).json({ error: `Une demande est déjà en cours de traitement (référence ${enCours[0].reference}).` });
+    }
+
+    // Code à usage unique : on vérifie qu'il est libre, il sera consommé à la validation
+    const code = (d.code_promo || "").toString().trim().toUpperCase() || null;
+    if (code) {
+      const { rows } = await pgPool.query("SELECT used FROM single_use_promo_codes WHERE code = $1", [code]);
+      if (rows.length && rows[0].used) return res.status(400).json({ error: "Ce code promo a déjà été utilisé." });
+    }
+
+    const reference = "R27-" + crypto.randomBytes(3).toString("hex").toUpperCase();
+    await pgPool.query(
+      `INSERT INTO reinscriptions (reference, saison, nom, prenom, email, licence_ffa, montant, code_promo, detail)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
+      [reference, SAISON, nom, prenom, email, licence, montant, code, d]
+    );
+
+    const resendKey = process.env.RESEND_API_KEY;
+    if (resendKey) {
+      const resend = new Resend(resendKey);
+      const destEmail = process.env.DEST_EMAIL || "aeroclubarc@gmail.com";
+      const recap = lignesTexte(d.lignes);
+      // Bureau / trésorier
+      try {
+        await resend.emails.send({
+          from: MAIL_FROM,
+          to: [destEmail],
+          reply_to: email,
+          subject: `[ARC] Réinscription à débiter — ${prenom} ${nom} — ${euros(montant)}`,
+          text: `DEMANDE DE RÉINSCRIPTION — PRÉLÈVEMENT COMPTE PILOTE
+════════════════════════════════════════
+Référence : ${reference}
+Saison : ${SAISON} (${SAISON_LIBELLE})
+Membre : ${prenom} ${nom}
+Licence FFA : ${licence}
+Email : ${email}
+Mobile : ${d.mobile || "Non renseigné"}
+
+MONTANT À DÉBITER SUR LE COMPTE PILOTE : ${euros(montant)}
+
+${recap}
+Code promo : ${d.code_promo_libelle || "Aucun"}
+
+À FAIRE
+1. Vérifier le solde du compte pilote dans Aerogest.
+2. Solde suffisant : débiter ${euros(montant)}, puis valider la demande.
+   Solde insuffisant : refuser la demande (réinscription non validée).
+Traitement : https://www.aeroclub-arc.fr/reinscriptions-admin
+
+La fiche complète (identité, statut pilote, licences) est consultable sur la page de traitement.
+════════════════════════════════════════`,
+        });
+      } catch (e) { console.error("[reinscription] mail bureau:", e.message); }
+      // Accusé de réception au membre
+      try {
+        await resend.emails.send({
+          from: MAIL_FROM,
+          to: [email],
+          subject: `Votre demande de réinscription ${SAISON} est enregistrée`,
+          html: `<p>Bonjour ${esc(prenom)},</p>
+<p>Nous avons bien reçu votre demande de réinscription pour la saison ${SAISON}, valable ${SAISON_LIBELLE}.</p>
+<p>Montant qui sera prélevé sur votre compte pilote : <strong>${euros(montant)}</strong><br>
+Référence de votre demande : ${reference}</p>
+<p>Le trésorier va vérifier le solde de votre compte pilote. Si celui-ci est suffisant, le montant sera débité et vous recevrez la confirmation de votre réinscription. S'il est insuffisant, votre réinscription ne pourra pas être validée : pensez à créditer votre compte dès maintenant si ce n'est pas déjà fait.</p>
+<p>Bons vols,<br>Antoine Drieu, Président — Aéroclub A.R.C.<br>
+Aérodrome de Chavenay-Villepreux (LFPX) — 01 34 62 30 75</p>`,
+        });
+      } catch (e) { console.error("[reinscription] mail membre:", e.message); }
+    }
+
+    console.log(`[ARC] Réinscription ${reference} — ${prenom} ${nom} — ${euros(montant)}`);
+    res.json({ ok: true, reference });
+  } catch (e) {
+    console.error("POST /api/reinscription/submit error:", e.message);
+    res.status(500).json({ error: "Erreur serveur. Réessayez ou contactez le club au 01 34 62 30 75." });
+  }
+});
+
+// Liste des demandes — trésorier / bureau
+app.get("/api/reinscriptions", maintAuth, async (req, res) => {
+  if (!pgReady) return res.status(503).json({ error: "db_unavailable" });
+  const statut = ["en_attente", "validee", "refusee"].includes(req.query.statut) ? req.query.statut : null;
+  try {
+    const { rows } = await pgPool.query(
+      `SELECT id, reference, saison, nom, prenom, email, licence_ffa, montant, code_promo,
+              detail, statut, motif, cree_le, traite_le
+       FROM reinscriptions
+       ${statut ? "WHERE statut = $1" : ""}
+       ORDER BY cree_le DESC`,
+      statut ? [statut] : []
+    );
+    res.json({ demandes: rows });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// Décision du trésorier : validee (compte débité) ou refusee (solde insuffisant)
+app.post("/api/reinscriptions/:id/decision", maintAuth, async (req, res) => {
+  if (!pgReady) return res.status(503).json({ error: "db_unavailable" });
+  const id = Number(req.params.id);
+  const decision = req.body?.decision;
+  const motif = (req.body?.motif || "").toString().trim() || null;
+  if (!["validee", "refusee"].includes(decision)) return res.status(400).json({ error: "Décision invalide" });
+  try {
+    const { rows } = await pgPool.query(
+      `UPDATE reinscriptions SET statut = $2, motif = $3, traite_le = NOW()
+       WHERE id = $1 AND statut = 'en_attente'
+       RETURNING reference, prenom, nom, email, montant, code_promo`,
+      [id, decision, motif]
+    );
+    if (!rows.length) return res.status(409).json({ error: "Demande introuvable ou déjà traitée" });
+    const r = rows[0];
+
+    if (decision === "validee" && r.code_promo) {
+      await pgPool.query(
+        `UPDATE single_use_promo_codes SET used = TRUE, used_at = NOW(), used_by = $2, payment_intent_id = $3
+         WHERE code = $1 AND used = FALSE`,
+        [r.code_promo, r.email, "compte-pilote:" + r.reference]
+      );
+    }
+
+    const resendKey = process.env.RESEND_API_KEY;
+    if (resendKey) {
+      const resend = new Resend(resendKey);
+      const html = decision === "validee"
+        ? `<p>Bonjour ${esc(r.prenom)},</p>
+<p>Votre réinscription pour la saison ${SAISON} est validée. Votre compte pilote a été débité de <strong>${euros(r.montant)}</strong>.</p>
+<p>Votre cotisation et votre licence FFA sont valables ${SAISON_LIBELLE}.</p>
+<p>Bons vols,<br>Antoine Drieu, Président — Aéroclub A.R.C.</p>`
+        : `<p>Bonjour ${esc(r.prenom)},</p>
+<p>Votre demande de réinscription ${esc(r.reference)} n'a pas pu être validée : le solde de votre compte pilote ne permettait pas le prélèvement de ${euros(r.montant)}.</p>
+${motif ? `<p>Précision du trésorier : ${esc(motif)}</p>` : ""}
+<p>Pour finaliser votre réinscription, créditez votre compte pilote puis envoyez une nouvelle demande depuis le formulaire : https://www.aeroclub-arc.fr/adhesion</p>
+<p>Pour toute question, vous pouvez joindre le club au 01 34 62 30 75.</p>
+<p>Cordialement,<br>Antoine Drieu, Président — Aéroclub A.R.C.</p>`;
+      try {
+        await resend.emails.send({
+          from: MAIL_FROM,
+          to: [r.email],
+          subject: decision === "validee"
+            ? `Réinscription ${SAISON} validée`
+            : `Réinscription ${SAISON} non validée — solde insuffisant`,
+          html,
+        });
+      } catch (e) { console.error("[reinscription] mail décision:", e.message); }
+    }
+    res.json({ ok: true });
+  } catch (e) {
     res.status(500).json({ error: e.message });
   }
 });
@@ -830,6 +1059,7 @@ app.get("/entretien-dr250", maintAuth, (req, res) => res.sendFile(path.join(__di
 app.get("/entretien-dh251", maintAuth, (req, res) => res.sendFile(path.join(__dirname, "entretien-dh251.html")));
 app.get("/signer-ot",       maintAuth, (req, res) => res.sendFile(path.join(__dirname, "signer-ot.html")));
 app.get("/promo-admin",     maintAuth, (req, res) => res.sendFile(path.join(__dirname, "promo-admin.html")));
+app.get("/reinscriptions-admin", maintAuth, (req, res) => res.sendFile(path.join(__dirname, "reinscriptions-admin.html")));
 
 app.get("/sitemap.xml", (req, res) => {
   res.setHeader("Content-Type", "application/xml");

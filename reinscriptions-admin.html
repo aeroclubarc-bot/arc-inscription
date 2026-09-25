@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Réinscriptions à traiter — A.R.C.</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Libre+Baskerville:wght@700&display=swap" rel="stylesheet">
+<style>
+  :root { --navy:#0a1628; --sky:#2d6be4; --gold:#c8a84b; --paper:#f8f5f0; --line:#e3ded4; --soft:#5b6472; --ok:#1f7a45; --err:#c42b2b; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', -apple-system, sans-serif; background: var(--paper); color: var(--navy); font-size: 15px; line-height: 1.5; padding: 32px 20px 60px; }
+  .wrap { max-width: 960px; margin: 0 auto; }
+  h1 { font-family: 'Libre Baskerville', Georgia, serif; font-size: 26px; }
+  .lead { color: var(--soft); margin-top: 6px; max-width: 70ch; }
+  .tabs { display: flex; gap: 6px; margin: 24px 0 16px; flex-wrap: wrap; }
+  .tabs button { font: inherit; font-size: 14px; padding: 8px 14px; border: 1.5px solid var(--line); background: #fff; border-radius: 999px; cursor: pointer; }
+  .tabs button[aria-pressed="true"] { background: var(--navy); border-color: var(--navy); color: #fff; }
+  .card { background: #fff; border: 1px solid var(--line); border-radius: 6px; padding: 20px; margin-bottom: 12px; }
+  .head { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; align-items: baseline; }
+  .name { font-weight: 600; font-size: 17px; }
+  .meta { color: var(--soft); font-size: 13px; margin-top: 2px; }
+  .amount { font-family: 'Libre Baskerville', Georgia, serif; font-size: 24px; font-weight: 700; }
+  .status { font-size: 13px; font-weight: 600; }
+  .status.validee { color: var(--ok); } .status.refusee { color: var(--err); }
+  table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 14px; }
+  td { padding: 5px 0; border-bottom: 1px solid var(--line); }
+  td:last-child { text-align: right; white-space: nowrap; }
+  details { margin-top: 12px; font-size: 14px; }
+  summary { cursor: pointer; color: var(--sky); font-weight: 500; }
+  dl { display: grid; grid-template-columns: 220px 1fr; gap: 4px 12px; margin-top: 10px; }
+  dt { color: var(--soft); } dd { word-break: break-word; }
+  @media (max-width: 600px) { dl { grid-template-columns: 1fr; } dt { margin-top: 6px; } }
+  .actions { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; align-items: center; }
+  .actions input { flex: 1; min-width: 200px; font: inherit; font-size: 14px; padding: 10px 12px; border: 1.5px solid var(--line); border-radius: 5px; }
+  .btn { font: inherit; font-size: 14px; font-weight: 600; padding: 10px 16px; border-radius: 5px; border: 0; cursor: pointer; color: #fff; }
+  .btn.ok { background: var(--ok); } .btn.ko { background: var(--err); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .empty { color: var(--soft); padding: 24px 0; }
+  .steps-box { background: #fff; border-left: 4px solid var(--gold); padding: 12px 16px; margin-top: 18px; font-size: 14px; }
+  .steps-box ol { margin-left: 18px; }
+  .export { font: inherit; font-size: 14px; background: none; border: 0; color: var(--sky); cursor: pointer; margin-left: auto; text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Réinscriptions 2026-2027</h1>
+  <p class="lead">Demandes réglées par prélèvement sur compte pilote. Aucune ne doit être validée sans que le compte ait été effectivement débité dans Aerogest.</p>
+  <div class="steps-box">
+    <ol>
+      <li>Ouvrir le compte pilote du membre dans Aerogest et vérifier le solde.</li>
+      <li>Solde suffisant : débiter le montant indiqué, puis cliquer sur « Débit effectué, valider ».</li>
+      <li>Solde insuffisant : cliquer sur « Refuser ». Le membre est prévenu par email et devra renvoyer une demande après avoir crédité son compte.</li>
+    </ol>
+  </div>
+
+  <div class="tabs" role="group" aria-label="Filtrer">
+    <button data-s="en_attente" aria-pressed="true">À traiter</button>
+    <button data-s="validee" aria-pressed="false">Validées</button>
+    <button data-s="refusee" aria-pressed="false">Refusées</button>
+    <button data-s="" aria-pressed="false">Toutes</button>
+    <button class="export" id="exp" type="button">Exporter en CSV</button>
+  </div>
+  <div id="list" aria-live="polite"></div>
+</div>
+<script>
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const eur = n => Number(n).toLocaleString('fr-FR') + ' €';
+const dt = d => d ? new Date(d).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' }) : '';
+let filtre = 'en_attente', cache = [];
+
+const LABELS = {
+  parcours:'Parcours', date_naissance:'Date de naissance', lieu_naissance:'Lieu de naissance', nationalite:'Nationalité', sexe:'Sexe',
+  profession:'Profession', employeur:'Employeur', adresse:'Adresse', cp:'Code postal', ville:'Ville', mobile:'Mobile', tel:'Téléphone',
+  urgence_nom:'Personne à prévenir', urgence_tel:'Tél. personne à prévenir', beneficiaire_nom:'Bénéficiaire assurance', beneficiaire_tel:'Tél. bénéficiaire',
+  statuts:'Niveau', qualifications:'Qualifications', licence_cpl:'Licence PPL/LAPL/CPL', date_obtention:'Date d\'obtention', date_validite:'Date de validité',
+  medical:'Classe médicale', med_validite:'Validité médicale', tw_date:'Obtention train classique',
+  total_dc:'Total DC', total_cdb:'Total CDB', total_att:'Total atterrissages', mois_dc:'DC 12 mois', mois_cdb:'CDB 12 mois', mois_att:'Att. 12 mois',
+  tw_dc:'DC train classique', tw_cdb:'CDB train classique', tw_att:'Att. train classique',
+  cotisation_arc:'Cotisation A.R.C.', cotisation_ffa:'Licence FFA', options_ffa:'Options FFA', forfait_dc:'Forfait DC', code_promo_libelle:'Code promo',
+};
+
+async function load() {
+  const list = document.getElementById('list');
+  list.innerHTML = '<p class="empty">Chargement…</p>';
+  const r = await fetch('/api/reinscriptions' + (filtre ? '?statut=' + filtre : ''));
+  if (r.status === 401) { location.href = '/maintenance/login?next=/reinscriptions-admin'; return; }
+  const { demandes = [], error } = await r.json();
+  cache = demandes;
+  if (error) { list.innerHTML = `<p class="empty">Erreur : ${esc(error)}</p>`; return; }
+  if (!demandes.length) { list.innerHTML = `<p class="empty">${filtre === 'en_attente' ? 'Aucune demande à traiter.' : 'Aucune demande.'}</p>`; return; }
+  list.innerHTML = demandes.map(card).join('');
+}
+
+function card(d) {
+  const det = d.detail || {};
+  const lignes = (det.lignes || []).map(l => `<tr><td>${esc(l.label)}</td><td>${eur(l.amount)}</td></tr>`).join('');
+  const fiche = Object.entries(LABELS).filter(([k]) => det[k]).map(([k, l]) => `<dt>${l}</dt><dd>${esc(det[k])}</dd>`).join('');
+  const statut = { en_attente: 'À traiter', validee: 'Validée le ' + dt(d.traite_le), refusee: 'Refusée le ' + dt(d.traite_le) }[d.statut];
+  return `<article class="card" id="d${d.id}">
+    <div class="head">
+      <div>
+        <div class="name">${esc(d.prenom)} ${esc(d.nom)}</div>
+        <div class="meta">${esc(d.reference)}, reçue le ${dt(d.cree_le)}. Licence FFA ${esc(d.licence_ffa)}. ${esc(d.email)}</div>
+        <div class="status ${d.statut}">${statut}${d.motif ? ' : ' + esc(d.motif) : ''}</div>
+      </div>
+      <div class="amount">${eur(d.montant)}</div>
+    </div>
+    <table>${lignes}</table>
+    <details><summary>Fiche complète</summary><dl>${fiche}</dl></details>
+    ${d.statut === 'en_attente' ? `
+    <div class="actions">
+      <input type="text" placeholder="Précision pour le membre (facultatif)" aria-label="Précision pour le membre" id="m${d.id}">
+      <button class="btn ok" onclick="decide(${d.id},'validee',this)">Débit effectué, valider</button>
+      <button class="btn ko" onclick="decide(${d.id},'refusee',this)">Refuser, solde insuffisant</button>
+    </div>` : ''}
+  </article>`;
+}
+
+async function decide(id, decision, btn) {
+  const d = cache.find(x => x.id === id);
+  const q = decision === 'validee'
+    ? `Confirmer que ${eur(d.montant)} ont bien été débités du compte pilote de ${d.prenom} ${d.nom} ?`
+    : `Refuser la réinscription de ${d.prenom} ${d.nom} ? Le membre sera prévenu par email.`;
+  if (!confirm(q)) return;
+  btn.parentElement.querySelectorAll('button').forEach(b => b.disabled = true);
+  const r = await fetch(`/api/reinscriptions/${id}/decision`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ decision, motif: document.getElementById('m' + id).value }),
+  });
+  const res = await r.json();
+  if (!res.ok) { alert(res.error || 'Erreur'); btn.parentElement.querySelectorAll('button').forEach(b => b.disabled = false); return; }
+  load();
+}
+
+document.querySelectorAll('.tabs button[data-s]').forEach(b => b.addEventListener('click', () => {
+  filtre = b.dataset.s;
+  document.querySelectorAll('.tabs button[data-s]').forEach(x => x.setAttribute('aria-pressed', x === b));
+  load();
+}));
+
+document.getElementById('exp').addEventListener('click', () => {
+  const cols = ['reference','statut','nom','prenom','email','licence_ffa','montant','cree_le','traite_le','motif'];
+  const extra = Object.keys(LABELS);
+  const q = v => '"' + String(v ?? '').replace(/"/g, '""') + '"';
+  const rows = [cols.concat(extra.map(k => LABELS[k])).map(q).join(';')]
+    .concat(cache.map(d => cols.map(c => q(d[c])).concat(extra.map(k => q((d.detail || {})[k]))).join(';')));
+  const blob = new Blob(['\ufeff' + rows.join('\n')], { type: 'text/csv;charset=utf-8' });
+  const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(blob), download: `reinscriptions-${filtre || 'toutes'}.csv` });
+  a.click();
+});
+
+load();
+</script>
+</body>
+</html>
