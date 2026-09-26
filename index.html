@@ -480,6 +480,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <div class="field"><label for="nom">Nom<span class="req">*</span></label><input type="text" id="nom" autocomplete="family-name" required><span class="err">Indiquez votre nom.</span></div>
           <div class="field"><label for="prenom">Prénom<span class="req">*</span></label><input type="text" id="prenom" autocomplete="given-name" required><span class="err">Indiquez votre prénom.</span></div>
           <div class="field"><label for="ddn">Date de naissance<span class="req">*</span></label><input type="date" id="ddn" autocomplete="bday" required min="1920-01-01" max="2014-12-31"><span class="hint">Elle détermine votre tarif de cotisation.</span><span class="err">Indiquez une date de naissance valide.</span></div>
+          <div class="field"><label for="email">Email<span class="req">*</span></label><input type="email" id="email" autocomplete="email" required><span class="hint" id="emailHint">La confirmation vous sera envoyée à cette adresse.</span><span class="err">Indiquez une adresse email valide.</span><span class="hint" id="lookupStatus" aria-live="polite"></span></div>
           <div class="field"><label for="lieu_naissance">Lieu de naissance</label><input type="text" id="lieu_naissance" placeholder="Ville (département)"></div>
           <div class="field"><label for="nationalite">Nationalité</label><input type="text" id="nationalite"></div>
           <div class="field"><span class="flabel" id="sexeL">Sexe</span>
@@ -499,7 +500,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <div class="field"><label for="ville">Ville<span class="req">*</span></label><input type="text" id="ville" autocomplete="address-level2" required><span class="err">Indiquez votre ville.</span></div>
           <div class="field"><label for="mobile">Mobile<span class="req">*</span></label><input type="tel" id="mobile" autocomplete="tel" required pattern="[0-9 +().\-]{10,20}"><span class="err">Indiquez un numéro de mobile valide.</span></div>
           <div class="field"><label for="tel">Autre téléphone</label><input type="tel" id="tel"></div>
-          <div class="field wide"><label for="email">Email<span class="req">*</span></label><input type="email" id="email" autocomplete="email" required><span class="hint" id="emailHint">La confirmation vous sera envoyée à cette adresse.</span><span class="err">Indiquez une adresse email valide.</span><span class="hint" id="lookupStatus" aria-live="polite"></span></div>
         </div>
 
         <h3>Personne à prévenir en cas d'accident</h3>
