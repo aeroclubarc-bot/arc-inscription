@@ -439,11 +439,25 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
               <span class="box">
                 <span class="t">Je renouvelle mon adhésion</span>
                 <span class="d">Vous étiez membre du club en 2026 et disposez d'un compte pilote.</span>
-                <span class="pay">Prélèvement sur votre compte pilote</span>
+                <span class="pay">Prélèvement compte pilote ou carte bancaire</span>
               </span>
             </label>
           </div>
           <p class="err" style="margin-top:10px">Choisissez votre parcours pour continuer.</p>
+        </div>
+
+        <div class="group" data-group="modepaiement" id="modePaiementGroup" hidden>
+          <h3 id="modePayL">Mode de paiement</h3>
+          <div class="choices" role="radiogroup" aria-labelledby="modePayL">
+            <label class="choice">
+              <input type="radio" name="modepaiement" value="compte" checked>
+              <span class="box"><span class="t">Prélèvement compte pilote</span><span class="d">Aucun paiement en ligne. Le trésorier débite le montant après vérification du solde de votre compte.</span></span>
+            </label>
+            <label class="choice">
+              <input type="radio" name="modepaiement" value="carte">
+              <span class="box"><span class="t">Carte bancaire</span><span class="d">Paiement immédiat et sécurisé par Stripe, comme pour une première adhésion.</span></span>
+            </label>
+          </div>
         </div>
 
         <div class="notice" id="renewInfo" hidden>
@@ -453,6 +467,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <div class="actions">
           <button type="button" class="btn btn-primary" data-next>Continuer</button>
         </div>
+
       </section>
 
       <!-- ÉTAPE 2 : IDENTITÉ -->
@@ -564,12 +579,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           </table>
         </div>
 
-        <h3 id="ffaL">Licence FFA 2027<span class="req">*</span></h3>
+        <h3>Licence FFA 2027</h3>
         <p class="panel-lead" style="margin:-4px 0 12px">Souscrite dès maintenant, elle est valable jusqu'au 31 décembre 2027.</p>
-        <div class="group" data-group="ffa">
-          <div class="choices" role="radiogroup" aria-labelledby="ffaL" id="ffaChoices"></div>
-          <p class="err" style="margin-top:8px">Choisissez une formule de licence FFA.</p>
-        </div>
+        <div class="choices" id="ffaChoices"></div>
+
+        <h3 id="ipL">Abonnement Info-Pilote <span class="opt">(facultatif)</span></h3>
+        <div class="rows" role="radiogroup" aria-labelledby="ipL" id="ipRows"></div>
 
         <h3 id="plusL">Assurance complémentaire FFA PLUS <span class="opt">(facultatif)</span></h3>
         <div class="rows" role="radiogroup" aria-labelledby="plusL" id="plusRows"></div>
@@ -632,7 +647,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
         <div class="payment" id="payCard" hidden>
           <h3>Paiement par carte bancaire</h3>
-          <p>Visa, Mastercard ou American Express. Paiement sécurisé par Stripe, sans création de compte. Votre adhésion devient effective après validation du Bureau directeur.</p>
+          <p>Visa, Mastercard ou American Express. Paiement sécurisé par Stripe, sans création de compte. <span id="payCardValidText">Votre adhésion devient effective après validation du Bureau directeur.</span></p>
           <div id="card-element"></div>
           <p class="form-error" id="cardError" role="alert"></p>
           <button type="button" class="btn btn-primary btn-block" id="payBtn" disabled>Payer <span class="amt">0 €</span> par carte</button>
@@ -692,9 +707,10 @@ const CONFIG = {
   dateAge: '2026-10-01',                    // date de référence pour le tarif jeune
   ageJeune: 25,                             // tarif jeune si moins de 25 ans à cette date
   arc: { standard: 175, jeune: 100 },       // tarifs pour les 15 mois
-  ffa: [                                    // [À VÉRIFIER] tarifs FFA 2027
-    { id: 'ffa1', nom: 'Licence et Info-Pilote', desc: 'Licence FFA, assurance de base (15 000 €), magazine Info-Pilote', prix: 145 },
-    { id: 'ffa2', nom: 'Licence seule', desc: 'Licence FFA et assurance de base (15 000 €), sans magazine', prix: 96 },
+  ffaBase: { nom: 'Licence Fédérale FFA', desc: 'Licence FFA et assurance standard (individuelle accident, assistance rapatriement, capital décès/infirmité 15 000 €)', prix: 101 },
+  infoPilote: [                             // abonnement facultatif, en plus de la licence
+    { id: 'num',    nom: 'Numérique', prix: 35 },
+    { id: 'papier', nom: 'Papier + numérique', prix: 49 },
   ],
   ffaPlus: [                                // une seule option possible
     { id: 'A', capital: '50 000 €',  prix: 90 },
@@ -705,8 +721,8 @@ const CONFIG = {
     { id: 'F', capital: '300 000 €', prix: 440 },
   ],
   fi: [
-    { id: 'fi_acc', nom: 'Individuelle accidents FI/FE', desc: 'Capital 30 000 € et assistance', prix: 35 },  // [À VÉRIFIER] l'ancien formulaire affichait 35 € mais facturait 50 €
-    { id: 'fi_rc',  nom: 'Responsabilité civile personnelle FI/FE', desc: 'RC personnelle en qualité d\'instructeur', prix: 108 },
+    { id: 'fi_acc', nom: 'Individuelle accidents FI/FE', desc: 'Capital 30 000 € et assistance', prix: 35 },
+    { id: 'fi_rc',  nom: 'Responsabilité civile personnelle FI/FE', desc: 'RC personnelle en qualité d\'instructeur', prix: 110 },
   ],
   dc: 60,                                    // forfait double commande facultatif, DC illimitée sur la saison
   audace: 5,
@@ -741,10 +757,13 @@ function renderStatic() {
   const mois = ['O','N','D','J','F','M','A','M','J','J','A','S','O','N','D'];
   $('#months').innerHTML = mois.map((m, i) => `<div style="--i:${i}">${m}</div>`).join('');
 
-  $('#ffaChoices').innerHTML = CONFIG.ffa.map(f => `
-    <label class="choice"><input type="radio" name="ffa" value="${f.id}">
-      <span class="box"><span class="t">${f.nom}</span><span class="d">${f.desc}</span><span class="p">${fmt(f.prix)}</span></span>
-    </label>`).join('');
+  $('#ffaChoices').innerHTML = `
+    <div class="choice locked on"><span class="box"><span class="t">${CONFIG.ffaBase.nom}<span class="tag">Inclus</span></span><span class="d">${CONFIG.ffaBase.desc}</span><span class="p">${fmt(CONFIG.ffaBase.prix)}</span></span></div>`;
+
+  $('#ipRows').innerHTML =
+    `<label class="row"><input type="radio" name="infopilote" value="" checked><span class="rl"><b>Pas d'abonnement</b></span><span class="rp"></span></label>` +
+    CONFIG.infoPilote.map(o => `
+    <label class="row"><input type="radio" name="infopilote" value="${o.id}"><span class="rl"><b>${o.nom}</b></span><span class="rp">+${fmt(o.prix)}</span></label>`).join('');
 
   $('#plusRows').innerHTML =
     `<label class="row"><input type="radio" name="ffaplus" value="" checked><span class="rl"><b>Pas d'option</b><small>Assurance de base incluse dans la licence</small></span><span class="rp"></span></label>` +
@@ -764,6 +783,9 @@ const radio = name => $(`input[name="${name}"]:checked`)?.value || '';
 const checks = name => $$(`input[name="${name}"]:checked`).map(i => i.value);
 const parcours = () => radio('parcours');
 const isRenew = () => parcours() === 'renouvellement';
+const modePaiement = () => isRenew() ? (radio('modepaiement') || 'compte') : 'carte';
+const paieParCompte = () => isRenew() && modePaiement() === 'compte';
+const paieParCarte = () => !isRenew() || modePaiement() === 'carte';
 
 function ageAt(ddn, ref) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(ddn)) return null;
@@ -786,8 +808,9 @@ function lines() {
   const L = [];
   const t = arcTarif();
   if (t) L.push({ key: 'arc', label: t === 'jeune' ? 'Cotisation A.R.C., moins de 25 ans' : 'Cotisation A.R.C.', amount: CONFIG.arc[t] });
-  const f = CONFIG.ffa.find(x => x.id === radio('ffa'));
-  if (f) L.push({ key: 'ffa', label: 'Licence FFA 2027, ' + f.nom.toLowerCase(), amount: f.prix });
+  L.push({ key: 'ffa', label: 'Licence FFA 2027', amount: CONFIG.ffaBase.prix });
+  const ip = CONFIG.infoPilote.find(x => x.id === radio('infopilote'));
+  if (ip) L.push({ key: 'annexes', label: 'Abonnement Info-Pilote, ' + ip.nom.toLowerCase(), amount: ip.prix });
   const p = CONFIG.ffaPlus.find(x => x.id === radio('ffaplus'));
   if (p) L.push({ key: 'annexes', label: 'FFA PLUS option ' + p.id, amount: p.prix });
   checks('fi').forEach(id => { const o = CONFIG.fi.find(x => x.id === id); if (o) L.push({ key: 'annexes', label: o.nom, amount: o.prix }); });
@@ -818,7 +841,7 @@ function renderLines(el, T) {
   if (!arcTarif()) items.push(`<li class="empty">Cotisation A.R.C. : selon votre date de naissance</li>`);
   T.L.forEach(l => items.push(`<li><span>${l.label}</span><span>${fmt(l.amount)}</span></li>`));
   if (T.d > 0) items.push(`<li class="discount"><span>Code ${activePromo.code}</span><span>−${fmt(T.d)}</span></li>`);
-  if (!radio('ffa')) items.push(`<li class="empty">Licence FFA : formule à choisir</li>`);
+
   el.innerHTML = items.join('');
 }
 function refresh() {
@@ -830,23 +853,25 @@ function refresh() {
   $('#mobileTotal').textContent = fmt(T.total);
   $$('.amt').forEach(e => e.textContent = fmt(T.total));
 
-  const p = parcours(), renew = isRenew();
-  $('#recapMode').innerHTML = renew ? '<strong>Renouvellement</strong>, prélèvement sur compte pilote'
+  const p = parcours(), renew = isRenew(), compte = paieParCompte();
+  $('#recapMode').innerHTML = renew ? '<strong>Renouvellement</strong>, ' + (compte ? 'prélèvement sur compte pilote' : 'paiement par carte')
     : p === 'adhesion' ? '<strong>Première adhésion</strong>, paiement par carte'
     : 'Choisissez votre parcours pour commencer.';
-  $('#mobileMode').textContent = renew ? 'Prélèvement compte pilote' : p === 'adhesion' ? 'Paiement par carte' : 'Total';
+  $('#mobileMode').textContent = renew ? (compte ? 'Prélèvement compte pilote' : 'Paiement par carte') : p === 'adhesion' ? 'Paiement par carte' : 'Total';
 
-  $('#renewInfo').hidden = !renew;
+  $('#modePaiementGroup').hidden = !renew;
+  $('#renewInfo').hidden = !compte;
   $('#ffaReq').hidden = !renew;
   $('#licence_ffa').required = renew;
   $('#ffaHint').textContent = renew ? 'Obligatoire pour une réinscription : il permet de retrouver votre compte pilote.' : 'Si vous avez déjà été licencié.';
   $('#idLead').textContent = renew
     ? 'Vérifiez et mettez à jour votre fiche : adresse, téléphone, personne à prévenir.'
     : 'Ces informations servent à votre fiche de membre et à votre licence FFA.';
-  $('#emailHint').textContent = renew ? 'Utilisez l\'adresse enregistrée dans Aerogest. La réponse du trésorier vous y sera envoyée.' : 'La confirmation vous sera envoyée à cette adresse.';
-  $('#c_prelev_wrap').hidden = !renew;
-  $('#payCard').hidden = renew || !p;
-  $('#payAccount').hidden = !renew;
+  $('#emailHint').textContent = compte ? 'Utilisez l\'adresse enregistrée dans Aerogest. La réponse du trésorier vous y sera envoyée.' : 'La confirmation vous sera envoyée à cette adresse.';
+  $('#c_prelev_wrap').hidden = !compte;
+  $('#payCard').hidden = !paieParCarte();
+  $('#payCardValidText').textContent = renew ? 'Votre réinscription devient effective après validation du Bureau directeur.' : 'Votre adhésion devient effective après validation du Bureau directeur.';
+  $('#payAccount').hidden = !compte;
 
   // Cotisation A.R.C. : déterminée par l'âge, affichée sans choix possible
   const t = arcTarif();
@@ -866,11 +891,11 @@ function refresh() {
   updatePayButtons();
 }
 
-const engagementsOk = () => $('#c_exact').checked && $('#c_reglement').checked && (!isRenew() || $('#c_prelev').checked);
+const engagementsOk = () => $('#c_exact').checked && $('#c_reglement').checked && (!paieParCompte() || $('#c_prelev').checked);
 function updatePayButtons() {
-  const ready = OUVERT && engagementsOk() && !!arcTarif() && !!radio('ffa');
-  $('#payBtn').disabled = !ready || !card;
-  $('#renewBtn').disabled = !ready;
+  const ready = OUVERT && engagementsOk() && !!arcTarif();
+  $('#payBtn').disabled = !ready || !paieParCarte() || !card;
+  $('#renewBtn').disabled = !ready || !paieParCompte();
   $('#gateError').textContent = OUVERT ? '' : 'L\'envoi sera possible à l\'ouverture de la campagne, le 1er octobre 2026.';
 }
 
@@ -890,7 +915,7 @@ function validateStep(n) {
   });
   const rules = {
     0: [['parcours', () => !!parcours()]],
-    2: [['statut', () => checks('statut').length > 0], ['ffa', () => !!radio('ffa')]],
+    2: [['statut', () => checks('statut').length > 0]],
     4: [['engagements', engagementsOk]],
   }[n] || [];
   rules.forEach(([g, fn]) => {
@@ -911,7 +936,7 @@ function go(n) {
   });
   current = n;
   refresh();
-  if (n === 4 && !isRenew()) initStripe();
+  if (n === 4 && paieParCarte()) initStripe();
   window.scrollTo({ top: $('#steps').getBoundingClientRect().top + window.scrollY - 16, behavior: 'smooth' });
   const h = $(`.step[data-step="${n}"] h2`);
   if (h) { h.setAttribute('tabindex', '-1'); h.focus({ preventScroll: true }); }
@@ -989,13 +1014,14 @@ $('#promo').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preven
 
 // ── Données transmises au bureau ─────────────────────────────────────
 function collect(T) {
-  const f = CONFIG.ffa.find(x => x.id === radio('ffa'));
+  const ip = CONFIG.infoPilote.find(x => x.id === radio('infopilote'));
   const plus = CONFIG.ffaPlus.find(x => x.id === radio('ffaplus'));
-  const opts = [plus ? 'FFA PLUS option ' + plus.id + ' (' + plus.capital + ')' : null,
+  const opts = [ip ? 'Info-Pilote ' + ip.nom.toLowerCase() : null,
+                plus ? 'FFA PLUS option ' + plus.id + ' (' + plus.capital + ')' : null,
                 ...checks('fi').map(id => CONFIG.fi.find(x => x.id === id)?.nom)].filter(Boolean);
   const t = arcTarif();
   return {
-    parcours: isRenew() ? 'Renouvellement (prélèvement compte pilote)' : 'Première adhésion (carte bancaire)',
+    parcours: isRenew() ? 'Renouvellement (' + (paieParCompte() ? 'prélèvement compte pilote' : 'carte bancaire') + ')' : 'Première adhésion (carte bancaire)',
     saison: CONFIG.saison + ' (' + CONFIG.validite + ')',
     nom: val('nom').toUpperCase(), prenom: val('prenom'),
     date_naissance: val('ddn'), lieu_naissance: val('lieu_naissance'), nationalite: val('nationalite'),
@@ -1013,7 +1039,7 @@ function collect(T) {
     mois_dc: val('mois_dc'), mois_cdb: val('mois_cdb'), mois_att: val('mois_att'),
     tw_dc: val('tw_dc'), tw_cdb: val('tw_cdb'), tw_att: val('tw_att'),
     cotisation_arc: t ? (t === 'jeune' ? 'Moins de 25 ans' : 'Tarif normal') + ' — ' + fmt(CONFIG.arc[t]) : 'Non déterminée',
-    cotisation_ffa: f ? f.nom + ' — ' + fmt(f.prix) : 'Non sélectionnée',
+    cotisation_ffa: CONFIG.ffaBase.nom + ' — ' + fmt(CONFIG.ffaBase.prix),
     options_ffa: opts.join(', ') || 'Aucune',
     forfait_dc: dcChoisi() ? 'Souscrit — ' + fmt(CONFIG.dc) : 'Non souscrit',
     code_promo: activePromo ? activePromo.code : '',
@@ -1046,14 +1072,14 @@ async function payCard() {
     const r = await fetch('/api/stripe/create-payment-intent', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ amount: T.total, email: data.email, name: data.prenom + ' ' + data.nom,
-        description: 'Adhésion ARC ' + CONFIG.saison + ' — ' + data.prenom + ' ' + data.nom, code_promo: activePromo?.code || null }),
+        description: (isRenew() ? 'Réinscription ARC ' : 'Adhésion ARC ') + CONFIG.saison + ' — ' + data.prenom + ' ' + data.nom, code_promo: activePromo?.code || null }),
     });
     const d = await r.json();
     if (!r.ok || !d.clientSecret) throw new Error(d.error || 'Le paiement n\'a pas pu être initialisé. Réessayez.');
     const res = await stripe.confirmCardPayment(d.clientSecret, { payment_method: { card, billing_details: { name: data.prenom + ' ' + data.nom, email: data.email } } });
     if (res.error) throw new Error(res.error.message);
 
-    if (typeof dataLayer !== 'undefined') dataLayer.push({ event: 'adhesion_submit', value: T.total, currency: 'EUR' });
+    if (typeof dataLayer !== 'undefined') dataLayer.push({ event: isRenew() ? 'reinscription_submit_carte' : 'adhesion_submit', value: T.total, currency: 'EUR' });
     if (activePromo?.fromServer) {
       try { await fetch('/api/promo/consume', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code: activePromo.code, payment_intent_id: res.paymentIntent.id }) }); } catch (e) {}
     }
@@ -1098,13 +1124,14 @@ $('#renewBtn').addEventListener('click', submitRenewal);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 function showDone(kind, o) {
   const p = $('#donePanel');
+  const renew = isRenew();
   p.innerHTML = kind === 'card' ? `
     <h2>Paiement accepté, merci ${esc(o.prenom)}.</h2>
-    <p>Votre règlement de ${fmt(o.total)} est enregistré. Le Bureau directeur valide votre adhésion dans les prochains jours et vous écrit à ${esc(o.email)}.</p>
+    <p>Votre règlement de ${fmt(o.total)} est enregistré. Le Bureau directeur valide votre ${renew ? 'réinscription' : 'adhésion'} dans les prochains jours et vous écrit à ${esc(o.email)}.</p>
     <ol>
-      <li>Vous recevez vos accès Aerogest pour réserver vos vols.</li>
+      ${renew ? '<li>Votre licence FFA et votre cotisation restent actives sans interruption.</li>' : '<li>Vous recevez vos accès Aerogest pour réserver vos vols.</li>'}
       <li>Vous accédez à la formation théorique en ligne sur Aérogligli.</li>
-      <li>Vous nous retrouvez à Chavenay pour votre premier vol au club.</li>
+      ${renew ? '' : "<li>Vous nous retrouvez à Chavenay pour votre premier vol au club.</li>"}
     </ol>
     <p>Une question ? Appelez le club au 01 34 62 30 75.</p>` : `
     <h2>Demande de réinscription envoyée.</h2>
