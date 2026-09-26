@@ -80,12 +80,12 @@ $('#file').addEventListener('change', async e => {
 $('#go').addEventListener('click', async () => {
   const csv = $('#csv').value;
   const st = $('#status');
-  if (!csv.trim()) { st.innerHTML = '<span class="ko-msg">Collez ou choisissez un fichier CSV d\\'abord.</span>'; return; }
+  if (!csv.trim()) { st.innerHTML = '<span class="ko-msg">Collez ou choisissez un fichier CSV d\'abord.</span>'; return; }
   st.textContent = 'Import en cours…';
   try {
     const r = await fetch('/api/membres/import', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ csv }) });
     const d = await r.json();
-    if (!r.ok || !d.ok) throw new Error(d.error || 'Échec de l\\'import.');
+    if (!r.ok || !d.ok) throw new Error(d.error || 'Échec de l\'import.');
     let html = `<span class="ok-msg">${d.importees} / ${d.total} fiche(s) importée(s).</span>`;
     if (d.erreurs?.length) html += '<ul class="err-list">' + d.erreurs.map(e => `<li>${e}</li>`).join('') + '</ul>';
     st.innerHTML = html;
