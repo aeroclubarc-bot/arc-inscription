@@ -499,7 +499,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <div class="field"><label for="ville">Ville<span class="req">*</span></label><input type="text" id="ville" autocomplete="address-level2" required><span class="err">Indiquez votre ville.</span></div>
           <div class="field"><label for="mobile">Mobile<span class="req">*</span></label><input type="tel" id="mobile" autocomplete="tel" required pattern="[0-9 +().\-]{10,20}"><span class="err">Indiquez un numéro de mobile valide.</span></div>
           <div class="field"><label for="tel">Autre téléphone</label><input type="tel" id="tel"></div>
-          <div class="field wide"><label for="email">Email<span class="req">*</span></label><input type="email" id="email" autocomplete="email" required><span class="hint" id="emailHint">La confirmation vous sera envoyée à cette adresse.</span><span class="err">Indiquez une adresse email valide.</span></div>
+          <div class="field wide"><label for="email">Email<span class="req">*</span></label><input type="email" id="email" autocomplete="email" required><span class="hint" id="emailHint">La confirmation vous sera envoyée à cette adresse.</span><span class="err">Indiquez une adresse email valide.</span><span class="hint" id="lookupStatus" aria-live="polite"></span></div>
         </div>
 
         <h3>Personne à prévenir en cas d'accident</h3>
@@ -950,14 +950,60 @@ $('#f').addEventListener('submit', e => e.preventDefault());
 $('#f').addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.matches('input:not(#promo)')) e.preventDefault(); });
 $('#f').addEventListener('input', e => {
   if (e.target.getAttribute('aria-invalid') === 'true' && e.target.value.trim() && e.target.checkValidity()) setError(e.target, false);
-  refresh(); saveDraft();
+  refresh(); saveDraft(); scheduleLookup();
 });
 $('#f').addEventListener('change', e => {
   const g = e.target.closest('.group.invalid');
   if (g) g.classList.remove('invalid');
   if (e.target.name === 'parcours' && activePromo?.nouveauxSeulement && isRenew()) removePromo('Ce code est réservé aux premières adhésions.');
-  refresh(); saveDraft();
+  refresh(); saveDraft(); scheduleLookup();
 });
+
+// ── Recherche de fiche membre (réinscription uniquement) ──────────────
+// Se déclenche automatiquement une fois nom, prénom, date de naissance et
+// email valides. Recherche stricte sur ces 4 champs : jamais de liste, un
+// membre ne peut retrouver que SA PROPRE fiche en la saisissant lui-même.
+let lookupTimer = null, lookupSig = '';
+const emailValid = v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+const ddnValid = v => /^\d{4}-\d{2}-\d{2}$/.test(v) && ageAt(v, CONFIG.dateAge) !== null;
+function scheduleLookup() {
+  const el = $('#lookupStatus'); if (!el) return;
+  if (!isRenew()) { el.textContent = ''; lookupSig = ''; clearTimeout(lookupTimer); return; }
+  const nom = val('nom'), prenom = val('prenom'), ddn = val('ddn'), email = val('email');
+  if (!nom || !prenom || !ddnValid(ddn) || !emailValid(email)) { el.textContent = ''; lookupSig = ''; return; }
+  const sig = [nom, prenom, ddn, email].join('|').toLowerCase();
+  if (sig === lookupSig) return;
+  clearTimeout(lookupTimer);
+  lookupTimer = setTimeout(() => doLookup(sig, { nom, prenom, ddn, email }), 700);
+}
+async function doLookup(sig, q) {
+  lookupSig = sig;
+  const el = $('#lookupStatus'); if (!el) return;
+  el.textContent = 'Recherche de votre fiche…';
+  try {
+    const r = await fetch('/api/reinscription/lookup', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(q) });
+    const d = await r.json();
+    if (sig !== lookupSig) return; // une saisie plus récente a pris le relais
+    if (d.found) { fillFromMembre(d.data); el.textContent = 'Fiche retrouvée : vérifiez les informations complétées automatiquement.'; }
+    else el.textContent = 'Aucune fiche retrouvée avec ces informations : complétez le formulaire ci-dessous.';
+  } catch (e) { if (sig === lookupSig) el.textContent = ''; }
+}
+const setIfEmpty = (id, v) => { if (!v) return; const el = $('#' + id); if (el && !el.value) el.value = v; };
+const setRadioIfNone = (name, v) => { if (!v || radio(name)) return; const el = $(`input[name="${name}"][value="${CSS.escape(v)}"]`); if (el) el.checked = true; };
+const setChecksIfNone = (name, csv) => {
+  if (!csv || checks(name).length) return;
+  csv.split(',').map(s => s.trim()).filter(Boolean).forEach(v => { const el = $(`input[name="${name}"][value="${CSS.escape(v)}"]`); if (el) el.checked = true; });
+};
+function fillFromMembre(d) {
+  ['lieu_naissance', 'nationalite', 'profession', 'employeur', 'adresse', 'cp', 'ville', 'mobile', 'tel',
+   'urgence_nom', 'urgence_tel', 'beneficiaire_nom', 'beneficiaire_tel', 'licence_ffa', 'licence_cpl',
+   'date_obtention', 'date_validite', 'med_validite', 'tw_date'].forEach(k => setIfEmpty(k, d[k]));
+  setRadioIfNone('sexe', d.sexe);
+  setRadioIfNone('med', d.medical);
+  setChecksIfNone('statut', d.statuts);
+  setChecksIfNone('qual', d.qualifications);
+  refresh(); saveDraft();
+}
 
 // ── Brouillon local (reprise après fermeture de la page) ─────────────
 function saveDraft() {

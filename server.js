@@ -92,6 +92,28 @@ if (process.env.DATABASE_URL) {
         traite_le    TIMESTAMPTZ
       );
     `);
+    // Fiches membres importées depuis Aerogest — sert uniquement à pré-remplir
+    // le formulaire de réinscription (recherche stricte sur 4 champs, jamais de liste).
+    await pgPool.query(`
+      CREATE TABLE IF NOT EXISTS membres (
+        id                SERIAL PRIMARY KEY,
+        nom               TEXT NOT NULL,
+        prenom            TEXT NOT NULL,
+        date_naissance    DATE NOT NULL,
+        email             TEXT NOT NULL,
+        lieu_naissance    TEXT, nationalite TEXT, sexe TEXT, profession TEXT, employeur TEXT,
+        adresse           TEXT, cp TEXT, ville TEXT, mobile TEXT, tel TEXT,
+        urgence_nom       TEXT, urgence_tel TEXT, beneficiaire_nom TEXT, beneficiaire_tel TEXT,
+        licence_ffa       TEXT, licence_cpl TEXT, date_obtention DATE, date_validite DATE,
+        medical           TEXT, med_validite DATE, tw_date DATE,
+        statuts           TEXT, qualifications TEXT,
+        maj_le            TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      );
+    `);
+    await pgPool.query(`
+      CREATE UNIQUE INDEX IF NOT EXISTS membres_lookup_key
+      ON membres (lower(nom), lower(prenom), date_naissance, lower(email));
+    `);
     pgReady = true;
     console.log("✓ PostgreSQL connecté — sync notes atelier activée");
   } catch (e) {
@@ -183,6 +205,7 @@ const PROTECTED_HTML = new Set([
   "/signer-ot.html",
   "/promo-admin.html",
   "/reinscriptions-admin.html",
+  "/membres-admin.html",
 ]);
 app.use((req, res, next) => {
   if (PROTECTED_HTML.has(req.path)) {
@@ -780,6 +803,159 @@ ${motif ? `<p>Précision du trésorier : ${esc(motif)}</p>` : ""}
   }
 });
 
+// ── FICHES MEMBRES (pré-remplissage de la réinscription) ──────────────
+// Import ponctuel (une fois par saison) depuis un export Aerogest/Excel,
+// et recherche stricte côté membre : rien n'est jamais listé ou parcouru,
+// une fiche n'est renvoyée que si les 4 champs saisis correspondent exactement.
+
+function parseDateFR(s) {
+  s = (s || "").toString().trim();
+  if (!s) return null;
+  let m = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (m) return s;
+  m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (m) return `${m[3]}-${m[2].padStart(2, "0")}-${m[1].padStart(2, "0")}`;
+  return null;
+}
+// Parseur CSV minimal : séparateur point-virgule, guillemets doublés supportés.
+function parseCSV(text) {
+  const lines = text.replace(/\r\n/g, "\n").replace(/^\uFEFF/, "").split("\n").filter((l) => l.trim() !== "");
+  const splitLine = (line) => {
+    const out = []; let cur = ""; let inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      const c = line[i];
+      if (inQ) {
+        if (c === '"' && line[i + 1] === '"') { cur += '"'; i++; }
+        else if (c === '"') inQ = false;
+        else cur += c;
+      } else if (c === '"') inQ = true;
+      else if (c === ";") { out.push(cur); cur = ""; }
+      else cur += c;
+    }
+    out.push(cur);
+    return out.map((s) => s.trim());
+  };
+  const header = splitLine(lines[0]).map((h) => h.toLowerCase());
+  return lines.slice(1).map((l) => {
+    const cells = splitLine(l);
+    const row = {};
+    header.forEach((h, i) => (row[h] = cells[i] ?? ""));
+    return row;
+  });
+}
+
+const MEMBRE_COLONNES = [
+  "nom", "prenom", "date_naissance", "email", "lieu_naissance", "nationalite", "sexe", "profession", "employeur",
+  "adresse", "cp", "ville", "mobile", "tel", "urgence_nom", "urgence_tel", "beneficiaire_nom", "beneficiaire_tel",
+  "licence_ffa", "licence_cpl", "date_obtention", "date_validite", "medical", "med_validite", "tw_date",
+  "statuts", "qualifications",
+];
+
+app.get("/api/membres/template", maintAuth, (req, res) => {
+  res.setHeader("Content-Type", "text/csv; charset=utf-8");
+  res.setHeader("Content-Disposition", 'attachment; filename="modele-membres.csv"');
+  res.send("\ufeff" + MEMBRE_COLONNES.join(";") + "\n");
+});
+
+// Import (remplace la fiche existante si nom+prénom+date de naissance+email correspondent déjà).
+app.post("/api/membres/import", maintAuth, async (req, res) => {
+  if (!pgReady) return res.status(503).json({ error: "db_unavailable" });
+  try {
+    const csv = (req.body?.csv || "").toString();
+    if (!csv.trim()) return res.status(400).json({ error: "Fichier vide" });
+    const rows = parseCSV(csv);
+    let importees = 0;
+    const erreurs = [];
+    for (const [i, r] of rows.entries()) {
+      const nom = (r.nom || "").trim();
+      const prenom = (r.prenom || "").trim();
+      const email = (r.email || "").trim().toLowerCase();
+      const ddn = parseDateFR(r.date_naissance);
+      if (!nom || !prenom || !email || !ddn) {
+        erreurs.push(`Ligne ${i + 2} : nom, prénom, email et date de naissance sont obligatoires (format JJ/MM/AAAA ou AAAA-MM-JJ).`);
+        continue;
+      }
+      const vals = {
+        nom, prenom, date_naissance: ddn, email,
+        lieu_naissance: r.lieu_naissance || null, nationalite: r.nationalite || null, sexe: r.sexe || null,
+        profession: r.profession || null, employeur: r.employeur || null,
+        adresse: r.adresse || null, cp: r.cp || null, ville: r.ville || null, mobile: r.mobile || null, tel: r.tel || null,
+        urgence_nom: r.urgence_nom || null, urgence_tel: r.urgence_tel || null,
+        beneficiaire_nom: r.beneficiaire_nom || null, beneficiaire_tel: r.beneficiaire_tel || null,
+        licence_ffa: r.licence_ffa || null, licence_cpl: r.licence_cpl || null,
+        date_obtention: parseDateFR(r.date_obtention), date_validite: parseDateFR(r.date_validite),
+        medical: r.medical || null, med_validite: parseDateFR(r.med_validite), tw_date: parseDateFR(r.tw_date),
+        statuts: r.statuts || null, qualifications: r.qualifications || null,
+      };
+      await pgPool.query(
+        `INSERT INTO membres (nom, prenom, date_naissance, email, lieu_naissance, nationalite, sexe, profession, employeur,
+           adresse, cp, ville, mobile, tel, urgence_nom, urgence_tel, beneficiaire_nom, beneficiaire_tel,
+           licence_ffa, licence_cpl, date_obtention, date_validite, medical, med_validite, tw_date, statuts, qualifications)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27)
+         ON CONFLICT (lower(nom), lower(prenom), date_naissance, lower(email)) DO UPDATE SET
+           lieu_naissance=EXCLUDED.lieu_naissance, nationalite=EXCLUDED.nationalite, sexe=EXCLUDED.sexe,
+           profession=EXCLUDED.profession, employeur=EXCLUDED.employeur, adresse=EXCLUDED.adresse, cp=EXCLUDED.cp,
+           ville=EXCLUDED.ville, mobile=EXCLUDED.mobile, tel=EXCLUDED.tel, urgence_nom=EXCLUDED.urgence_nom,
+           urgence_tel=EXCLUDED.urgence_tel, beneficiaire_nom=EXCLUDED.beneficiaire_nom, beneficiaire_tel=EXCLUDED.beneficiaire_tel,
+           licence_ffa=EXCLUDED.licence_ffa, licence_cpl=EXCLUDED.licence_cpl, date_obtention=EXCLUDED.date_obtention,
+           date_validite=EXCLUDED.date_validite, medical=EXCLUDED.medical, med_validite=EXCLUDED.med_validite,
+           tw_date=EXCLUDED.tw_date, statuts=EXCLUDED.statuts, qualifications=EXCLUDED.qualifications, maj_le = NOW()`,
+        Object.values(vals)
+      );
+      importees++;
+    }
+    res.json({ ok: true, importees, total: rows.length, erreurs });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.get("/api/membres/count", maintAuth, async (req, res) => {
+  if (!pgReady) return res.status(503).json({ error: "db_unavailable" });
+  const { rows } = await pgPool.query("SELECT count(*)::int AS n, max(maj_le) AS maj_le FROM membres");
+  res.json(rows[0]);
+});
+
+// Recherche stricte : jamais de liste, jamais d'indice sur le champ en cause.
+// Limite anti-abus légère (mémoire, par IP) : le formulaire n'a besoin que de
+// quelques appels par visiteur ; ce n'est pas un annuaire à parcourir.
+const lookupAttempts = new Map();
+function lookupRateOk(ip) {
+  const now = Date.now();
+  const hist = (lookupAttempts.get(ip) || []).filter((t) => now - t < 15 * 60 * 1000);
+  hist.push(now);
+  lookupAttempts.set(ip, hist);
+  if (lookupAttempts.size > 5000) lookupAttempts.clear(); // purge grossière
+  return hist.length <= 20;
+}
+
+app.post("/api/reinscription/lookup", async (req, res) => {
+  if (!pgReady) return res.json({ found: false });
+  const ip = req.headers["x-forwarded-for"]?.split(",")[0]?.trim() || req.socket.remoteAddress || "?";
+  if (!lookupRateOk(ip)) return res.status(429).json({ found: false, error: "Trop de tentatives, réessayez plus tard." });
+  try {
+    const nom = (req.body?.nom || "").toString().trim();
+    const prenom = (req.body?.prenom || "").toString().trim();
+    const email = (req.body?.email || "").toString().trim().toLowerCase();
+    const ddn = parseDateFR(req.body?.ddn || "");
+    if (!nom || !prenom || !email || !ddn) return res.json({ found: false });
+    const { rows } = await pgPool.query(
+      `SELECT lieu_naissance, nationalite, sexe, profession, employeur, adresse, cp, ville, mobile, tel,
+              urgence_nom, urgence_tel, beneficiaire_nom, beneficiaire_tel, licence_ffa, licence_cpl,
+              to_char(date_obtention,'YYYY-MM-DD') AS date_obtention, to_char(date_validite,'YYYY-MM-DD') AS date_validite,
+              medical, to_char(med_validite,'YYYY-MM-DD') AS med_validite, to_char(tw_date,'YYYY-MM-DD') AS tw_date,
+              statuts, qualifications
+       FROM membres WHERE lower(nom) = lower($1) AND lower(prenom) = lower($2) AND date_naissance = $3 AND lower(email) = $4
+       LIMIT 1`,
+      [nom, prenom, ddn, email]
+    );
+    if (!rows.length) return res.json({ found: false });
+    res.json({ found: true, data: rows[0] });
+  } catch (e) {
+    res.status(500).json({ found: false });
+  }
+});
+
 // ── PROXY PPV (cache mémoire 60 s + timeout 5 s) ─────────────────────
 // Le service ppv-production sert déjà ses propres données depuis un cache
 // (aucun appel Solarman par requête). Ce cache-ci évite en plus de le
@@ -1060,6 +1236,7 @@ app.get("/entretien-dh251", maintAuth, (req, res) => res.sendFile(path.join(__di
 app.get("/signer-ot",       maintAuth, (req, res) => res.sendFile(path.join(__dirname, "signer-ot.html")));
 app.get("/promo-admin",     maintAuth, (req, res) => res.sendFile(path.join(__dirname, "promo-admin.html")));
 app.get("/reinscriptions-admin", maintAuth, (req, res) => res.sendFile(path.join(__dirname, "reinscriptions-admin.html")));
+app.get("/membres-admin", maintAuth, (req, res) => res.sendFile(path.join(__dirname, "membres-admin.html")));
 
 app.get("/sitemap.xml", (req, res) => {
   res.setHeader("Content-Type", "application/xml");

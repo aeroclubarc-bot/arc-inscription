@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Import des fiches membres — A.R.C.</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Libre+Baskerville:wght@700&display=swap" rel="stylesheet">
+<style>
+  :root { --navy:#0a1628; --sky:#2d6be4; --gold:#c8a84b; --paper:#f8f5f0; --line:#e3ded4; --soft:#5b6472; --ok:#1f7a45; --err:#c42b2b; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', -apple-system, sans-serif; background: var(--paper); color: var(--navy); font-size: 15px; line-height: 1.55; padding: 32px 20px 60px; }
+  .wrap { max-width: 760px; margin: 0 auto; }
+  h1 { font-family: 'Libre Baskerville', Georgia, serif; font-size: 26px; }
+  .lead { color: var(--soft); margin-top: 6px; max-width: 70ch; }
+  .card { background: #fff; border: 1px solid var(--line); border-radius: 6px; padding: 22px; margin-top: 20px; }
+  .card h2 { font-size: 16px; margin-bottom: 8px; }
+  .card p { color: var(--soft); font-size: 14px; margin-bottom: 6px; }
+  .status { font-size: 14px; margin-top: 10px; }
+  a.btn, button.btn { display: inline-block; font: inherit; font-size: 14px; font-weight: 600; padding: 10px 16px; border-radius: 5px; border: 0; cursor: pointer; background: var(--navy); color: #fff; text-decoration: none; margin-top: 10px; }
+  button.btn.ko { background: var(--err); }
+  textarea { width: 100%; min-height: 220px; font: 13px/1.5 ui-monospace, monospace; padding: 12px; border: 1.5px solid var(--line); border-radius: 5px; margin-top: 10px; resize: vertical; }
+  input[type=file] { margin-top: 10px; }
+  .warn { border-left: 4px solid var(--gold); background: #fbf5e4; padding: 12px 14px; margin-top: 14px; font-size: 14px; }
+  .ok-msg { color: var(--ok); font-weight: 600; }
+  .ko-msg { color: var(--err); font-weight: 600; }
+  ul.err-list { margin: 8px 0 0 18px; font-size: 13px; color: var(--err); }
+  code { background: var(--paper); padding: 1px 5px; border-radius: 3px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Fiches membres</h1>
+  <p class="lead">Sert uniquement à pré-remplir le formulaire de réinscription. Un membre ne peut retrouver sa fiche qu'en tapant lui-même son nom, son prénom, sa date de naissance et son email exacts : rien n'est jamais listé ni consultable depuis le formulaire public.</p>
+
+  <div class="card">
+    <h2>État actuel</h2>
+    <p id="count">Chargement…</p>
+  </div>
+
+  <div class="card">
+    <h2>1. Modèle CSV</h2>
+    <p>Colonnes attendues (séparateur point-virgule), dans cet ordre : <code>nom;prenom;date_naissance;email;lieu_naissance;nationalite;sexe;profession;employeur;adresse;cp;ville;mobile;tel;urgence_nom;urgence_tel;beneficiaire_nom;beneficiaire_tel;licence_ffa;licence_cpl;date_obtention;date_validite;medical;med_validite;tw_date;statuts;qualifications</code></p>
+    <p>Dates au format JJ/MM/AAAA ou AAAA-MM-JJ. Seuls nom, prénom, email et date de naissance sont obligatoires ; le reste peut rester vide.</p>
+    <p><strong>sexe</strong> : <code>F</code> ou <code>M</code>. <strong>medical</strong> : <code>Classe 1</code>, <code>Classe 2</code> ou <code>LAPL</code>.</p>
+    <p><strong>statuts</strong> (plusieurs valeurs séparées par une virgule à l'intérieur de la cellule) : <code>Élève Pilote</code>, <code>Reçu examen théorique</code>, <code>LAPL</code>, <code>PPL</code>, <code>CPL</code>, <code>ATPL</code>.</p>
+    <p><strong>qualifications</strong> (idem, séparées par une virgule) : <code>TW (Train classique)</code>, <code>VFR Nuit</code>, <code>IFR</code>, <code>Montagne</code>, <code>Voltige</code>, <code>Remorquage</code>, <code>Largage</code>, <code>BIA</code>.</p>
+    <p>Ces libellés doivent être recopiés exactement (accents et majuscules compris) : une valeur qui ne correspond pas ne sera simplement pas cochée automatiquement, le membre pourra toujours la cocher lui-même.</p>
+    <a class="btn" href="/api/membres/template">Télécharger le modèle</a>
+  </div>
+
+  <div class="card">
+    <h2>2. Importer</h2>
+    <p>Un membre déjà présent (même nom, prénom, date de naissance et email) est mis à jour ; les autres sont ajoutés.</p>
+    <input type="file" id="file" accept=".csv,text/csv">
+    <textarea id="csv" placeholder="Ou collez directement le contenu du CSV ici…"></textarea>
+    <div>
+      <button class="btn" id="go">Importer</button>
+    </div>
+    <div class="status" id="status"></div>
+  </div>
+</div>
+<script>
+const $ = s => document.querySelector(s);
+
+async function loadCount() {
+  const r = await fetch('/api/membres/count');
+  if (r.status === 401) { location.href = '/maintenance/login?next=/membres-admin'; return; }
+  const d = await r.json();
+  $('#count').textContent = d.n > 0
+    ? `${d.n} fiche(s) enregistrée(s). Dernière mise à jour : ${new Date(d.maj_le).toLocaleString('fr-FR')}.`
+    : 'Aucune fiche importée pour le moment.';
+}
+
+$('#file').addEventListener('change', async e => {
+  const f = e.target.files[0];
+  if (f) $('#csv').value = await f.text();
+});
+
+$('#go').addEventListener('click', async () => {
+  const csv = $('#csv').value;
+  const st = $('#status');
+  if (!csv.trim()) { st.innerHTML = '<span class="ko-msg">Collez ou choisissez un fichier CSV d\\'abord.</span>'; return; }
+  st.textContent = 'Import en cours…';
+  try {
+    const r = await fetch('/api/membres/import', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ csv }) });
+    const d = await r.json();
+    if (!r.ok || !d.ok) throw new Error(d.error || 'Échec de l\\'import.');
+    let html = `<span class="ok-msg">${d.importees} / ${d.total} fiche(s) importée(s).</span>`;
+    if (d.erreurs?.length) html += '<ul class="err-list">' + d.erreurs.map(e => `<li>${e}</li>`).join('') + '</ul>';
+    st.innerHTML = html;
+    loadCount();
+  } catch (e) {
+    st.innerHTML = `<span class="ko-msg">${e.message}</span>`;
+  }
+});
+
+loadCount();
+</script>
+</body>
+</html>
