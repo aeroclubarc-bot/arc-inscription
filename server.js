@@ -592,6 +592,26 @@ TOTAL RÉGLÉ : ${d.montant_paye}
       return res.status(500).json({ error: error.message || "Erreur Resend" });
     }
     console.log(`Email envoyé pour ${d.prenom} ${d.nom} — ID: ${data.id}`);
+
+    // Confirmation au membre — ne doit jamais faire échouer la réponse :
+    // le paiement Stripe est déjà validé à ce stade.
+    if (d.email) {
+      const renew = /renouvellement/i.test(d.parcours || "");
+      try {
+        const { error: err2 } = await resend.emails.send({
+          from: "Aéroclub A.R.C. <onboarding@resend.dev>",
+          to: [d.email],
+          subject: renew ? `Réinscription ${d.saison || "2026-2027"} enregistrée` : `Adhésion ${d.saison || "2026-2027"} enregistrée`,
+          html: `<p>Bonjour ${d.prenom || ""},</p>
+<p>Votre règlement de <strong>${d.montant_paye}</strong> est bien enregistré${renew ? ", pour le renouvellement de votre adhésion" : ""}.</p>
+<p>${renew ? "Votre réinscription" : "Votre adhésion"} pour la saison ${d.saison || "2026-2027"} devient effective après validation du Bureau directeur, dans les prochains jours.</p>
+<p>Bons vols,<br>Antoine Drieu, Président — Aéroclub A.R.C.<br>
+Aérodrome de Chavenay-Villepreux (LFPX) — 01 34 62 30 75</p>`,
+        });
+        if (err2) console.error("[inscription] mail membre — refusé par Resend:", err2);
+      } catch (e) { console.error("[inscription] mail membre:", e.message); }
+    }
+
     res.json({ ok: true, emailId: data.id });
   } catch(e) {
     console.error("Erreur inscription submit:", e.message);
@@ -674,7 +694,7 @@ app.post("/api/reinscription/submit", async (req, res) => {
       const recap = lignesTexte(d.lignes);
       // Bureau / trésorier
       try {
-        await resend.emails.send({
+        const { error } = await resend.emails.send({
           from: MAIL_FROM,
           to: [destEmail],
           reply_to: email,
@@ -702,10 +722,11 @@ Traitement : https://www.aeroclub-arc.fr/reinscriptions-admin
 La fiche complète (identité, statut pilote, licences) est consultable sur la page de traitement.
 ════════════════════════════════════════`,
         });
+        if (error) console.error("[reinscription] mail bureau — refusé par Resend:", error);
       } catch (e) { console.error("[reinscription] mail bureau:", e.message); }
       // Accusé de réception au membre
       try {
-        await resend.emails.send({
+        const { error } = await resend.emails.send({
           from: MAIL_FROM,
           to: [email],
           subject: `Votre demande de réinscription ${SAISON} est enregistrée`,
@@ -717,6 +738,7 @@ Référence de votre demande : ${reference}</p>
 <p>Bons vols,<br>Antoine Drieu, Président — Aéroclub A.R.C.<br>
 Aérodrome de Chavenay-Villepreux (LFPX) — 01 34 62 30 75</p>`,
         });
+        if (error) console.error("[reinscription] mail membre — refusé par Resend:", error);
       } catch (e) { console.error("[reinscription] mail membre:", e.message); }
     }
 
@@ -787,7 +809,7 @@ ${motif ? `<p>Précision du trésorier : ${esc(motif)}</p>` : ""}
 <p>Pour toute question, vous pouvez joindre le club au 01 34 62 30 75.</p>
 <p>Cordialement,<br>Antoine Drieu, Président — Aéroclub A.R.C.</p>`;
       try {
-        await resend.emails.send({
+        const { error } = await resend.emails.send({
           from: MAIL_FROM,
           to: [r.email],
           subject: decision === "validee"
@@ -795,6 +817,7 @@ ${motif ? `<p>Précision du trésorier : ${esc(motif)}</p>` : ""}
             : `Réinscription ${SAISON} non validée — solde insuffisant`,
           html,
         });
+        if (error) console.error("[reinscription] mail décision — refusé par Resend:", error);
       } catch (e) { console.error("[reinscription] mail décision:", e.message); }
     }
     res.json({ ok: true });
@@ -1156,7 +1179,7 @@ async function enregistrerDon(sessionId) {
     if (resendKey) {
       const resend = new Resend(resendKey);
       try {
-        await resend.emails.send({
+        const { error } = await resend.emails.send({
           from: "Aéroclub A.R.C. <contact@aeroclub-arc.fr>",
           to: d.email,
           subject: `Merci pour votre don de ${montant} €`,
@@ -1171,10 +1194,11 @@ async function enregistrerDon(sessionId) {
             <p>Bons vols,<br>A. Drieu — Président<br>
                Aéroclub A.R.C., Aérodrome de Chavenay-Villepreux (LFPX)</p>`,
         });
+        if (error) console.error("[don] mail donateur — refusé par Resend:", error);
       } catch (e) { console.error("[don] mail donateur:", e.message); }
 
       try {
-        await resend.emails.send({
+        const { error } = await resend.emails.send({
           from: "Site A.R.C. <contact@aeroclub-arc.fr>",
           to: "contact@aeroclub-arc.fr",
           subject: `Nouveau don : ${montant} € (${s.metadata.profil})`,
@@ -1182,6 +1206,7 @@ async function enregistrerDon(sessionId) {
                  <p>${d.name || "—"}<br>${d.email || "—"}<br>${adresse || "—"}</p>
                  <p style="color:#888;font-size:12px">Session ${s.id}</p>`,
         });
+        if (error) console.error("[don] mail interne — refusé par Resend:", error);
       } catch (e) { console.error("[don] mail interne:", e.message); }
     }
   }
