@@ -611,6 +611,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
         <h3>Forfait double commande <span class="opt">(facultatif)</span></h3>
         <div class="rows" id="dcRows"></div>
+        <p class="hint" id="dcNote" style="margin-top:8px"></p>
 
         <h3>Contributions obligatoires</h3>
         <div class="rows" id="fixedRows"></div>
@@ -725,6 +726,7 @@ const CONFIG = {
     { id: 'fi_rc',  nom: 'Responsabilité civile personnelle FI/FE', desc: 'RC personnelle en qualité d\'instructeur', prix: 110 },
   ],
   dc: 60,                                    // forfait double commande facultatif, DC illimitée sur la saison
+  dcStatuts: ['LAPL', 'PPL', 'CPL', 'ATPL'], // réservé aux pilotes brevetés, pas aux élèves pilotes
   audace: 5,
   caution: 50,
   cautionRenouvellement: true,               // [À VÉRIFIER] caution aussi demandée en renouvellement
@@ -801,7 +803,8 @@ function arcTarif() {
   if (a === null) return null;
   return a < CONFIG.ageJeune ? 'jeune' : 'standard';
 }
-const dcChoisi = () => !!$('#dc')?.checked;
+const dcEligible = () => checks('statut').some(s => CONFIG.dcStatuts.includes(s));
+const dcChoisi = () => dcEligible() && !!$('#dc')?.checked;
 const cautionApplies = () => !isRenew() || CONFIG.cautionRenouvellement;
 
 function lines() {
@@ -883,6 +886,17 @@ function refresh() {
         <span class="p">${fmt(CONFIG.arc[k])}</span>
       </span></div>`).join('');
   $('#arcMissing').style.display = t ? 'none' : 'block';
+
+  const dcOk = dcEligible();
+  const dcRow = $('#dc')?.closest('.row');
+  if ($('#dc')) {
+    if (!dcOk && $('#dc').checked) $('#dc').checked = false;
+    $('#dc').disabled = !dcOk;
+  }
+  if (dcRow) dcRow.style.opacity = dcOk ? '1' : '0.5';
+  $('#dcNote').textContent = dcOk
+    ? ''
+    : 'Réservé aux pilotes brevetés (LAPL, PPL, CPL, ATPL) : non disponible pour les élèves pilotes.';
 
   $('#fixedRows').innerHTML = `
     <div class="row fixed on"><span class="rl"><b>Contribution AUDACE<span class="tag">Obligatoire</span></b><small>Due par tous les membres.</small></span><span class="rp">+${fmt(CONFIG.audace)}</span></div>
