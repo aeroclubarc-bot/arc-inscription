@@ -1269,7 +1269,20 @@ app.get("/sitemap.xml", (req, res) => {
 });
 app.get("/robots.txt", (req, res) => {
   res.setHeader("Content-Type", "text/plain");
-  res.send("User-agent: *\nAllow: /\nDisallow: /maintenance\nDisallow: /entretien-d113\nDisallow: /entretien-dr250\nDisallow: /entretien-dh251\nDisallow: /signer-ot\nDisallow: /promo-admin\nSitemap: https://www.aeroclub-arc.fr/sitemap.xml\n");
+  res.send(
+    "User-agent: *\n" +
+    "Allow: /\n" +
+    "Disallow: /api/\n" +
+    "Disallow: /maintenance\n" +
+    "Disallow: /entretien-d113\n" +
+    "Disallow: /entretien-dr250\n" +
+    "Disallow: /entretien-dh251\n" +
+    "Disallow: /signer-ot\n" +
+    "Disallow: /promo-admin\n" +
+    "Disallow: /reinscriptions-admin\n" +
+    "Disallow: /membres-admin\n" +
+    "Sitemap: https://www.aeroclub-arc.fr/sitemap.xml\n"
+  );
 });
 
 app.listen(PORT, () => {
