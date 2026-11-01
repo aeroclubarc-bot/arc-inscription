@@ -358,6 +358,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   .form-error { color: var(--error); font-size: 14px; font-weight: 500; margin-top: 10px; }
   .form-error:empty { display: none; }
   .alt-pay { margin-top: 18px; font-size: 13px; }
+  .payment .climate-note { margin-top: 16px; padding: 10px 14px; font-size: 13px; color: var(--ok); background: var(--ok-wash); border-left: 4px solid var(--ok); border-radius: 0 4px 4px 0; }
 
   /* Confirmation */
   .done-panel h2 { font-size: 26px; }
@@ -652,6 +653,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <div id="card-element"></div>
           <p class="form-error" id="cardError" role="alert"></p>
           <button type="button" class="btn btn-primary btn-block" id="payBtn" disabled>Payer <span class="amt">0 €</span> par carte</button>
+          <p class="climate-note">🌱 L'Aéroclub A.R.C. reverse 1 % de chaque paiement en ligne à des projets de captation durable de CO₂, via Stripe Climate.</p>
           <p class="alt-pay">Vous préférez le virement ou le chèque ? Appelez le club au 01 34 62 30 75 avant tout règlement.<br>IBAN FR76 1751 5006 0008 9428 4831 226, BIC CEPAFRPP751. Chèque à l'ordre de l'Aéroclub A.R.C.</p>
         </div>
 
