@@ -77,7 +77,7 @@ nav#arc-nav{position:sticky;top:0;z-index:1000;background:rgba(10,22,40,0.97);ba
 .arc-nav-mobile a{display:block;color:rgba(255,255,255,0.8);font-size:14px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.06);}
 .arc-nav-cta-mobile{color:#c8a84b !important;font-weight:700;}
 #arc-nav.open .arc-nav-mobile{display:block;}
-@media(max-width:1080px){.arc-nav-links,.arc-nav-cta{display:none;}.arc-nav-burger{display:flex;}}
+@media(max-width:900px){.arc-nav-links,.arc-nav-cta{display:none;}.arc-nav-burger{display:flex;}}
 .page-hero{background:linear-gradient(135deg,rgba(10,22,40,0.92) 0%,rgba(26,58,107,0.85) 100%),url('https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69cbab6c2b58dfb3fb3458b2_IMG_6319.jpeg') center/cover;padding:72px 24px 56px;text-align:center;}
 .page-hero .eyebrow{font-size:11px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:12px;}
 .page-hero h1{font-size:clamp(32px,5vw,56px);font-weight:900;color:white;letter-spacing:-0.03em;line-height:1.05;margin-bottom:14px;}
@@ -328,6 +328,169 @@ footer a{color:var(--gold);}
   "url": "https://www.aeroclub-arc.fr/aerodrome"
 }
   </script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<style id="arc-refresh">
+/* ═══ ARC — refonte visuelle ═══
+   Couche de surcharge : ne modifie ni le HTML, ni le SEO, ni les scripts. */
+:root{
+  --navy:#0E2240;      /* nuit */
+  --blue:#163563;
+  --sky:#1F4E8C;       /* bleu carte VAC */
+  --gold:#B8913A;      /* laiton (sur fond sombre) */
+  --brass-ink:#7E5F1E; /* laiton foncé (texte sur fond clair) */
+  --cream:#EDF0F3;     /* toile */
+  --light:#D9DEE5;
+  --gray:#4F5B6B;
+  --ink:#18202C;
+  --display:'Barlow Condensed','Arial Narrow',sans-serif;
+  --body:'Barlow',system-ui,sans-serif;
+}
+body{font-family:var(--body);color:var(--ink);font-size:17px;line-height:1.55;}
+:focus-visible{outline:2px solid var(--gold);outline-offset:3px;}
+
+/* Titres : condensé type signalétique aéronautique */
+.hero h1,.section-title,.cta-section h2,.avion-name,.avantage-card h3,
+.fc-head h3,.tc-visual h3,.cap-box h3,.stat-num,.fc-price,.tarif-card .price,.avion-price{
+  font-family:var(--display);letter-spacing:0;
+}
+.section-title{font-weight:700;font-size:clamp(34px,4.6vw,54px);line-height:1.02;color:var(--navy);}
+.section-lead{font-size:18px;color:var(--gray);max-width:60ch;}
+
+/* Libellés : plus de capitales espacées, simple annotation de carte */
+.section-label,.hero-eyebrow{
+  font-family:var(--body);font-size:15px;font-weight:500;
+  letter-spacing:0;text-transform:none;color:var(--brass-ink);
+}
+.dark .section-label,.flotte-section .section-label,.hero-eyebrow{color:var(--gold);}
+.hero-eyebrow::before{width:24px;height:2px;}
+
+/* ── HERO ── */
+.hero{min-height:88vh;padding:96px 24px 120px;}
+.hero-bg-text{display:none;}
+.hero h1{font-weight:700;font-size:clamp(48px,6.2vw,88px);line-height:.96;max-width:14ch;}
+.hero h1 em{color:inherit;}
+.hero-sub{font-size:clamp(17px,1.6vw,20px);color:rgba(255,255,255,.82);max-width:46ch;}
+.hero-stats{display:grid;grid-template-columns:repeat(4,max-content);gap:12px 56px;border-top:1px solid rgba(255,255,255,.18);}
+@media(max-width:700px){.hero-stats{grid-template-columns:repeat(2,1fr);gap:24px;}}
+.stat-num{font-weight:600;font-size:clamp(40px,4.4vw,56px);}
+.stat-label{font-size:14px;text-transform:none;letter-spacing:0;color:rgba(255,255,255,.7);}
+
+/* Élément signature : seuil de piste (piano keys) en bas du hero */
+.hero::after{
+  content:'';position:absolute;left:0;right:0;bottom:0;height:34px;
+  background:
+    repeating-linear-gradient(90deg,rgba(255,255,255,.92) 0 18px,transparent 18px 34px) center/min(1100px,100%) 100% no-repeat,
+    var(--navy);
+  border-top:6px solid var(--navy);
+}
+
+/* ── BOUTONS ── */
+.btn-primary,.btn-outline,.btn-white,.btn-ghost{
+  font-family:var(--display);font-size:18px;font-weight:600;letter-spacing:.01em;
+  border-radius:2px;padding:13px 28px;
+}
+.btn-primary{background:var(--gold);color:var(--navy);}
+.btn-primary:hover{background:#CBA24B;transform:none;}
+
+/* ── CARTES : plus sobres, hiérarchie par le trait ── */
+.avantage-card{background:#fff;border:0;border-top:3px solid var(--navy);border-radius:0;padding:28px 24px 24px;}
+.avantage-card:hover,.formation-card:hover{transform:none;box-shadow:none;}
+.avantage-icon,.fc-icon,.tc-visual-icon,.info-row .ico{display:none;}
+.avantage-card h3{font-size:24px;font-weight:600;}
+.avantage-card p{font-size:16px;line-height:1.6;color:var(--gray);}
+.avantage-tag{background:none;padding:0;border-radius:0;color:var(--sky);font-size:14px;
+  text-transform:none;letter-spacing:0;font-weight:600;}
+
+/* ── FLOTTE ── */
+.flotte-section .section-title{color:#fff;}
+.flotte-section .section-lead{color:rgba(255,255,255,.72);}
+.avion-card{border-radius:2px;}
+.avion-immat{font-family:var(--display);font-size:16px;letter-spacing:.04em;}
+.avion-name{font-size:24px;font-weight:600;}
+.avion-spec{font-size:14px;}
+.avion-price{font-size:26px;font-weight:600;}
+
+/* ── TRAIN CLASSIQUE / FORMATIONS ── */
+.tc-visual h3{font-size:34px;font-weight:700;}
+.formation-card{border-radius:2px;}
+.fc-head h3{font-size:26px;font-weight:600;}
+.fc-tag{font-family:var(--body);font-size:14px;text-transform:none;letter-spacing:0;font-weight:500;}
+.fc-body p{font-size:15px;}
+.fc-price,.tarif-card .price{color:var(--sky);font-weight:600;font-size:34px;}
+.fc-link{text-transform:none;letter-spacing:0;font-size:15px;color:var(--sky);
+  text-decoration:underline;text-underline-offset:3px;}
+.cap-box{border-radius:2px;}
+.cap-box h3{font-size:26px;font-weight:600;}
+.cap-box p{font-size:15px;}
+.cap-club{border-radius:2px;font-size:13px;}
+.tarif-card .label{text-transform:none;letter-spacing:0;font-size:14px;}
+
+/* ── CTA FINAL : nuit + seuil de piste en écho au hero ── */
+.cta-section{background:var(--navy)!important;position:relative;padding-top:110px!important;}
+.cta-section::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:34px;
+  background:repeating-linear-gradient(90deg,rgba(255,255,255,.92) 0 18px,transparent 18px 34px) center/min(1100px,100%) 100% no-repeat;
+}
+.cta-section h2{font-size:clamp(40px,5.4vw,68px);font-weight:700;line-height:1;}
+.btn-white{color:var(--navy);}
+.btn-white:hover{background:var(--gold);color:var(--navy);}
+
+@media(max-width:700px){body .hero h1{font-size:46px!important;line-height:.98;}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;}}
+
+/* ── SOUS-PAGES (page-hero commun) ── */
+.page-hero{position:relative;padding-bottom:112px!important;}
+.page-hero::after{
+  content:'';position:absolute;left:0;right:0;bottom:0;height:34px;
+  background:repeating-linear-gradient(90deg,rgba(255,255,255,.92) 0 18px,transparent 18px 34px) center/min(1100px,100%) 100% no-repeat,var(--navy);
+  border-top:6px solid var(--navy);
+}
+.page-hero h1,.accueil-hero h1{font-family:var(--display);font-weight:700;font-size:clamp(46px,6vw,82px);line-height:.98;letter-spacing:0;}
+.page-hero .sub,.accueil-sub{font-size:clamp(17px,1.6vw,19px);color:rgba(255,255,255,.82);}
+.eyebrow,.page-hero .eyebrow,.accueil-eyebrow{
+  font-family:var(--body);font-size:15px;font-weight:500;letter-spacing:0;text-transform:none;color:var(--gold);
+}
+@media(max-width:700px){body .page-hero h1{font-size:40px!important;}}
+.lead{font-size:18px;color:var(--gray);}
+.arc-nav-cta,.arc-nav-cta-mobile{font-family:var(--display);font-size:17px;font-weight:600;letter-spacing:.01em;border-radius:2px;}
+
+/* Histoire du club */
+.tl-year{font-family:var(--display);font-size:22px;font-weight:600;letter-spacing:0;text-transform:none;}
+.tl-title{font-family:var(--display);font-size:22px;font-weight:600;}
+.tl-text{font-size:16px;}
+/* Valeurs, bureau */
+.valeur-icon,.qual-icon,.ql-icon,.contact-icon{display:none;}
+.valeur-card,.bureau-card,.qual-card,.compare-card,.stat-box,.ql-card,.info-card,.charte-box{border-radius:2px;}
+.valeur-title,.qual-title,.ql-title,.compare-card h3{font-family:var(--display);font-size:24px;font-weight:600;letter-spacing:0;}
+.valeur-text,.qual-desc{font-size:16px;}
+.valeur-text{color:rgba(255,255,255,.72);}
+.bureau-role{font-size:14px;font-weight:500;letter-spacing:0;text-transform:none;color:var(--brass-ink);}
+.bureau-name{font-family:var(--display);font-size:22px;font-weight:600;}
+/* Qualifications */
+.qual-card:hover{box-shadow:none;transform:none;}
+.qual-price{font-family:var(--display);font-size:20px;font-weight:600;}
+.qual-detail{font-size:15px;}
+/* Étapes PPL (vraie séquence : on garde la numérotation) */
+.step-num{font-family:var(--display);font-weight:700;border-radius:2px;font-size:28px;}
+.stat-box .n{font-family:var(--display);font-weight:600;letter-spacing:0;}
+.stat-box .l{text-transform:none;letter-spacing:0;font-size:14px;color:rgba(255,255,255,.7);}
+.compare-row{font-size:15px;}
+.compare-row .k{font-size:14px;}
+
+/* Heros Le Club & accueil : même traitement que les autres pages */
+.hero-club,.accueil-hero{position:relative;padding-bottom:112px!important;}
+.hero-club::after,.accueil-hero::after{
+  content:'';position:absolute;left:0;right:0;bottom:0;height:34px;
+  background:repeating-linear-gradient(90deg,rgba(255,255,255,.92) 0 18px,transparent 18px 34px) center/min(1100px,100%) 100% no-repeat,var(--navy);
+  border-top:6px solid var(--navy);
+}
+.hero-club h1{font-family:var(--display);font-weight:700;font-size:clamp(52px,7vw,96px);line-height:.95;letter-spacing:0;}
+.hero-club h1 em,.accueil-hero h1 em{color:inherit;}
+.hero-club p{color:rgba(255,255,255,.82);font-size:clamp(17px,1.6vw,19px);}
+.hero-club .eyebrow{font-size:15px;letter-spacing:0;text-transform:none;font-weight:500;}
+.info-card .icon{display:none;}
+</style>
 </head>
 <body>
 <!-- Google Tag Manager (noscript) -->
@@ -336,7 +499,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
 <nav id="arc-nav">
   <div class="arc-nav-inner">
-    <a href="/" class="arc-nav-logo" style="display:flex;align-items:center;background:rgba(255,255,255,0.95);border-radius:6px;padding:3px 8px;"><img src="https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69c8ee72f60e3ec233a5a847_Logo%20ARC%20II%20FR.png" alt="Aéroclub ARC" height="46" style="display:block;"></a>
+    <a href="/home-arc" class="arc-nav-logo" style="display:flex;align-items:center;background:rgba(255,255,255,0.95);border-radius:6px;padding:3px 8px;"><img src="https://cdn.prod.website-files.com/69c8ee72f60e3ec233a5a7e1/69c8ee72f60e3ec233a5a847_Logo%20ARC%20II%20FR.png" alt="Aéroclub ARC" height="46" style="display:block;"></a>
     <ul class="arc-nav-links">
       <li><a href="/leclub">Le Club</a></li>
       <li><a href="/la-flotte">La Flotte</a></li>
@@ -344,10 +507,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <li><a href="/post-ppl">Post-PPL</a></li>
       <li><a href="/aerodrome">Aérodrome</a></li>
       <li><a href="https://enviedepiloter.fr/commander-un-passeport/?code_fna=04158" target="_blank">Initiation au Pilotage</a></li>
-      <li><a href="/soutenir">Nous soutenir</a></li>
       <li><a href="/tarifs">Inscription</a></li>
     </ul>
-    <a href="/tarifs" class="arc-nav-cta">Adhésion 2026</a>
+    <a href="/tarifs" class="arc-nav-cta">Adhésion 2027</a>
     <button class="arc-nav-burger" onclick="document.getElementById('arc-nav').classList.toggle('open')"><span></span><span></span><span></span></button>
   </div>
   <ul class="arc-nav-mobile">
@@ -357,9 +519,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <li><a href="/post-ppl">Post-PPL</a></li>
     <li><a href="/aerodrome">Aérodrome</a></li>
     <li><a href="https://enviedepiloter.fr/commander-un-passeport/?code_fna=04158" target="_blank">Initiation au Pilotage</a></li>
-    <li><a href="/soutenir">Nous soutenir</a></li>
     <li><a href="/tarifs">Inscription</a></li>
-    <li><a href="/tarifs" class="arc-nav-cta-mobile">Adhésion 2026</a></li>
+    <li><a href="/tarifs" class="arc-nav-cta-mobile">Adhésion 2027</a></li>
   </ul>
 </nav>
 
@@ -394,12 +555,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <div class="info-card">
         <div class="icon">📡</div>
         <h3>Fréquences</h3>
-        <p>TWR : <code>129.525</code><br>ATIS/V : <code>125.275</code><br>Sol : <code>121.900</code><br>Absence ATS : A/A <code>129.525</code> (FR uniquement)</p>
+        <p>TWR : <code>129.525</code><br>ATIS/V : <code>125.275</code><br>Sol : <code>121.900</code><br>Absence ATS : A/A <code>129.525</code></p>
       </div>
       <div class="info-card">
         <div class="icon">🕐</div>
         <h3>Horaires ATS</h3>
-        <p>Lun–Ven : 08h00–12h00 et 13h30–19h00<br>Sam, Dim, JF : 08h00–20h00<br>(heure locale, SS+30, max 19h00 en semaine / 20h00 le week-end)<br>Sol Sam/Dim/JF : sur ATIS</p>
+        <p>Lun–Ven : 08h00–19h00<br>Sam, Dim, JF : 08h00–20h00<br>(heure locale, SS+30 max)<br>Sol Sam/Dim/JF : sur ATIS</p>
       </div>
       <div class="info-card">
         <div class="icon">⛽</div>
@@ -480,12 +641,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <div>
         <p style="font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;">Approche à vue — AD 2 LFPX APP 01</p>
         <div class="vac-img">
-          <a href="/AD-2.LFPX.pdf" target="_blank" rel="noopener">
-            <img src="/AD-2.LFPX-p1.png"
-                 alt="Carte VAC LFPX Chavenay-Villepreux — approche à vue AD 2 LFPX APP 01"
-                 loading="lazy"
-                 style="width:100%;display:block;border-radius:8px;">
-          </a>
+          <img src="https://www.sia.aviation-civile.gouv.fr/media/dvd/eAIP_19_MAR_2026/Atlas-VAC/PDF_AIPparSSection/VAC/AD/AD-2.LFPX.pdf#page=1"
+               onerror="this.parentNode.innerHTML='<div style=\'padding:24px;background:rgba(255,255,255,0.05);border-radius:8px;text-align:center;\'><p style=\'color:rgba(255,255,255,0.5);font-size:14px;\'>📄 Carte VAC disponible sur le SIA<br><a href=\'https://www.sia.aviation-civile.gouv.fr\' target=\'_blank\' style=\'color:#c8a84b;font-weight:600;\'>www.sia.aviation-civile.gouv.fr</a></p></div>'"
+               alt="Carte VAC LFPX"
+               style="width:100%;display:block;border-radius:8px;">
         </div>
         <p style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:8px;text-align:center;">© Service de l'Information Aéronautique — AMDT 04/25</p>
       </div>
@@ -502,7 +661,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             </div>
           </div>
           <p style="font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:12px;">Télécharger les cartes officielles SIA :</p>
-          <a href="/AD-2.LFPX.pdf" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;gap:8px;background:var(--gold);color:var(--navy);padding:12px 20px;border-radius:6px;font-size:13px;font-weight:700;margin-bottom:8px;">📥 Télécharger AD 2 LFPX (PDF)</a>
+          <a href="https://www.sia.aviation-civile.gouv.fr/media/dvd/eAIP_19_MAR_2026/Atlas-VAC/PDF_AIPparSSection/VAC/AD/AD-2.LFPX.pdf" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;background:var(--gold);color:var(--navy);padding:12px 20px;border-radius:6px;font-size:13px;font-weight:700;margin-bottom:8px;">📥 Télécharger AD 2 LFPX (PDF)</a>
           <a href="https://www.sia.aviation-civile.gouv.fr" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;background:rgba(255,255,255,0.08);color:white;padding:12px 20px;border-radius:6px;font-size:13px;font-weight:600;">🌐 SIA — Aviation civile</a>
         </div>
       </div>
