@@ -114,6 +114,15 @@ if (process.env.DATABASE_URL) {
       CREATE UNIQUE INDEX IF NOT EXISTS membres_lookup_key
       ON membres (lower(nom), lower(prenom), date_naissance, lower(email));
     `);
+    // Simulateur tarifs HDV (bureau) — une seule ligne : la référence partagée.
+    await pgPool.query(`
+      CREATE TABLE IF NOT EXISTS simulateur_config (
+        id INT PRIMARY KEY DEFAULT 1,
+        data JSONB NOT NULL,
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        updated_by TEXT
+      );
+    `);
     pgReady = true;
     console.log("✓ PostgreSQL connecté — sync notes atelier activée");
   } catch (e) {
@@ -206,6 +215,7 @@ const PROTECTED_HTML = new Set([
   "/promo-admin.html",
   "/reinscriptions-admin.html",
   "/membres-admin.html",
+  "/simulateur.html",
 ]);
 app.use((req, res, next) => {
   if (PROTECTED_HTML.has(req.path)) {
@@ -232,6 +242,112 @@ app.post("/api/maintenance/auth", (req, res) => {
     `${MAINT_COOKIE}=${MAINT_TOKEN}; Path=/; Max-Age=${MAINT_COOKIE_MAXAGE}; SameSite=Strict; HttpOnly`
   );
   res.json({ ok: true });
+});
+
+// ── AUTH BUREAU (simulateur tarifs HDV) ───────────────────────────────
+// Mot de passe propre au bureau, distinct de celui de l'atelier.
+// Sans variable BUREAU_PASSWORD, l'accès reste fermé (pas de mot de passe par défaut).
+const BUREAU_PASSWORD = process.env.BUREAU_PASSWORD || "";
+const BUREAU_COOKIE = "arc-bureau-auth";
+const BUREAU_TOKEN = BUREAU_PASSWORD
+  ? crypto.createHash("sha256").update("bureau:" + BUREAU_PASSWORD).digest("hex")
+  : null;
+const BUREAU_COOKIE_MAXAGE = 60 * 60 * 24 * 7; // 7 jours
+
+function sameSecret(a, b) {
+  const ha = crypto.createHash("sha256").update(String(a)).digest();
+  const hb = crypto.createHash("sha256").update(String(b)).digest();
+  return crypto.timingSafeEqual(ha, hb);
+}
+
+function bureauAuth(req, res, next) {
+  const token = getCookie(req, BUREAU_COOKIE);
+  if (BUREAU_TOKEN && token && sameSecret(token, BUREAU_TOKEN)) return next();
+  const isApi = req.path.startsWith("/api/");
+  if (!isApi && (req.method === "GET" || req.method === "HEAD")) {
+    return res.redirect(`/bureau/login?next=${encodeURIComponent(req.originalUrl)}`);
+  }
+  return res.status(401).json({ error: "Authentification requise" });
+}
+
+app.get("/bureau/login", (req, res) => {
+  res.sendFile(path.join(__dirname, "bureau-login.html"));
+});
+
+app.post("/api/bureau/auth", (req, res) => {
+  if (!BUREAU_TOKEN) {
+    return res.status(503).json({ error: "Accès bureau non configuré (variable BUREAU_PASSWORD manquante)." });
+  }
+  const pw = (req.body && req.body.password) || "";
+  if (!sameSecret(pw, BUREAU_PASSWORD)) {
+    return res.status(401).json({ error: "Mot de passe incorrect" });
+  }
+  res.setHeader(
+    "Set-Cookie",
+    `${BUREAU_COOKIE}=${BUREAU_TOKEN}; Path=/; Max-Age=${BUREAU_COOKIE_MAXAGE}; SameSite=Strict; HttpOnly; Secure`
+  );
+  res.json({ ok: true });
+});
+
+app.get("/bureau/logout", (req, res) => {
+  res.setHeader("Set-Cookie", `${BUREAU_COOKIE}=; Path=/; Max-Age=0; SameSite=Strict; HttpOnly; Secure`);
+  res.redirect("/bureau/login");
+});
+
+// Référence du simulateur : base de données, sinon variable SIMULATEUR_CONFIG_DEFAULT.
+// Les chiffres ne sont jamais dans le dépôt (public).
+function simulateurDefaut() {
+  try {
+    return process.env.SIMULATEUR_CONFIG_DEFAULT ? JSON.parse(process.env.SIMULATEUR_CONFIG_DEFAULT) : null;
+  } catch (e) {
+    console.error("[simulateur] SIMULATEUR_CONFIG_DEFAULT invalide :", e.message);
+    return null;
+  }
+}
+
+app.get("/api/simulateur/config", bureauAuth, async (req, res) => {
+  res.setHeader("Cache-Control", "no-store");
+  if (pgReady) {
+    try {
+      const r = await pgPool.query("SELECT data, updated_at, updated_by FROM simulateur_config WHERE id = 1");
+      if (r.rows.length) {
+        return res.json({ config: r.rows[0].data, updated_at: r.rows[0].updated_at, updated_by: r.rows[0].updated_by, source: "reference" });
+      }
+    } catch (e) {
+      console.error("[simulateur] lecture :", e.message);
+      return res.status(500).json({ error: "Lecture impossible" });
+    }
+  }
+  const def = simulateurDefaut();
+  res.json({ config: def, source: def ? "defaut" : "vide", saveEnabled: pgReady });
+});
+
+function simulateurValide(c) {
+  if (!c || typeof c !== "object" || Array.isArray(c)) return false;
+  if (!c.global || typeof c.global !== "object") return false;
+  if (!Array.isArray(c.avions) || c.avions.length < 1 || c.avions.length > 20) return false;
+  if (!Array.isArray(c.fraisClub) || c.fraisClub.length > 50) return false;
+  if (!Array.isArray(c.stationnements) || c.stationnements.length > 50) return false;
+  return true;
+}
+
+app.post("/api/simulateur/config", bureauAuth, async (req, res) => {
+  if (!pgReady) return res.status(503).json({ error: "Base de données indisponible : enregistrement impossible." });
+  const config = req.body && req.body.config;
+  const auteur = String((req.body && req.body.auteur) || "").trim().slice(0, 80) || "Bureau";
+  if (!simulateurValide(config)) return res.status(400).json({ error: "Configuration invalide" });
+  try {
+    const r = await pgPool.query(
+      `INSERT INTO simulateur_config (id, data, updated_at, updated_by) VALUES (1, $1, NOW(), $2)
+       ON CONFLICT (id) DO UPDATE SET data = EXCLUDED.data, updated_at = NOW(), updated_by = EXCLUDED.updated_by
+       RETURNING updated_at, updated_by`,
+      [JSON.stringify(config), auteur]
+    );
+    res.json({ ok: true, updated_at: r.rows[0].updated_at, updated_by: r.rows[0].updated_by });
+  } catch (e) {
+    console.error("[simulateur] écriture :", e.message);
+    res.status(500).json({ error: "Enregistrement impossible" });
+  }
 });
 
 // ── NOTES ATELIER (sync serveur) ──────────────────────────────────────
@@ -1262,6 +1378,7 @@ app.get("/signer-ot",       maintAuth, (req, res) => res.sendFile(path.join(__di
 app.get("/promo-admin",     maintAuth, (req, res) => res.sendFile(path.join(__dirname, "promo-admin.html")));
 app.get("/reinscriptions-admin", maintAuth, (req, res) => res.sendFile(path.join(__dirname, "reinscriptions-admin.html")));
 app.get("/membres-admin", maintAuth, (req, res) => res.sendFile(path.join(__dirname, "membres-admin.html")));
+app.get("/simulateur",    bureauAuth, (req, res) => res.sendFile(path.join(__dirname, "simulateur.html")));
 
 app.get("/sitemap.xml", (req, res) => {
   res.setHeader("Content-Type", "application/xml");
@@ -1281,6 +1398,8 @@ app.get("/robots.txt", (req, res) => {
     "Disallow: /promo-admin\n" +
     "Disallow: /reinscriptions-admin\n" +
     "Disallow: /membres-admin\n" +
+    "Disallow: /simulateur\n" +
+    "Disallow: /bureau/\n" +
     "Sitemap: https://www.aeroclub-arc.fr/sitemap.xml\n"
   );
 });
@@ -1290,5 +1409,6 @@ app.listen(PORT, () => {
   console.log(`▸ Maintenance auth: ENABLED (build 2026-05-22 v3 + notes sync)`);
   console.log(`▸ Maintenance password: ${MAINT_PASSWORD === "changeme-set-env-var" ? "⚠️  DEFAULT (set MAINTENANCE_PASSWORD env var!)" : "✓ from MAINTENANCE_PASSWORD env"}`);
   console.log(`▸ Notes sync (PostgreSQL): ${pgReady ? "✓ ENABLED" : "✗ disabled (DATABASE_URL not set or DB unreachable)"}`);
+  console.log(`▸ Bureau (simulateur): ${BUREAU_TOKEN ? "✓ BUREAU_PASSWORD défini" : "✗ fermé (BUREAU_PASSWORD manquant)"}`);
   console.log(`▸ Protected routes: /maintenance, /entretien-d113, /entretien-dr250, /entretien-dh251, /signer-ot, /promo-admin`);
 });

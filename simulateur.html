@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="robots" content="noindex, nofollow"/>
+<title>Simulateur heures de vol · Bureau A.R.C.</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>"/>
+<style>
+  :root{
+    --bg:#0f1419; --card:#1a2129; --line:#2a3540; --ink:#e8eef5; --muted:#8b9aac; --faint:#5b6878;
+    --accent:#5fa8d3; --accent2:#3a7ca5; --good:#2fbf71; --warn:#f2b233; --bad:#e5534b;
+    --c1:#3987e5; --c2:#e07a4a; --c3:#1baf7a; --c4:#eda100; --c5:#d55181; --c6:#8f84e8; --c7:#c3c2b7;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:14px;line-height:1.45}
+  header{position:sticky;top:0;z-index:20;background:rgba(15,20,25,.96);backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
+  .hwrap{max-width:1200px;margin:0 auto;padding:12px 16px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+  .brand{font-weight:700;font-size:16px}
+  .brand small{display:block;font-weight:400;color:var(--muted);font-size:12px}
+  .actions{display:flex;flex-wrap:wrap;gap:8px}
+  button,.btn{font:inherit;font-size:13px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:8px 12px;cursor:pointer;text-decoration:none}
+  button:hover,.btn:hover{border-color:var(--accent)}
+  button.primary{background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;color:#fff;font-weight:600}
+  button:disabled{opacity:.5;cursor:not-allowed}
+  main{max-width:1200px;margin:0 auto;padding:16px}
+  .status{font-size:12px;color:var(--muted);margin:2px 0 14px}
+  .status b{color:var(--ink)}
+  .dirty{color:var(--warn)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:16px}
+  .card h2{font-size:15px;margin-bottom:4px}
+  .card .hint{color:var(--muted);font-size:12px;margin-bottom:12px}
+  .verdict{font-size:22px;font-weight:700;text-align:center;padding:6px 0 2px}
+  .verdict.pos{color:var(--good)} .verdict.neg{color:var(--bad)}
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-top:12px}
+  .kpi{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+  .kpi .l{color:var(--muted);font-size:12px}
+  .kpi .v{font-size:20px;font-weight:700;margin-top:2px;font-variant-numeric:tabular-nums}
+  .sliders{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-top:14px}
+  .slider label{display:flex;justify-content:space-between;font-size:13px;color:var(--muted)}
+  .slider label b{color:var(--ink)}
+  input[type=range]{width:100%;accent-color:var(--accent)}
+  .phrases p{background:var(--bg);border-left:3px solid var(--accent);padding:9px 12px;border-radius:6px;margin-bottom:8px}
+  .tablewrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+  th,td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+  th:first-child,td:first-child{text-align:left;position:sticky;left:0;background:var(--card);z-index:1;white-space:normal;min-width:190px}
+  thead th{color:var(--muted);font-weight:600;font-size:12px}
+  tr.sep td{color:var(--accent);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.5px;padding-top:12px;text-align:left}
+  tr.total td{font-weight:700}
+  td.inactive{opacity:.45}
+  input[type=number],input[type=text]{font:inherit;width:96px;background:var(--bg);border:1px solid var(--line);border-radius:6px;color:var(--ink);padding:5px 6px;text-align:right}
+  input[type=text]{text-align:left;width:130px}
+  input:focus{outline:none;border-color:var(--accent)}
+  input::placeholder{color:var(--faint);font-style:italic}
+  .neg{color:var(--bad)} .pos{color:var(--good)}
+  .pill{display:inline-block;padding:3px 9px;border-radius:999px;font-size:12px;font-weight:700}
+  .pill.ok{background:rgba(47,191,113,.18);color:var(--good)}
+  .pill.mid{background:rgba(242,178,51,.18);color:var(--warn)}
+  .pill.ko{background:rgba(229,83,75,.18);color:var(--bad)}
+  .pill.off{background:var(--bg);color:var(--faint)}
+  .bars .row{display:grid;grid-template-columns:150px 1fr 70px;gap:10px;align-items:center;margin-bottom:10px}
+  .bars .name{font-size:13px}
+  .bars .track{display:flex;height:22px;border-radius:5px;overflow:hidden;background:var(--bg)}
+  .bars .seg{height:100%;border-right:2px solid var(--card)}
+  .bars .tot{text-align:right;font-variant-numeric:tabular-nums;font-size:13px}
+  .legend{display:flex;flex-wrap:wrap;gap:12px;margin-top:6px;font-size:12px;color:var(--muted)}
+  .legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+  .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px}
+  .list .item{display:flex;gap:8px;align-items:center;margin-bottom:6px}
+  .list .item input[type=text]{flex:1;width:auto}
+  .x{border:none;background:none;color:var(--faint);font-size:16px;padding:2px 6px}
+  .x:hover{color:var(--bad)}
+  .small{font-size:12px;color:var(--muted)}
+  details summary{cursor:pointer;font-weight:600}
+  dl{display:grid;grid-template-columns:200px 1fr;gap:6px 14px;margin-top:10px}
+  dt{font-weight:600} dd{color:var(--muted)}
+  .toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--card);border:1px solid var(--accent);padding:10px 16px;border-radius:8px;display:none;z-index:50}
+  .err{background:rgba(229,83,75,.12);border:1px solid rgba(229,83,75,.4);color:#f0a39d;padding:12px;border-radius:8px;margin-bottom:16px;display:none}
+  @media (max-width:600px){ header{position:static} .kpis{grid-template-columns:1fr 1fr} .grid2{grid-template-columns:minmax(0,1fr)} .list .item input[type=number]{width:80px} .bars .row{grid-template-columns:90px 1fr 60px} dl{grid-template-columns:1fr} .verdict{font-size:18px} }
+  @media print{
+    header .actions,.sliders,.noprint{display:none!important}
+    body{background:#fff;color:#000} .card,.kpi{background:#fff;border-color:#ccc}
+    th:first-child,td:first-child{background:#fff}
+    input{border:none;background:none;color:#000}
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="hwrap">
+    <div class="brand">📊 Simulateur heures de vol<small>Aéroclub A.R.C. · espace bureau</small></div>
+    <div class="actions">
+      <button id="btnReset" title="Annuler vos modifications et recharger les chiffres de référence">↺ Revenir à la référence</button>
+      <button id="btnSave" class="primary" title="Remplace les chiffres de référence pour tout le bureau">Enregistrer comme référence</button>
+      <button onclick="window.print()">Imprimer</button>
+      <a class="btn" href="/bureau/logout">Déconnexion</a>
+    </div>
+  </div>
+</header>
+<main>
+  <div class="status" id="status">Chargement…</div>
+  <div class="err" id="err"></div>
+
+  <!-- RÉSULTAT -->
+  <section class="card">
+    <div class="verdict" id="verdict">—</div>
+    <div class="kpis" id="kpis"></div>
+    <div class="sliders">
+      <div class="slider">
+        <label>Faire varier toutes les heures de vol <b id="lblH">+0 %</b></label>
+        <input type="range" id="slH" min="-50" max="100" step="5" value="0"/>
+      </div>
+      <div class="slider">
+        <label>Faire varier tous les tarifs <b id="lblT">+0 %</b></label>
+        <input type="range" id="slT" min="-20" max="30" step="1" value="0"/>
+      </div>
+    </div>
+    <div class="small" style="margin-top:6px">Les curseurs servent à tester rapidement ; ils ne modifient pas les chiffres saisis et ne sont pas enregistrés.</div>
+  </section>
+
+  <section class="card phrases">
+    <h2>L'essentiel</h2>
+    <div class="hint">Les messages clés, recalculés en direct.</div>
+    <div id="phrases"></div>
+  </section>
+
+  <!-- RÉSULTATS PAR AVION -->
+  <section class="card">
+    <h2>Chaque avion est-il rentable ?</h2>
+    <div class="hint">Vert : tarif au moins 5 € au-dessus du minimum. Orange : juste à l'équilibre. Rouge : l'avion perd de l'argent.</div>
+    <div class="tablewrap"><table id="tRes"></table></div>
+  </section>
+
+  <section class="card">
+    <h2>Où va l'argent d'une heure de vol ?</h2>
+    <div class="hint">Décomposition du tarif de chaque avion, en euros par heure.</div>
+    <div class="bars" id="bars"></div>
+    <div class="legend" id="legend"></div>
+  </section>
+
+  <!-- SAISIE AVIONS -->
+  <section class="card">
+    <h2>Avions — hypothèses</h2>
+    <div class="hint">Cases en italique grisé : valeur calculée automatiquement (laisser vide pour la garder). Décocher « Actif » pour un avion qui ne vole pas cette année.</div>
+    <div class="tablewrap"><table id="tAv"></table></div>
+    <div style="margin-top:10px" class="noprint"><button id="btnAddAv">+ Ajouter un avion</button></div>
+  </section>
+
+  <!-- HYPOTHÈSES GÉNÉRALES -->
+  <div class="grid2">
+    <section class="card">
+      <h2>Hypothèses générales</h2>
+      <div class="hint">Prix, entretien, adhésions.</div>
+      <div class="tablewrap"><table id="tGlob"></table></div>
+    </section>
+    <section class="card">
+      <h2>Frais fixes du club (€/an)</h2>
+      <div class="hint">Hangar, abonnements, affiliations… répartis sur les heures volées.</div>
+      <div class="list" id="lFrais"></div>
+      <button class="noprint" id="btnAddFrais">+ Ajouter un poste</button>
+      <div class="small" style="margin-top:8px">Total : <b id="totFrais"></b></div>
+      <h2 style="margin-top:18px">Stationnements facturés (€/mois)</h2>
+      <div class="list" id="lStat"></div>
+      <button class="noprint" id="btnAddStat">+ Ajouter un stationnement</button>
+      <div class="small" style="margin-top:8px">Total : <b id="totStat"></b> par an</div>
+    </section>
+  </div>
+
+  <section class="card">
+    <h2>Charges du club par poste (€/an)</h2>
+    <div class="bars" id="barsPostes"></div>
+  </section>
+
+  <section class="card">
+    <details>
+      <summary>Comment c'est calculé · petit lexique</summary>
+      <dl>
+        <dt>Coûts variables</dt><dd>Payés à chaque heure : carburant (conso × prix), huile, maintenance (coût d'une visite ÷ intervalle, sauf valeur saisie), provision révision moteur.</dd>
+        <dt>Coûts fixes de l'avion</dt><dd>Payés même s'il ne vole pas : CDN, redevance d'atterrissage, assurance, suivi SEGA, stock de pièces.</dd>
+        <dt>Frais du club</dt><dd>Frais fixes du club + charges des avions à l'arrêt − cotisations − cautions conservées − stationnements. Le solde est réparti sur les avions au prorata de leurs heures.</dd>
+        <dt>Coût de revient</dt><dd>Coûts variables + (coûts fixes de l'avion + sa part des frais du club) ÷ ses heures.</dd>
+        <dt>Tarif conseillé</dt><dd>Coût de revient + marge de sécurité, arrondi à l'euro supérieur. Utilisé quand aucun tarif n'est saisi.</dd>
+        <dt>Heures pour être iso</dt><dd>Nombre d'heures où l'avion couvre exactement ses coûts : coûts fixes ÷ (tarif − coût variable).</dd>
+        <dt>Avion à l'arrêt</dt><dd>Ses heures passent à 0 ; ce qu'il coûte au sol (par défaut redevance + assurance) est réparti sur les avions actifs.</dd>
+        <dt>Enregistrer comme référence</dt><dd>Remplace les chiffres de départ pour tous les membres du bureau. Sinon vos essais restent seulement dans votre navigateur.</dd>
+      </dl>
+    </details>
+  </section>
+</main>
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+// ───────────────────────── Modèle de calcul (identique au classeur Excel) ─────────────────────────
+function num(v){ const n = Number(v); return isFinite(n) ? n : 0; }
+function isSet(v){ return v !== null && v !== undefined && v !== "" && isFinite(Number(v)); }
+
+function calculer(cfg, varH, varT){
+  varH = varH || 0; varT = varT || 0;
+  const G = cfg.global;
+  const fraisClub = cfg.fraisClub.reduce((s,x)=>s+num(x.annuel),0);
+  const stationnements = cfg.stationnements.reduce((s,x)=>s+num(x.mensuel)*12,0);
+  const cotisations = num(G.membres)*(num(G.cotisation)+num(G.caution)*num(G.partCaution));
+  const recettesHorsHdv = cotisations + stationnements;
+  const maintAuto = num(G.intervalleVisite) ? num(G.coutVisite)/num(G.intervalleVisite) : 0;
+
+  const av = cfg.avions.map(a=>{
+    const o = { nom:a.nom, actif:!!a.actif };
+    o.heures = o.actif ? Math.round(num(a.heures)*(1+varH)) : 0;
+    o.carb = num(a.conso)*num(G.prixCarburant);
+    o.huile = num(a.huile)*num(G.prixHuile);
+    o.maint = isSet(a.maintenance) ? num(a.maintenance) : maintAuto;
+    o.rg = num(a.rg);
+    o.cv = o.carb+o.huile+o.maint+o.rg;
+    o.fixesAvion = o.actif ? num(a.cdn)+num(a.redevance)+num(a.assurance)+num(a.sega)+num(a.pieces) : 0;
+    o.arret = isSet(a.arret) ? num(a.arret) : num(a.redevance)+num(a.assurance);
+    o.tarifSaisi = isSet(a.tarif) ? num(a.tarif) : null;
+    return o;
+  });
+  const H = av.reduce((s,o)=>s+o.heures,0);
+  const chargesArret = av.filter(o=>!o.actif).reduce((s,o)=>s+o.arret,0);
+  const fraisNets = fraisClub + chargesArret - recettesHorsHdv;   // > 0 : coût à répartir
+  const G_marge = num(G.marge);
+
+  av.forEach(o=>{
+    o.partClub = H ? fraisNets*o.heures/H : 0;
+    o.fixes = o.fixesAvion + o.partClub;
+    o.fixesH = o.heures ? o.fixes/o.heures : 0;
+    o.revient = o.cv + o.fixesH;
+    o.conseille = Math.ceil(o.revient*(1+G_marge) - 1e-9);
+    const base = o.tarifSaisi !== null ? o.tarifSaisi : o.conseille;
+    o.tarif = Math.round(base*(1+varT)*100)/100;
+    o.margeH = o.tarif - o.cv;
+    o.iso = !o.actif ? null : (o.margeH <= 0 ? Infinity : Math.ceil(o.fixes/o.margeH - 1e-9));
+    o.resultat = o.margeH*o.heures - o.fixes;
+    o.ca = o.tarif*o.heures;
+    o.minimum = o.heures ? Math.ceil(o.cv + o.fixes/o.heures - 1e-9) : null;
+    o.ecart = o.minimum !== null ? o.tarif - o.minimum : null;
+  });
+
+  const net = av.reduce((s,o)=>s+o.resultat,0);
+  const ca = av.reduce((s,o)=>s+o.ca,0);
+  const margeMoy = H ? av.reduce((s,o)=>s+o.margeH*o.heures,0)/H : 0;
+  const fixesTot = av.reduce((s,o)=>s+o.fixesAvion,0) + fraisNets;
+  const seuil = margeMoy > 0 ? fixesTot/margeMoy : Infinity;
+  const variables = av.reduce((s,o)=>s+o.cv*o.heures,0);
+  const charges = variables + av.reduce((s,o)=>s+o.fixesAvion,0) + fraisClub + chargesArret;
+  const recettes = ca + recettesHorsHdv;
+  const postes = [
+    ["Carburant", av.reduce((s,o)=>s+o.carb*o.heures,0)],
+    ["Provision révision moteur", av.reduce((s,o)=>s+o.rg*o.heures,0)],
+    ["Maintenance (visites)", av.reduce((s,o)=>s+o.maint*o.heures,0)],
+    ["Huile", av.reduce((s,o)=>s+o.huile*o.heures,0)],
+    ["Assurances avions", sumIf(cfg,av,"assurance")],
+    ["Stock de pièces", sumIf(cfg,av,"pieces")],
+    ["Redevances d'atterrissage", sumIf(cfg,av,"redevance")],
+    ["Suivi SEGA", sumIf(cfg,av,"sega")],
+    ["CDN", sumIf(cfg,av,"cdn")],
+    ["Frais fixes du club", fraisClub],
+    ["Avions à l'arrêt", chargesArret],
+  ].sort((a,b)=>b[1]-a[1]);
+  return { av, H, net, ca, margeMoy, seuil, fixesTot, fraisClub, stationnements, cotisations, recettesHorsHdv, chargesArret, fraisNets, charges, recettes, postes };
+}
+function sumIf(cfg, av, k){ return cfg.avions.reduce((s,a,i)=>s+(av[i].actif?num(a[k]):0),0); }
+
+// ───────────────────────── Formats ─────────────────────────
+const fmtE0 = new Intl.NumberFormat("fr-FR",{style:"currency",currency:"EUR",maximumFractionDigits:0});
+const fmtE2 = new Intl.NumberFormat("fr-FR",{style:"currency",currency:"EUR",minimumFractionDigits:2,maximumFractionDigits:2});
+const fmtN0 = new Intl.NumberFormat("fr-FR",{maximumFractionDigits:0});
+const e0 = v => fmtE0.format(v), e2 = v => fmtE2.format(v), h0 = v => fmtN0.format(v)+" h";
+const sgn = v => (v>0?"+":"")+fmtE0.format(v);
+function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+
+// ───────────────────────── État ─────────────────────────
+const DRAFT_KEY = "arc-simulateur-brouillon";
+let reference = null, refMeta = {}, cfg = null, saveEnabled = true;
+function clone(o){ return JSON.parse(JSON.stringify(o)); }
+function saveDraft(){ try{ localStorage.setItem(DRAFT_KEY, JSON.stringify({ref: refMeta.updated_at||refMeta.source||"", cfg})); }catch(e){} }
+function loadDraft(){ try{ const d = JSON.parse(localStorage.getItem(DRAFT_KEY)||"null"); if(d && d.ref === (refMeta.updated_at||refMeta.source||"")) return d.cfg; }catch(e){} return null; }
+function clearDraft(){ try{ localStorage.removeItem(DRAFT_KEY); }catch(e){} }
+function isDirty(){ return JSON.stringify(cfg) !== JSON.stringify(reference); }
+
+function toast(msg){ const t=document.getElementById("toast"); t.textContent=msg; t.style.display="block"; clearTimeout(toast._t); toast._t=setTimeout(()=>t.style.display="none",3500); }
+function showErr(msg){ const e=document.getElementById("err"); e.textContent=msg; e.style.display=msg?"block":"none"; }
+
+// ───────────────────────── Rendu ─────────────────────────
+const COMP = [["carb","Carburant","var(--c1)"],["huile","Huile","var(--c2)"],["maint","Maintenance","var(--c3)"],["rg","Provision moteur","var(--c4)"],["fixAv","Frais fixes avion","var(--c5)"],["club","Part frais du club","var(--c6)"],["marge","Reste au club","var(--c7)"]];
+
+function render(){
+  const vH = num(document.getElementById("slH").value)/100, vT = num(document.getElementById("slT").value)/100;
+  document.getElementById("lblH").textContent = (vH>=0?"+":"")+Math.round(vH*100)+" %";
+  document.getElementById("lblT").textContent = (vT>=0?"+":"")+Math.round(vT*100)+" %";
+  const R = calculer(cfg, vH, vT);
+  const base = calculer(reference || cfg, 0, 0);
+
+  // verdict + KPI
+  const v = document.getElementById("verdict");
+  v.textContent = R.net >= 0 ? `Le club gagne ${e0(R.net)} par an` : `Le club perd ${e0(-R.net)} par an`;
+  v.className = "verdict " + (R.net>=0?"pos":"neg");
+  const diff = R.net - base.net;
+  document.getElementById("kpis").innerHTML = [
+    ["Heures de vol", h0(R.H)],
+    ["Seuil d'équilibre", isFinite(R.seuil)? h0(Math.ceil(R.seuil)) : "inatteignable"],
+    ["Recettes", e0(R.recettes)],
+    ["Charges", e0(R.charges)],
+    ["Marge moyenne / heure", e0(R.margeMoy)],
+    ["Écart vs référence", `<span class="${diff<0?'neg':diff>0?'pos':''}">${sgn(Math.round(diff))}</span>`],
+  ].map(([l,x])=>`<div class="kpi"><div class="l">${l}</div><div class="v">${x}</div></div>`).join("");
+
+  // phrases
+  const actifs = R.av.filter(o=>o.actif);
+  const dA = 0.10;
+  const incMin = actifs.length ? Math.min(...actifs.map((o,i)=>num(cfg.avions[R.av.indexOf(o)].conso)*dA)) : 0;
+  const incMax = actifs.length ? Math.max(...actifs.map((o,i)=>num(cfg.avions[R.av.indexOf(o)].conso)*dA)) : 0;
+  const incAn = R.av.reduce((s,o,i)=>s+num(cfg.avions[i].conso)*dA*o.heures,0);
+  const membres = num(cfg.global.membres);
+  const ph = [];
+  ph.push(isFinite(R.seuil)
+    ? `① Il faut <b>${h0(Math.ceil(R.seuil))}</b> de vol dans l'année pour que le club ne perde pas d'argent. On en prévoit <b>${h0(R.H)}</b> ${R.H>=R.seuil?"✔":"✘"}.`
+    : `① Avec ces tarifs, chaque heure volée fait perdre de l'argent : il faut revoir les tarifs.`);
+  ph.push(`② Chaque heure volée en plus rapporte en moyenne <b>${e0(R.margeMoy)}</b> au club : les frais fixes étant déjà payés, tout ce qui dépasse le carburant et l'entretien reste au club.`);
+  ph.push(`③ Si chacun des ${fmtN0.format(membres)} membres vole 5 h de plus dans l'année, le club gagne <b>${e0(membres*5*R.margeMoy)}</b> de plus.`);
+  ph.push(`④ 10 centimes de plus sur le litre d'avgas, c'est ${e2(incMin)} à ${e2(incMax)} de plus par heure selon l'avion, soit <b>${e0(incAn)}</b> sur l'année.`);
+  document.getElementById("phrases").innerHTML = ph.map(p=>`<p>${p}</p>`).join("");
+
+  // résultats par avion
+  const cols = R.av;
+  const head = `<thead><tr><th></th>${cols.map(o=>`<th>${esc(o.nom)}</th>`).join("")}<th>Flotte</th></tr></thead>`;
+  const pill = o => !o.actif ? `<span class="pill off">Inactif</span>` : o.heures===0 ? `<span class="pill off">—</span>`
+      : o.ecart >= 5 ? `<span class="pill ok">● Rentable</span>` : o.ecart >= 0 ? `<span class="pill mid">● Juste</span>` : `<span class="pill ko">● Perd</span>`;
+  const row = (lab, f, tot, cls) => `<tr class="${cls||''}"><td>${lab}</td>${cols.map(o=>`<td class="${o.actif?'':'inactive'}">${f(o)}</td>`).join("")}<td>${tot||""}</td></tr>`;
+  const negc = v => `<span class="${v<0?'neg':''}">${e0(v)}</span>`;
+  document.getElementById("tRes").innerHTML = head + "<tbody>" +
+    row("Voyant", pill) +
+    row("Heures de vol", o=>h0(o.heures), h0(R.H)) +
+    row("Tarif de l'heure", o=>e0(o.tarif)) +
+    row("Coût variable / h", o=>e2(o.cv)) +
+    row("Coûts fixes / h", o=>o.heures?e2(o.fixesH):"—") +
+    row("<b>Coût de revient / h</b>", o=>o.heures?`<b>${e2(o.revient)}</b>`:"—") +
+    row("Tarif conseillé", o=>o.heures?e0(o.conseille):"—") +
+    row("Tarif minimum pour ne rien perdre", o=>o.minimum!==null?e0(o.minimum):"—") +
+    row("Heures pour être iso", o=>o.iso===null?"—":isFinite(o.iso)?h0(o.iso):"jamais", isFinite(R.seuil)?h0(Math.ceil(R.seuil)):"") +
+    row("Recettes heures de vol", o=>e0(o.ca), e0(R.ca)) +
+    row("<b>Résultat sur l'année</b>", o=>negc(o.resultat), `<b>${negc(R.net)}</b>`, "total") +
+    "</tbody>";
+
+  // barres "où va l'argent"
+  const maxT = Math.max(1,...cols.filter(o=>o.heures).map(o=>Math.max(o.tarif, o.revient)));
+  document.getElementById("bars").innerHTML = cols.filter(o=>o.heures).map(o=>{
+    const parts = {carb:o.carb,huile:o.huile,maint:o.maint,rg:o.rg,fixAv:o.fixesAvion/o.heures,club:o.partClub/o.heures,marge:o.tarif-o.revient};
+    const segs = COMP.map(([k,l,c])=>{ const val=Math.max(0,parts[k]); return val>0?`<div class="seg" title="${l} : ${e2(parts[k])}" style="width:${val/maxT*100}%;background:${c}"></div>`:""; }).join("");
+    const perte = parts.marge<0 ? ` <span class="neg">(${e2(parts.marge)}/h)</span>` : "";
+    return `<div class="row"><div class="name">${esc(o.nom)}${perte}</div><div class="track">${segs}</div><div class="tot">${e0(o.tarif)}</div></div>`;
+  }).join("") || `<div class="small">Aucun avion actif.</div>`;
+  document.getElementById("legend").innerHTML = COMP.map(([k,l,c])=>`<span><i style="background:${c}"></i>${l}</span>`).join("") + `<span class="small">· Survoler une couleur pour voir le montant</span>`;
+
+  // postes
+  const pmax = Math.max(1,...R.postes.map(p=>p[1]));
+  document.getElementById("barsPostes").innerHTML = R.postes.filter(p=>p[1]>0).map(([l,v])=>
+    `<div class="row"><div class="name">${l}</div><div class="track"><div class="seg" style="width:${v/pmax*100}%;background:var(--c1)"></div></div><div class="tot">${e0(v)}</div></div>`).join("") +
+    `<div class="small">Total des charges : <b>${e0(R.charges)}</b> · recettes hors heures de vol : <b>${e0(R.recettesHorsHdv)}</b> (cotisations et cautions ${e0(R.cotisations)}, stationnements ${e0(R.stationnements)})</div>`;
+
+  document.getElementById("totFrais").textContent = e0(R.fraisClub);
+  document.getElementById("totStat").textContent = e0(R.stationnements);
+
+  // placeholders auto (avions)
+  R.av.forEach((o,i)=>{
+    const m = document.querySelector(`[data-av="${i}"][data-k="maintenance"]`); if(m) m.placeholder = fmtN0.format(Math.round(o.maint*100)/100);
+    const t = document.querySelector(`[data-av="${i}"][data-k="tarif"]`); if(t) t.placeholder = o.heures ? String(o.conseille) : "—";
+    const a = document.querySelector(`[data-av="${i}"][data-k="arret"]`); if(a) a.placeholder = fmtN0.format(o.arret);
+  });
+
+  // statut
+  const st = document.getElementById("status");
+  const src = refMeta.source === "reference"
+    ? `Référence enregistrée le <b>${new Date(refMeta.updated_at).toLocaleString("fr-FR",{dateStyle:"long",timeStyle:"short"})}</b> par <b>${esc(refMeta.updated_by||"—")}</b>`
+    : refMeta.source === "defaut" ? "Référence : chiffres de départ (classeur Excel, saison 2026-2027)" : "Aucune référence";
+  st.innerHTML = src + (isDirty() ? ` · <span class="dirty">● vos modifications ne sont pas enregistrées (gardées dans ce navigateur)</span>` : "");
+  const bs = document.getElementById("btnSave");
+  bs.disabled = !saveEnabled || !isDirty();
+  bs.title = !saveEnabled ? "Enregistrement indisponible (base de données non connectée)" : !isDirty() ? "Aucune modification à enregistrer" : "Remplace les chiffres de référence pour tout le bureau";
+}
+
+// ───────────────────────── Formulaires ─────────────────────────
+const AV_FIELDS = [
+  ["sep","Utilisation"],
+  ["actif","Actif cette année","check"],
+  ["heures","Heures de vol / an","int"],
+  ["tarif","Tarif appliqué (€/h)","num","vide = tarif conseillé"],
+  ["sep","Coûts par heure"],
+  ["conso","Consommation carburant (L/h)","num"],
+  ["huile","Consommation huile (L/h)","num"],
+  ["maintenance","Maintenance (€/h)","num","vide = coût visite ÷ intervalle"],
+  ["rg","Provision révision moteur (€/h)","num"],
+  ["sep","Coûts fixes par an"],
+  ["cdn","CDN (€/an)","num"],
+  ["redevance","Redevance d'atterrissage (€/an)","num"],
+  ["assurance","Assurance (€/an)","num"],
+  ["sega","Suivi de navigabilité SEGA (€/an)","num"],
+  ["pieces","Stock de pièces (€/an)","num"],
+  ["arret","Coût conservé si à l'arrêt (€/an)","num","vide = redevance + assurance"],
+];
+function buildAvions(){
+  const A = cfg.avions;
+  let h = `<thead><tr><th></th>${A.map((a,i)=>`<th><input type="text" data-av="${i}" data-k="nom" value="${esc(a.nom)}"/>${A.length>1?`<button class="x noprint" title="Retirer cet avion" data-del="${i}">✕</button>`:""}</th>`).join("")}</tr></thead><tbody>`;
+  AV_FIELDS.forEach(f=>{
+    if(f[0]==="sep"){ h += `<tr class="sep"><td colspan="${A.length+1}">${f[1]}</td></tr>`; return; }
+    const [k,lab,type,hint] = f;
+    h += `<tr><td>${lab}${hint?`<div class="small">${hint}</div>`:""}</td>` + A.map((a,i)=>{
+      if(type==="check") return `<td><input type="checkbox" data-av="${i}" data-k="${k}" ${a[k]?"checked":""}/></td>`;
+      const val = isSet(a[k]) ? a[k] : "";
+      return `<td><input type="number" step="any" inputmode="decimal" data-av="${i}" data-k="${k}" value="${val}"/></td>`;
+    }).join("") + `</tr>`;
+  });
+  document.getElementById("tAv").innerHTML = h + "</tbody>";
+}
+const GLOB = [
+  ["prixCarburant","Prix de l'avgas (€/L)"],["prixHuile","Prix de l'huile (€/L)"],["marge","Marge de sécurité sur le tarif conseillé (%)","pct"],
+  ["coutVisite","Coût moyen d'une visite (€)"],["intervalleVisite","Intervalle entre visites (h)"],
+  ["membres","Membres cotisants"],["cotisation","Cotisation annuelle (€)"],["caution","Caution de présence (€)"],["partCaution","Part des cautions conservées (%)","pct"],
+];
+function buildGlobal(){
+  document.getElementById("tGlob").innerHTML = "<tbody>" + GLOB.map(([k,l,t])=>{
+    const v = t==="pct" ? Math.round(num(cfg.global[k])*1000)/10 : cfg.global[k];
+    return `<tr><td>${l}</td><td><input type="number" step="any" inputmode="decimal" data-g="${k}" data-t="${t||''}" value="${isSet(v)?v:""}"/></td></tr>`;
+  }).join("") + "</tbody>";
+}
+function buildList(id, arr, valKey){
+  document.getElementById(id).innerHTML = arr.map((x,i)=>
+    `<div class="item"><input type="text" data-l="${id}" data-i="${i}" data-k="libelle" value="${esc(x.libelle)}"/><input type="number" step="any" inputmode="decimal" data-l="${id}" data-i="${i}" data-k="${valKey}" value="${isSet(x[valKey])?x[valKey]:""}"/><button class="x noprint" data-ldel="${id}" data-i="${i}" title="Supprimer">✕</button></div>`
+  ).join("");
+}
+function buildAll(){ buildAvions(); buildGlobal(); buildList("lFrais", cfg.fraisClub, "annuel"); buildList("lStat", cfg.stationnements, "mensuel"); render(); }
+const LISTS = { lFrais:()=>cfg.fraisClub, lStat:()=>cfg.stationnements };
+
+document.addEventListener("input", e=>{
+  const t = e.target;
+  if(t.dataset.av !== undefined){
+    const a = cfg.avions[+t.dataset.av], k = t.dataset.k;
+    if(t.type==="checkbox") a[k] = t.checked;
+    else if(k==="nom") a[k] = t.value;
+    else a[k] = t.value==="" ? (["maintenance","tarif","arret"].includes(k) ? null : 0) : Number(t.value);
+  } else if(t.dataset.g){
+    const v = t.value==="" ? 0 : Number(t.value);
+    cfg.global[t.dataset.g] = t.dataset.t==="pct" ? v/100 : v;
+  } else if(t.dataset.l){
+    const x = LISTS[t.dataset.l]()[+t.dataset.i];
+    x[t.dataset.k] = t.dataset.k==="libelle" ? t.value : (t.value===""?0:Number(t.value));
+  } else if(t.id!=="slH" && t.id!=="slT") return;
+  if(t.id!=="slH" && t.id!=="slT") saveDraft();
+  render();
+});
+document.addEventListener("change", e=>{ if(e.target.type==="checkbox" && e.target.dataset.av!==undefined){ render(); } });
+document.addEventListener("click", e=>{
+  const t = e.target;
+  if(t.dataset.del !== undefined){
+    const i = +t.dataset.del;
+    if(!confirm(`Retirer « ${cfg.avions[i].nom} » de la simulation ?`)) return;
+    cfg.avions.splice(i,1); saveDraft(); buildAll();
+  } else if(t.dataset.ldel){
+    LISTS[t.dataset.ldel]().splice(+t.dataset.i,1); saveDraft(); buildAll();
+  }
+});
+document.getElementById("btnAddAv").onclick = ()=>{
+  const last = cfg.avions[cfg.avions.length-1] || {};
+  cfg.avions.push({nom:"Nouvel avion",actif:true,heures:100,conso:last.conso||20,huile:0.1,maintenance:null,rg:20,cdn:200,redevance:last.redevance||735,assurance:last.assurance||3000,sega:last.sega||360,pieces:1200,tarif:null,arret:null});
+  saveDraft(); buildAll();
+};
+document.getElementById("btnAddFrais").onclick = ()=>{ cfg.fraisClub.push({libelle:"Nouveau poste",annuel:0}); saveDraft(); buildAll(); };
+document.getElementById("btnAddStat").onclick = ()=>{ cfg.stationnements.push({libelle:"Stationnement",mensuel:0}); saveDraft(); buildAll(); };
+document.getElementById("btnReset").onclick = ()=>{
+  if(isDirty() && !confirm("Annuler toutes vos modifications et revenir aux chiffres de référence ?")) return;
+  cfg = clone(reference); clearDraft();
+  document.getElementById("slH").value = 0; document.getElementById("slT").value = 0;
+  buildAll(); toast("Chiffres de référence rechargés.");
+};
+document.getElementById("btnSave").onclick = async ()=>{
+  const auteur = prompt("Ces chiffres vont devenir la référence pour tout le bureau.\nVotre nom (pour l'historique) :", localStorage.getItem("arc-simulateur-auteur")||"");
+  if(auteur === null) return;
+  try{ localStorage.setItem("arc-simulateur-auteur", auteur); }catch(e){}
+  const btn = document.getElementById("btnSave"); btn.disabled = true; btn.textContent = "Enregistrement…";
+  try{
+    const r = await fetch("/api/simulateur/config",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({config:cfg,auteur})});
+    if(r.status===401){ location.href="/bureau/login?next=/simulateur"; return; }
+    const d = await r.json().catch(()=>({}));
+    if(!r.ok) throw new Error(d.error||"Erreur "+r.status);
+    reference = clone(cfg); refMeta = {source:"reference",updated_at:d.updated_at,updated_by:d.updated_by};
+    clearDraft(); toast("Référence enregistrée pour tout le bureau.");
+  }catch(err){ showErr("Enregistrement impossible : "+err.message); }
+  btn.textContent = "Enregistrer comme référence"; render();
+};
+document.getElementById("slH").addEventListener("input", render);
+document.getElementById("slT").addEventListener("input", render);
+
+// ───────────────────────── Chargement ─────────────────────────
+(async function init(){
+  try{
+    const r = await fetch("/api/simulateur/config",{cache:"no-store"});
+    if(r.status===401){ location.href="/bureau/login?next=/simulateur"; return; }
+    const d = await r.json();
+    if(!d.config){ document.getElementById("status").textContent = "Aucune configuration de référence n'est disponible."; showErr("Configuration absente : définir la variable SIMULATEUR_CONFIG_DEFAULT sur Railway."); return; }
+    reference = d.config;
+    ["fraisClub","stationnements","avions"].forEach(k=>{ if(!Array.isArray(reference[k])) reference[k]=[]; });
+    refMeta = {source:d.source, updated_at:d.updated_at, updated_by:d.updated_by};
+    saveEnabled = d.saveEnabled !== false;
+    cfg = loadDraft() || clone(reference);
+    buildAll();
+    if(isDirty()) toast("Vos modifications précédentes ont été restaurées.");
+  }catch(err){
+    showErr("Chargement impossible : "+err.message);
+  }
+})();
+</script>
+</body>
+</html>
