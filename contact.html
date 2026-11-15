@@ -2,6 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
+<script src="/arc-measurement.js" defer></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Contacter l'Aéroclub A.R.C. — Chavenay LFPX</title>
 <!-- Google Tag Manager -->
@@ -681,6 +682,10 @@ async function sendMessage(){
     });
     var data=await res.json();
     if(res.ok&&data.ok){
+      // OpenAI : uniquement après envoi confirmé, jamais pour le mode de simulation.
+      if (!data.warning && window.arcMeasurement) {
+        window.arcMeasurement.trackLead();
+      }
       // GTM — événement de conversion contact
       if(typeof dataLayer !== 'undefined'){
         dataLayer.push({ event: 'contact_submit', form_name: 'contact_arc' });
