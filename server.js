@@ -1183,6 +1183,11 @@ app.get("/ppv",            (req, res) => res.sendFile(path.join(__dirname, "ppv.
 app.get("/leclub",         (req, res) => res.sendFile(path.join(__dirname, "leclub.html")));
 app.get("/le-club",        (req, res) => res.sendFile(path.join(__dirname, "leclub.html")));
 app.get("/la-flotte",      (req, res) => res.sendFile(path.join(__dirname, "laflotte.html")));
+// Devis de masse et centrage : accès libre par lien, non référencé
+app.get("/masse-centrage", (req, res) => {
+  res.set("X-Robots-Tag", "noindex, nofollow");
+  res.sendFile(path.join(__dirname, "masse-centrage.html"));
+});
 app.get("/formation",      (req, res) => res.sendFile(path.join(__dirname, "ppl.html")));
 app.get("/ppl",            (req, res) => res.sendFile(path.join(__dirname, "ppl.html")));
 app.get("/post-ppl",       (req, res) => res.sendFile(path.join(__dirname, "postppl.html")));
@@ -1391,6 +1396,7 @@ app.get("/robots.txt", (req, res) => {
     "Allow: /\n" +
     "Disallow: /api/\n" +
     "Disallow: /maintenance\n" +
+    "Disallow: /masse-centrage\n" +
     "Disallow: /entretien-d113\n" +
     "Disallow: /entretien-dr250\n" +
     "Disallow: /entretien-dh251\n" +
