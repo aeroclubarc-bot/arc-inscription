@@ -1392,8 +1392,9 @@ app.get("/sitemap.xml", (req, res) => {
 app.get("/robots.txt", (req, res) => {
   res.setHeader("Content-Type", "text/plain");
   res.send(
+    "User-agent: OAI-AdsBot\n" +
+    "User-agent: OAI-SearchBot\n" +
     "User-agent: *\n" +
-    "Allow: /\n" +
     "Disallow: /api/\n" +
     "Disallow: /maintenance\n" +
     "Disallow: /masse-centrage\n" +
@@ -1406,6 +1407,7 @@ app.get("/robots.txt", (req, res) => {
     "Disallow: /membres-admin\n" +
     "Disallow: /simulateur\n" +
     "Disallow: /bureau/\n" +
+    "Allow: /\n" +
     "Sitemap: https://www.aeroclub-arc.fr/sitemap.xml\n"
   );
 });
