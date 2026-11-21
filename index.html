@@ -854,11 +854,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <div class="price">145 <span>€</span></div>
           <div class="check-mark">✓</div>
         </div>
-        <div class="coti-card" onclick="selectFFA(this, 96)" id="ffa2">
-          <input type="radio" name="ffa" value="96">
+        <div class="coti-card" onclick="selectFFA(this, 101)" id="ffa2">
+          <input type="radio" name="ffa" value="101">
           <div class="name">Formule 2 — Licence seule</div>
           <div class="desc">Licence FFA + Assurance de base (15 000€) sans magazine</div>
-          <div class="price">96 <span>€</span></div>
+          <div class="price">101 <span>€</span></div>
           <div class="check-mark">✓</div>
         </div>
       </div>
@@ -1126,10 +1126,8 @@ function getTotal() {
 // Codes promo — s'appliquent UNIQUEMENT sur la cotisation ARC (state.arcAmount)
 // Pas d'effet sur la licence FFA, l'assurance, les options FFA ni la caution
 const PROMO_CODES = {
-  'POUF2026':  { type: 'percent', value: 10,  label: '-10% sur l\'adhésion ARC' },
-  'PILOTE50':  { type: 'fixed',   value: 50,  label: '-50 € sur l\'adhésion ARC' },
-  'FAMILLE':   { type: 'percent', value: 15,  label: '-15% sur l\'adhésion ARC' },
-  'WELCOME50': { type: 'percent', value: 50,  label: '-50% sur l\'adhésion ARC — Offre de bienvenue' },
+  // Aucun code permanent actif. Format pour en ajouter un :
+  // 'CODE': { type: 'percent', value: 10, label: '-10% sur l\'adhésion ARC' },
 };
 
 let activePromo = null;
