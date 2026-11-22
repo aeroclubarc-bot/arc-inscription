@@ -510,6 +510,31 @@ app.get("/api/promo/list", maintAuth, async (req, res) => {
   }
 });
 
+// Supprime un code — protégé. Seuls les codes encore disponibles peuvent être supprimés :
+// un code déjà utilisé reste dans la base comme trace de l'adhésion qu'il a réduite.
+app.post("/api/promo/delete", maintAuth, async (req, res) => {
+  if (!pgReady) return res.status(503).json({ ok: false, error: "db_unavailable" });
+  const code = (req.body?.code || "").toString().trim().toUpperCase();
+  if (!code) return res.status(400).json({ ok: false, error: "code requis" });
+  try {
+    const { rows } = await pgPool.query(
+      "DELETE FROM single_use_promo_codes WHERE code = $1 AND used = FALSE RETURNING code",
+      [code]
+    );
+    if (rows.length === 0) {
+      const { rows: r2 } = await pgPool.query("SELECT used FROM single_use_promo_codes WHERE code = $1", [code]);
+      if (r2.length && r2[0].used) {
+        return res.status(409).json({ ok: false, error: "Ce code a déjà été utilisé : il est conservé comme trace." });
+      }
+      return res.status(404).json({ ok: false, error: "Code introuvable" });
+    }
+    res.json({ ok: true, code });
+  } catch (e) {
+    console.error("POST /api/promo/delete error:", e.message);
+    res.status(500).json({ ok: false, error: e.message });
+  }
+});
+
 // ── STRIPE PAYMENT INTENT ─────────────────────────────────────────────
 app.post("/api/stripe/create-payment-intent", async (req, res) => {
   try {
