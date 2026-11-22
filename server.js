@@ -1219,7 +1219,11 @@ app.get("/post-ppl",       (req, res) => res.sendFile(path.join(__dirname, "post
 app.get("/postppl",        (req, res) => res.sendFile(path.join(__dirname, "postppl.html")));
 app.get("/aerodrome",      (req, res) => res.sendFile(path.join(__dirname, "aerodrome.html")));
 app.get("/contact",        (req, res) => res.sendFile(path.join(__dirname, "contact.html")));
-app.get("/tarifs",         (req, res) => res.sendFile(path.join(__dirname, "index.html")));
+// /tarifs : ancienne adresse du formulaire — redirection permanente vers l'URL canonique
+app.get("/tarifs", (req, res) => {
+  const q = req.originalUrl.indexOf("?");
+  res.redirect(301, "/adhesion" + (q >= 0 ? req.originalUrl.slice(q) : ""));
+});
 app.get("/adhesion",       (req, res) => res.sendFile(path.join(__dirname, "index.html")));
 app.get("/inscription",    (req, res) => res.sendFile(path.join(__dirname, "index.html")));
 app.get("/statuts",        (req, res) => res.sendFile(path.join(__dirname, "statuts.html")));

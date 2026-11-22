@@ -4,49 +4,49 @@
   <!-- Page d'accueil — URL canonique racine -->
   <url>
     <loc>https://www.aeroclub-arc.fr/</loc>
-    <lastmod>2026-05-07</lastmod>
+    <lastmod>2026-11-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
 
   <url>
     <loc>https://www.aeroclub-arc.fr/leclub</loc>
-    <lastmod>2026-05-07</lastmod>
+    <lastmod>2026-11-22</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
     <loc>https://www.aeroclub-arc.fr/la-flotte</loc>
-    <lastmod>2026-05-07</lastmod>
+    <lastmod>2026-11-22</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
     <loc>https://www.aeroclub-arc.fr/formation</loc>
-    <lastmod>2026-05-07</lastmod>
+    <lastmod>2026-11-22</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
   </url>
 
   <url>
     <loc>https://www.aeroclub-arc.fr/post-ppl</loc>
-    <lastmod>2026-05-07</lastmod>
+    <lastmod>2026-11-22</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
     <loc>https://www.aeroclub-arc.fr/aerodrome</loc>
-    <lastmod>2026-05-07</lastmod>
+    <lastmod>2026-11-22</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
     <loc>https://www.aeroclub-arc.fr/contact</loc>
-    <lastmod>2026-05-07</lastmod>
+    <lastmod>2026-11-22</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -54,7 +54,7 @@
   <!-- Page de conversion — indexable -->
   <url>
     <loc>https://www.aeroclub-arc.fr/adhesion</loc>
-    <lastmod>2026-05-07</lastmod>
+    <lastmod>2026-11-22</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -62,7 +62,7 @@
   <!-- Page Aéroclub Vert — production solaire en temps réel -->
   <url>
     <loc>https://www.aeroclub-arc.fr/ppv</loc>
-    <lastmod>2026-05-19</lastmod>
+    <lastmod>2026-11-22</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
@@ -70,7 +70,7 @@
   <!-- Dons, mécénat et parrainage -->
   <url>
     <loc>https://www.aeroclub-arc.fr/soutenir</loc>
-    <lastmod>2026-08-09</lastmod>
+    <lastmod>2026-11-22</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
