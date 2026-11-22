@@ -66,6 +66,16 @@ svg text{font-family:var(--body)}
 .btn{font-family:var(--display);font-size:19px;font-weight:600;padding:12px 26px;border-radius:2px;border:0;cursor:pointer}
 .btn-p{background:var(--gold);color:var(--navy)}
 .btn-s{background:#fff;color:var(--navy);border:1.5px solid var(--navy)}
+.perf-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:16px}
+@media(max-width:800px){.perf-grid{grid-template-columns:1fr 1fr}}
+select{font:inherit;font-size:17px;color:var(--ink);padding:9px 11px;border:1.5px solid var(--line);border-radius:2px;background:#fff;width:100%}
+.ro{font-size:17px;font-weight:600;padding:9px 0;font-variant-numeric:tabular-nums}
+.perf-table td,.perf-table th{text-align:right}
+.perf-table td:first-child,.perf-table th:first-child{text-align:left}
+.perf-table .big{font-family:var(--display);font-size:22px;font-weight:700;color:var(--navy)}
+.perf-na{color:var(--gray);font-size:15px;padding:8px 0}
+.perf-notes{font-size:13px;color:var(--gray);margin-top:10px}
+.perf-notes p+p{margin-top:4px}
 .foot{font-size:13px;color:var(--gray);padding-bottom:40px}
 .foot p+p{margin-top:6px}
 .sign{display:none}
@@ -93,6 +103,11 @@ svg text{font-family:var(--body)}
   .foot{font-size:9.5px;padding-bottom:0}
   input:focus{outline:none!important}
   input[type=date]::-webkit-calendar-picker-indicator{display:none}
+  .perf-grid{grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:6px}
+  select{border:none;padding:0;font-size:12px;-webkit-appearance:none;appearance:none;background:none}
+  .ro{font-size:12px;padding:0}
+  .perf-table .big{font-size:15px}
+  .perf-notes{font-size:9.5px;margin-top:4px}
   .sign{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:10px;font-size:12px}
   .sign div{border-top:1px solid var(--ink);padding-top:4px;height:48px}
 }
@@ -147,6 +162,19 @@ svg text{font-family:var(--body)}
     </section>
   </div>
 
+  <section class="card" id="perf-card">
+    <h2>Performances du jour</h2>
+    <p class="sub no-print">Conditions au décollage. La masse est reprise automatiquement du devis ci-dessus.</p>
+    <div class="perf-grid">
+      <label class="f">Masse au décollage<span class="ro" id="p_mto">—</span></label>
+      <label class="f">Altitude pression (ft)<input type="number" inputmode="numeric" id="p_alt" step="10" placeholder="426"></label>
+      <label class="f">Température (°C)<input type="number" inputmode="numeric" id="p_temp" step="1" placeholder="15"></label>
+      <label class="f">Vent de face (kt)<input type="number" inputmode="numeric" id="p_wind" step="1" placeholder="0" title="Composante de face ; valeur négative = vent arrière"></label>
+      <label class="f">Type de piste<select id="p_rwy"><option value="herbe">Herbe</option><option value="dure">Dure</option></select></label>
+    </div>
+    <div id="perf-body"></div>
+  </section>
+
   <div class="actions">
     <button class="btn btn-p" type="button" onclick="window.print()">Imprimer le devis</button>
     <button class="btn btn-s" type="button" id="reset">Effacer la saisie</button>
@@ -163,23 +191,31 @@ const DENS = 0.72;
 const AIRCRAFT = {
   'F-PJIL': {
     type: 'Jodel D113', title: 'Jodel D113 — F-PJIL',
-    sub: 'Biplace côte à côte · masse maximale 600 kg',
-    source: 'Masse à vide : rapport de pesée Cerfa n° 47-0030, Challes-les-Eaux, 09/05/2016 — 343,5 kg au bras de 0,332 m.',
+    sub: 'Biplace côte à côte · masse maximale 617 kg',
+    source: 'Masse à vide : rapport de pesée Cerfa n° 47-0030, Challes-les-Eaux, 09/05/2016 — 343,5 kg au bras de 0,332 m. Masse maximale et limites de centrage : dossier CNRA de F-PJIL (n° DGAC 5348-2).',
     bem: { m: 343.5, arm: 0.332 },
-    mtow: 600,
+    mtow: 617,
     stations: [
       { id:'crew', label:'Équipage', hint:'Pilote + passager', arm:0.58, kind:'kg' },
       { id:'bag',  label:'Bagages', hint:'Coffre à bagages', arm:1.15, kind:'kg' },
     ],
     tanks: [ { id:'fuel', label:'Essence', hint:'Réservoir avant', arm:-0.21, max:null } ],
-    envelopes: [ { name:'Enveloppe D113', check:true, color:'#1F4E8C', pts:[[0.285,100],[0.285,600],[0.585,600],[0.585,100]] } ],
+    envelopes: [ { name:'Enveloppe D113', check:true, color:'#1F4E8C', pts:[[0.29,100],[0.29,617],[0.58,617],[0.58,100]] } ],
     axes: { x:[0.25,0.62], y:[300,650] },
-    note: 'Le réservoir est situé devant le bord d\'attaque : la consommation de carburant fait reculer le centrage en vol.'
+    note: 'Le réservoir est situé devant le bord d\'attaque : la consommation de carburant fait reculer le centrage en vol.',
+    perf: {
+      fixed: true,
+      source: 'Dossier CNRA de F-PJIL (n° DGAC 5348-2), section 3 « Distances de décollage et d\'atterrissage ».',
+      to: { kind: 'Distance de décollage, de la mise des gaz au passage des 15 m', value: 200 },
+      ld: { kind: 'Distance d\'atterrissage, du passage des 15 m à l\'arrêt', value: 230 },
+      warning: 'Valeurs déclarées du dossier CNRA : une seule valeur, sans correction d\'altitude, de température, de masse ni de type de piste. Prévoir une marge supplémentaire par forte chaleur, en altitude ou sur herbe mouillée.',
+      warnLevel: 'w'
+    }
   },
   'F-POUF': {
     type: 'Jodel DH 251PR', title: 'Jodel DH 251PR — F-POUF',
     sub: 'Masse maximale 840 kg (catégorie normale)',
-    source: 'Masse à vide : rapport de pesée Cerfa n° 47-0030, Chavenay, 04/10/2025 — 495,5 kg au bras de 0,385 m, huile comprise.',
+    source: 'Masse à vide : rapport de pesée Cerfa n° 47-0030, Chavenay, 04/10/2025 — 495,5 kg au bras de 0,385 m, huile comprise. Limites de centrage : manuel de vol, page 2.1.',
     bem: { m: 495.5, arm: 0.385 },
     mtow: 840,
     stations: [
@@ -189,10 +225,22 @@ const AIRCRAFT = {
     ],
     tanks: [ { id:'fuel', label:'Essence', hint:'Réservoir', arm:1.12, max:null } ],
     envelopes: [
-      { name:'Normale (N)', check:true, color:'#1F4E8C', pts:[[0.31,450],[0.31,600],[0.48,840],[0.58,840],[0.58,450]] },
+      { name:'Normale (N)', check:true, color:'#1F4E8C', pts:[[0.31,450],[0.31,600],[0.47,840],[0.58,840],[0.58,450]] },
+      { name:'Utilitaire (U)', short:'utilitaire', check:false, color:'#B8913A', dash:true, pts:[[0.31,450],[0.31,600],[0.43,780],[0.51,780],[0.51,450]] },
     ],
     axes: { x:[0.28,0.62], y:[450,880] },
-    note: null
+    note: null,
+    perf: {
+      source: 'Manuel de vol DH 251PR F-POUF, section 5 (pages 5.1, 5.2 et 5.5).',
+      to: { kind: 'Distance de passage des 15 m au décollage', alts: [0, 500, 1000, 1500], temps: [0, 15, 30, 45],
+            tables: { dure: [[440,470,500,540],[490,540,580,630],[580,640,700,750],[680,740,800,880]],
+                      herbe: [[520,560,600,660],[600,660,730,800],[720,800,870,960],[880,950,1020,1160]] },
+            tableMass: 840, refMass: 830,
+            cond: 'à 840 kg, 1er cran de volets, Vi décollage 100 km/h, Vi passage des 15 m 115 km/h ; tableaux distincts pour piste béton et piste en herbe' },
+      ld: { kind: 'Distance de roulement à l\'atterrissage', masses: [750, 840], dist: [210, 250],
+            cond: 'atterrissage trois points, volets 60°, freinage moyen' }
+    }
+
   },
   'F-BNVA': {
     type: 'Robin DR 250/160', title: 'Robin DR 250/160 — F-BNVA',
@@ -213,7 +261,16 @@ const AIRCRAFT = {
     envelopes: [ { name:'Catégorie normale (identique en remorquage planeur)', check:true, color:'#1F4E8C', pts:[[0.29,500],[0.29,960],[0.565,960],[0.565,500]] } ],
     axes: { x:[0.25,0.60], y:[500,1000] },
     note: 'F-BNVA est actuellement en maintenance.',
-    maintenance: true
+    maintenance: true,
+    mlw: 920,
+    perf: {
+      source: 'Manuel de vol DR 250, pages 24 et 25.',
+      to: { kind: 'Distance de roulement au décollage', alts: [0, 500, 1000], temps: [0, 15, 30],
+            tables: { dure: [[280, 300, 325], [320, 350, 380], [365, 400, 440]] }, grass: 1.20, tableMass: 960, refMass: 960,
+            cond: 'à 960 kg, volets 1er cran, piste béton, vent nul, Vi de décollage 110 km/h ; majorée de 20 % sur herbe selon le manuel' },
+      ld: { kind: 'Distance de roulement à l\'atterrissage', masses: [700, 800, 920], dist: [260, 280, 300],
+            cond: 'volets braqués à fond, freinage modéré' }
+    }
   }
 };
 const ORDER = ['F-PJIL','F-POUF','F-BNVA'];
@@ -287,8 +344,9 @@ function select(reg){
   compute();
 }
 
-function status(m,cg,a){
+function status(m,cg,a,phase){
   if(m > a.mtow + 1e-9) return {ok:false, txt:`Dépassement masse max (${a.mtow} kg)`};
+  if(phase==='ld' && a.mlw && m > a.mlw + 1e-9) return {ok:false, txt:`Dépassement masse max à l'atterrissage (${a.mlw} kg)`};
   const env = a.envelopes.find(e=>e.check);
   return inside(cg,m,env.pts) ? {ok:true, txt:'Dans l\'enveloppe'} : {ok:false, txt:'Hors limites de centrage'};
 }
@@ -327,7 +385,7 @@ function compute(){
   $('m_to').textContent=fmt(M,1); $('mo_to').textContent=fmt(MO,1); $('cg_to').textContent=fmt(cgTO,3);
   $('m_ld').textContent=fmt(ML,1); $('mo_ld').textContent=fmt(MOL,1); $('cg_ld').textContent=fmt(cgLD,3);
 
-  const sTO = status(M,cgTO,a), sLD = status(ML,cgLD,a);
+  const sTO = status(M,cgTO,a,'to'), sLD = status(ML,cgLD,a,'ld');
   $('st_to').innerHTML = filled?`<span class="status ${sTO.ok?'st-ok':'st-ko'}">${sTO.txt}</span>`:'';
   $('st_ld').innerHTML = filled?`<span class="status ${sLD.ok?'st-ok':'st-ko'}">${sLD.txt}</span>`:'';
 
@@ -346,7 +404,82 @@ function compute(){
 
   $('alerts').innerHTML = alerts.map(([k,t])=>`<div class="alert ${k==='w'?'w':''}">${t}</div>`).join('');
   drawChart(a, filled ? [{cg:cgTO,m:M,label:'Décollage'},{cg:cgLD,m:ML,label:'Atterrissage'}] : []);
+  computePerf(a, filled ? M : null, filled ? ML : null);
   save();
+}
+
+// ── Performances au décollage et à l'atterrissage ───────────────────
+// Interpolation linéaire ; au-delà du tableau, extrapolation signalée.
+function interp1(xs, ys, x){
+  let i = 0;
+  if (x <= xs[0]) i = 0; else if (x >= xs[xs.length-1]) i = xs.length-2;
+  else while (x > xs[i+1]) i++;
+  const t = (x - xs[i]) / (xs[i+1] - xs[i]);
+  return ys[i] + t * (ys[i+1] - ys[i]);
+}
+function computePerf(a, M, ML){
+  const body = $('perf-body');
+  $('p_mto').textContent = M ? fmt(M,1)+' kg' : '—';
+  if (!a.perf){
+    body.innerHTML = '<p class="perf-na">Les tableaux de performances du manuel de vol de ce modèle ne sont pas encore intégrés à cette page. Établissez les performances à partir du manuel de vol.</p>';
+    return;
+  }
+  const P = a.perf, warns = [];
+  const altFt = $('p_alt').value === '' ? null : num('p_alt');
+  const T = $('p_temp').value === '' ? null : num('p_temp');
+  const wind = num('p_wind');
+  const herbe = $('p_rwy').value === 'herbe';
+  let dd = null, da = null, needCond = false;
+
+  if (P.fixed){
+    if (M) dd = P.to.value;
+    if (ML) da = P.ld.value;
+    warns.push([P.warnLevel || 'e', P.warning]);
+  } else {
+    if (M && altFt !== null && T !== null){
+      const altM = altFt * 0.3048;
+      const alts = P.to.alts, temps = P.to.temps;
+      if (altM > alts[alts.length-1] || T > temps[temps.length-1])
+        warns.push(['e', `Altitude ou température au-delà du tableau du manuel (${alts[alts.length-1]} m, ${temps[temps.length-1]} °C) : valeur extrapolée, à confirmer.`]);
+      const altC = Math.max(alts[0], altM), tC = Math.max(temps[0], T); // sous le tableau : valeurs conservatives
+      const table = (herbe && P.to.tables.herbe) ? P.to.tables.herbe : P.to.tables.dure;
+      dd = interp1(alts, table.map(row => interp1(temps, row, tC)), altC);
+      if (M < P.to.tableMass) dd *= Math.pow(M / P.to.refMass, 2);
+      if (herbe && !P.to.tables.herbe) dd *= P.to.grass;
+    } else if (M) needCond = true;
+    if (ML){
+      const ms = P.ld.masses, mx = ms[ms.length-1];
+      if (ML > mx + 1e-9) warns.push(['e', `Masse à l'atterrissage supérieure à la masse maximale du tableau (${mx} kg) : pas de distance calculée.`]);
+      else da = interp1(ms, P.ld.dist, Math.max(ms[0], ML));
+    }
+  }
+  if (wind < 0){
+    warns.push(['e', 'Vent arrière : non couvert par le manuel de vol. Décollage et atterrissage vent arrière déconseillés.']);
+    dd = null; da = null;
+  }
+
+  const notes = [];
+  if (P.fixed){
+    notes.push(`Décollage : ${P.to.kind.toLowerCase()}. Atterrissage : ${P.ld.kind.toLowerCase()}.`);
+  } else {
+    notes.push(`Décollage : ${P.to.kind.toLowerCase()} (${P.to.cond}), corrigée de la masse selon (P/${P.to.refMass})² en dessous de ${P.to.tableMass} kg.`);
+    notes.push(`Atterrissage : ${P.ld.kind.toLowerCase()} (${P.ld.cond}). Le manuel ne donne pas de correction d'altitude, de température ni de type de piste à l'atterrissage.`);
+  }
+  notes.push(`Le vent de face n'est pas déduit, faute de correction dans le manuel : les valeurs restent du côté de la sécurité. Source : ${P.source}`);
+
+  const cell = v => v === null ? '—' : `<span class="big">${fmt(Math.round(v),0)} m</span>`;
+  const f = v => v === null ? null : v * 1.2;
+  body.innerHTML = `
+    <table class="perf-table">
+      <thead><tr><th></th><th>Perfo. brutes</th><th>Perfo. factorisées (+20 %)</th></tr></thead>
+      <tbody>
+        <tr><td><span class="lbl">DD — décollage</span><span class="hint">${M ? 'à ' + fmt(M,1) + ' kg' : 'masse à saisir'}</span></td><td>${cell(dd)}</td><td>${cell(f(dd))}</td></tr>
+        <tr><td><span class="lbl">DATT — atterrissage</span><span class="hint">${ML ? 'à ' + fmt(ML,1) + ' kg' : 'masse à saisir'}</span></td><td>${cell(da)}</td><td>${cell(f(da))}</td></tr>
+      </tbody>
+    </table>
+    ${warns.map(([k,w]) => `<div class="alert ${k==='w'?'w':''}">${w}</div>`).join('')}
+    ${needCond ? '<div class="alert w">Saisissez l\'altitude pression et la température pour calculer la distance de décollage.</div>' : ''}
+    <div class="perf-notes">${notes.map(n => `<p>${n}</p>`).join('')}</div>`;
 }
 
 function drawChart(a, points){
@@ -369,6 +502,7 @@ function drawChart(a, points){
     s+=`<polygon points="${d}" fill="${e.check?'rgba(31,78,140,.08)':'none'}" stroke="${e.color}" stroke-width="${e.check?2:1.6}" ${e.dash?'stroke-dasharray="6 4"':''}/>`;
   });
   s+=`<line x1="${L}" y1="${py(a.mtow)}" x2="${W-R}" y2="${py(a.mtow)}" stroke="#A3231B" stroke-dasharray="2 3"/><text x="${W-R-2}" y="${py(a.mtow)-4}" font-size="11" text-anchor="end" fill="#A3231B">Masse max ${a.mtow} kg</text>`;
+  if(a.mlw) s+=`<line x1="${L}" y1="${py(a.mlw)}" x2="${W-R}" y2="${py(a.mlw)}" stroke="#8A5A00" stroke-dasharray="5 3"/><text x="${W-R-2}" y="${py(a.mlw)+13}" font-size="11" text-anchor="end" fill="#8A5A00">Max atterrissage ${a.mlw} kg</text>`;
   if(points.length===2){
     const [p,q]=points;
     s+=`<line x1="${px(p.cg)}" y1="${py(clampY(p.m))}" x2="${px(q.cg)}" y2="${py(clampY(q.m))}" stroke="#0E2240" stroke-width="1.5"/>`;
@@ -386,19 +520,20 @@ function save(){
     const data={trajet:$('trajet').value,pilote:$('pilote').value,date:$('date').value,vals:{}};
     document.querySelectorAll('#tbody input').forEach(i=>data.vals[i.id]=i.value);
     localStorage.setItem('arc-mc-'+current, JSON.stringify(data));
-    localStorage.setItem('arc-mc-meta', JSON.stringify({trajet:data.trajet,pilote:data.pilote,date:data.date}));
+    localStorage.setItem('arc-mc-meta', JSON.stringify({trajet:data.trajet,pilote:data.pilote,date:data.date,p_alt:$('p_alt').value,p_temp:$('p_temp').value,p_wind:$('p_wind').value,p_rwy:$('p_rwy').value}));
   }catch(e){}
 }
 function restore(){
   try{
     const meta=JSON.parse(localStorage.getItem('arc-mc-meta')||'{}');
-    ['trajet','pilote'].forEach(k=>{ if(meta[k]) $(k).value=meta[k]; });
+    ['trajet','pilote','p_alt','p_temp','p_wind','p_rwy'].forEach(k=>{ if(meta[k]) $(k).value=meta[k]; });
     const d=JSON.parse(localStorage.getItem('arc-mc-'+current)||'null');
     if(d) Object.entries(d.vals||{}).forEach(([id,v])=>{ if($(id)) $(id).value=v; });
   }catch(e){}
 }
 
 ['trajet','pilote','date'].forEach(id=>$(id).addEventListener('input',save));
+['p_alt','p_temp','p_wind','p_rwy'].forEach(id=>{ $(id).addEventListener('input',compute); $(id).addEventListener('change',compute); });
 $('reset').addEventListener('click',()=>{
   document.querySelectorAll('#tbody input').forEach(i=>i.value='');
   try{ localStorage.removeItem('arc-mc-'+current); }catch(e){}
