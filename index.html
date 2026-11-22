@@ -1132,7 +1132,7 @@ const PROMO_CODES = {
 
 let activePromo = null;
 
-function applyPromo() {
+async function applyPromo() {
   const code = document.getElementById('promo-input').value.trim().toUpperCase();
   const input = document.getElementById('promo-input');
   const fb = document.getElementById('promo-feedback');
@@ -1143,22 +1143,52 @@ function applyPromo() {
     fb.className = 'promo-feedback ko';
     return;
   }
-  if (PROMO_CODES[code]) {
-    activePromo = { code, ...PROMO_CODES[code] };
-    input.className = 'promo-input valid';
-    fb.textContent = '✓ Code accepté — ' + PROMO_CODES[code].label;
-    fb.className = 'promo-feedback ok';
-    document.getElementById('promo-tag-label').textContent = code + ' (' + PROMO_CODES[code].label + ')';
-    tag.style.display = 'block';
-    updateTotalDisplay();
-  } else {
-    activePromo = null;
-    input.className = 'promo-input invalid';
-    fb.textContent = '✗ Code invalide ou expiré.';
-    fb.className = 'promo-feedback ko';
-    tag.style.display = 'none';
-    updateTotalDisplay();
+
+  // 1. Codes permanents définis dans ce fichier (PROMO_CODES)
+  let promo = PROMO_CODES[code] ? { code, scope: ['arc'], single: false, ...PROMO_CODES[code] } : null;
+
+  // 2. Sinon, codes à usage unique créés dans /promo-admin (vérifiés par le serveur)
+  if (!promo) {
+    fb.textContent = 'Vérification du code…';
+    fb.className = 'promo-feedback';
+    try {
+      const r = await fetch('/api/promo/check', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code })
+      });
+      const d = await r.json();
+      if (d.valid) {
+        promo = { code, type: d.type, value: Number(d.value), scope: d.scope && d.scope.length ? d.scope : ['arc'], label: d.label, single: true };
+      } else if (d.reason === 'used') {
+        return rejectPromo('✗ Ce code a déjà été utilisé.');
+      } else if (d.reason === 'db_unavailable' || d.reason === 'server_error') {
+        return rejectPromo('✗ Vérification impossible pour le moment, réessayez dans un instant.');
+      }
+    } catch (e) {
+      return rejectPromo('✗ Vérification impossible pour le moment, réessayez dans un instant.');
+    }
   }
+
+  if (!promo) return rejectPromo('✗ Code invalide ou expiré.');
+
+  activePromo = promo;
+  input.className = 'promo-input valid';
+  fb.textContent = '✓ Code accepté — ' + promo.label;
+  fb.className = 'promo-feedback ok';
+  document.getElementById('promo-tag-label').textContent = code + ' (' + promo.label + ')';
+  tag.style.display = 'block';
+  updateTotalDisplay();
+}
+
+function rejectPromo(message) {
+  activePromo = null;
+  document.getElementById('promo-input').className = 'promo-input invalid';
+  const fb = document.getElementById('promo-feedback');
+  fb.textContent = message;
+  fb.className = 'promo-feedback ko';
+  document.getElementById('promo-tag').style.display = 'none';
+  updateTotalDisplay();
 }
 
 function removePromo() {
@@ -1171,19 +1201,30 @@ function removePromo() {
   updateTotalDisplay();
 }
 
+// Montant de chaque poste sur lequel une réduction peut porter
+// (la cotisation AUDACE de 5 € n'est jamais réduite)
+function getScopeBase(scope) {
+  const postes = {
+    arc: state.arcAmount,
+    ffa: state.ffaAmount,
+    annexes: Object.values(state.ffaOptions).reduce((a, v) => a + v, 0) + (state.dcRequired ? 50 : 0),
+    caution: 50,
+  };
+  return (scope || ['arc']).reduce((a, k) => a + (postes[k] || 0), 0);
+}
+
+function getDiscount() {
+  if (!activePromo) return 0;
+  const base = getScopeBase(activePromo.scope);
+  if (base <= 0) return 0;
+  const d = activePromo.type === 'percent'
+    ? Math.round(base * activePromo.value / 100)
+    : activePromo.value;
+  return Math.max(0, Math.min(base, d));
+}
+
 function getTotalAfterPromo() {
-  const base = getTotal();
-  if (!activePromo) return base;
-  // Réduction sur la cotisation ARC — si pas encore sélectionnée, on tente quand même
-  const arcBase = state.arcAmount > 0 ? state.arcAmount : base;
-  let arcDiscounted;
-  if (activePromo.type === 'percent') {
-    arcDiscounted = Math.round(arcBase * (1 - activePromo.value / 100));
-  } else {
-    arcDiscounted = Math.max(0, arcBase - activePromo.value);
-  }
-  const rest = state.arcAmount > 0 ? base - state.arcAmount : 0;
-  return arcDiscounted + rest;
+  return getTotal() - getDiscount();
 }
 
 function updateTotalDisplay() {
@@ -1195,7 +1236,7 @@ function updateTotalDisplay() {
       const saving = base - t;
       display2.innerHTML = '<span style="text-decoration:line-through;opacity:0.4;font-size:20px;margin-right:8px;">' + base + ' €</span>'
         + '<span style="color:var(--gold);">' + t + ' €</span>'
-        + '<span style="display:block;font-size:11px;color:#4caf50;margin-top:3px;">dont ' + saving + ' € de réduction sur l\'adhésion ARC</span>';
+        + '<span style="display:block;font-size:11px;color:#4caf50;margin-top:3px;">dont ' + saving + ' € de réduction</span>';
     } else {
       display2.textContent = t + ' €';
     }
@@ -1379,7 +1420,8 @@ async function payWithStripe() {
         amount: total,
         email: email,
         name: prenom + ' ' + nom,
-        description: 'Adhésion ARC 2027 — ' + prenom + ' ' + nom
+        description: 'Adhésion ARC 2027 — ' + prenom + ' ' + nom,
+        code_promo: activePromo && activePromo.single ? activePromo.code : undefined
       })
     });
     const data = await resp.json();
@@ -1405,6 +1447,16 @@ async function payWithStripe() {
       // GTM — événement de conversion adhésion
       if(typeof dataLayer !== 'undefined'){
         dataLayer.push({ event: 'adhesion_submit', value: total, currency: 'EUR' });
+      }
+      // Code à usage unique : le marquer comme utilisé (le serveur revérifie le paiement auprès de Stripe)
+      if (activePromo && activePromo.single) {
+        try {
+          await fetch('/api/promo/consume', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code: activePromo.code, payment_intent_id: result.paymentIntent.id })
+          });
+        } catch (e) { console.log('Consommation code promo:', e.message); }
       }
       await submitInscription(total, result.paymentIntent.id);
       setTimeout(() => {
