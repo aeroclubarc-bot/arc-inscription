@@ -459,7 +459,7 @@ a{text-decoration:none;color:inherit;}
   .cta-buttons,[style*="display:flex;gap:14px"]{flex-direction:column!important;align-items:stretch!important;}
 
   /* WINDY IFRAME */
-  iframe[src*="windy"]{height:220px!important;}
+  iframe[src*="windy"]:not(.live-windy iframe){height:220px!important;}
 }
 
 @media(max-width:480px){
@@ -1082,10 +1082,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <div style="font-size:18px;font-weight:800;color:white;letter-spacing:-0.01em;font-family:'Inter',sans-serif;">✈️ LIVE — HANGAR ARC</div>
       <div id="live-badge" style="font-weight:700;font-size:13px;color:#9ca3af;transition:color .3s;font-family:monospace;">● CONNEXION...</div>
     </div>
-    <div style="display:flex;gap:16px;flex-wrap:wrap;">
+    <div class="live-grid">
       <!-- VIDÉO -->
-      <div style="flex:1.6;background:#0f172a;border-radius:12px;padding:10px;min-width:280px;">
-        <div id="arc-video-wrap" style="position:relative;background:black;border-radius:10px;overflow:hidden;min-height:160px;">
+      <div class="live-card">
+        <div class="live-card-title">📹 Caméra piste — LFPX</div>
+        <div id="arc-video-wrap" class="live-media" style="position:relative;background:black;overflow:hidden;min-height:160px;">
           <div id="arc-loader" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,.85);z-index:10;gap:12px;transition:opacity .5s;">
             <div style="width:36px;height:36px;border:3px solid rgba(255,255,255,.15);border-top-color:#22c55e;border-radius:50%;animation:spin .8s linear infinite;"></div>
             <div id="arc-loader-text" style="color:rgba(255,255,255,.6);font-size:12px;letter-spacing:.05em;font-family:monospace;">Connexion au flux live...</div>
@@ -1098,23 +1099,34 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         </div>
       </div>
       <!-- MÉTÉO WINDY -->
-      <div style="flex:1;background:#0f172a;border-radius:12px;padding:10px;min-width:280px;">
-        <div style="color:rgba(255,255,255,.8);font-size:13px;font-weight:700;margin-bottom:10px;padding:4px 0;font-family:monospace;">🌬️ Météo LFPX en direct</div>
-        <iframe
-          src="https://embed.windy.com/embed2.html?lat=48.970&lon=1.966&detailLat=48.970&detailLon=1.966&width=650&height=450&zoom=10&level=surface&overlay=wind&product=ecmwf&menu=&message=true&marker=true&calendar=now&pressure=&type=map&location=coordinates&detail=true&metricWind=km%2Fh&metricTemp=%C2%B0C&radarRange=-1"
-          width="100%" height="200" frameborder="0"
-          style="border-radius:8px;display:block;"
-          title="Météo LFPX Chavenay — Windy">
-        </iframe>
-        <div style="color:rgba(255,255,255,.35);font-size:11px;margin-top:8px;text-align:center;line-height:1.6;font-family:monospace;">
-          Carte météo temps réel — Windy.com<br>
-          <a href="https://www.windy.com/?48.970,1.966,10" target="_blank" style="color:rgba(255,255,255,.5);">Ouvrir sur Windy ↗</a>
+      <div class="live-card">
+        <div class="live-card-title">🌬️ Vent en direct — LFPX</div>
+        <div class="live-media live-windy">
+          <iframe
+            src="https://embed.windy.com/embed2.html?lat=48.970&lon=1.966&detailLat=48.970&detailLon=1.966&width=650&height=450&zoom=10&level=surface&overlay=wind&product=ecmwf&menu=&message=true&marker=true&calendar=now&pressure=&type=map&location=coordinates&detail=true&metricWind=km%2Fh&metricTemp=%C2%B0C&radarRange=-1"
+            frameborder="0" loading="lazy"
+            title="Météo LFPX Chavenay — Windy"></iframe>
+          <a class="live-overlay-btn" href="https://www.windy.com/?48.970,1.966,10" target="_blank" rel="noopener">↗ Ouvrir sur Windy</a>
         </div>
       </div>
     </div>
   </div>
 </div>
 <style>
+/* Live caméra + Windy : deux cartes identiques, même hauteur de média */
+.live-grid{display:grid;grid-template-columns:1.6fr 1fr;gap:16px;align-items:stretch;}
+.live-card{background:#0f172a;border-radius:12px;padding:10px;display:flex;flex-direction:column;min-width:0;}
+.live-card-title{color:rgba(255,255,255,.8);font-size:13px;font-weight:700;margin:0 0 10px;padding:4px 2px;font-family:monospace;}
+.live-media{position:relative;flex:1;border-radius:10px;overflow:hidden;background:#000;}
+.live-windy{min-height:180px;}
+#arc-video{height:100%;object-fit:cover;}
+.live-windy iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block;}
+.live-overlay-btn{position:absolute;bottom:10px;right:10px;background:rgba(0,0,0,.7);color:#fff;padding:6px 10px;border-radius:6px;font-size:12px;font-family:monospace;text-decoration:none;}
+.live-overlay-btn:hover{background:rgba(0,0,0,.85);}
+@media(max-width:768px){
+  .live-grid{grid-template-columns:1fr;}
+  .live-windy{min-height:0;aspect-ratio:16/10;}
+}
 @keyframes spin{to{transform:rotate(360deg)}}
 #live-badge.live{color:#22c55e;animation:blink-badge 2s infinite}
 #live-badge.error{color:#ef4444}
