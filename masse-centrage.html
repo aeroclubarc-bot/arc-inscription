@@ -66,8 +66,14 @@ svg text{font-family:var(--body)}
 .btn{font-family:var(--display);font-size:19px;font-weight:600;padding:12px 26px;border-radius:2px;border:0;cursor:pointer}
 .btn-p{background:var(--gold);color:var(--navy)}
 .btn-s{background:#fff;color:var(--navy);border:1.5px solid var(--navy)}
-.perf-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:16px}
-@media(max-width:800px){.perf-grid{grid-template-columns:1fr 1fr}}
+.cond-table{margin-bottom:16px}
+.cond-table td,.cond-table th{text-align:left}
+.cond-table td:first-child{font-weight:500;color:var(--gray);width:38%}
+.cond-table td:first-child .hint{display:block;font-size:12px;font-weight:400}
+.cond-table input,.cond-table select{max-width:none;font-size:16px;padding:7px 9px}
+.cond-table input[type=number]{text-align:left}
+.perf-table th:not(:first-child){width:30%}
+.perf-table tr.req td{border-top:1.5px solid var(--navy);background:var(--toile)}
 select{font:inherit;font-size:17px;color:var(--ink);padding:9px 11px;border:1.5px solid var(--line);border-radius:2px;background:#fff;width:100%}
 .ro{font-size:17px;font-weight:600;padding:9px 0;font-variant-numeric:tabular-nums}
 .perf-table td,.perf-table th{text-align:right}
@@ -103,7 +109,8 @@ select{font:inherit;font-size:17px;color:var(--ink);padding:9px 11px;border:1.5p
   .foot{font-size:9.5px;padding-bottom:0}
   input:focus{outline:none!important}
   input[type=date]::-webkit-calendar-picker-indicator{display:none}
-  .perf-grid{grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:6px}
+  .cond-table{margin-bottom:6px}
+  .cond-table input,.cond-table select{font-size:12px!important}
   select{border:none;padding:0;font-size:12px;-webkit-appearance:none;appearance:none;background:none}
   .ro{font-size:12px;padding:0}
   .perf-table .big{font-size:15px}
@@ -164,14 +171,21 @@ select{font:inherit;font-size:17px;color:var(--ink);padding:9px 11px;border:1.5p
 
   <section class="card" id="perf-card">
     <h2>Performances du jour</h2>
-    <p class="sub no-print">Conditions au décollage. La masse est reprise automatiquement du devis ci-dessus.</p>
-    <div class="perf-grid">
-      <label class="f">Masse au décollage<span class="ro" id="p_mto">—</span></label>
-      <label class="f">Altitude pression (ft)<input type="number" inputmode="numeric" id="p_alt" step="10" placeholder="426"></label>
-      <label class="f">Température (°C)<input type="number" inputmode="numeric" id="p_temp" step="1" placeholder="15"></label>
-      <label class="f">Vent de face (kt)<input type="number" inputmode="numeric" id="p_wind" step="1" placeholder="0" title="Composante de face ; valeur négative = vent arrière"></label>
-      <label class="f">Type de piste<select id="p_rwy"><option value="herbe">Herbe</option><option value="dure">Dure</option></select></label>
-    </div>
+    <p class="sub no-print">Masses reprises du devis : décollage pour le départ, atterrissage pour l'arrivée.</p>
+    <table class="cond-table">
+      <thead><tr><th>Conditions</th><th>Départ</th><th>Arrivée</th></tr></thead>
+      <tbody>
+        <tr><td>Masse (kg)</td><td class="ro" id="p_mto">—</td><td class="ro" id="p_mld">—</td></tr>
+        <tr><td>Altitude terrain (ft)</td><td><input type="number" inputmode="numeric" id="d_alt" placeholder="426"></td><td><input type="number" inputmode="numeric" id="a_alt" placeholder="426"></td></tr>
+        <tr><td>QNH (hPa)</td><td><input type="number" inputmode="numeric" id="d_qnh" placeholder="1013"></td><td><input type="number" inputmode="numeric" id="a_qnh" placeholder="1013"></td></tr>
+        <tr><td>Température (°C)</td><td><input type="number" inputmode="numeric" id="d_oat" placeholder="15"></td><td><input type="number" inputmode="numeric" id="a_oat" placeholder="15"></td></tr>
+        <tr><td>Type de piste</td><td><select id="d_rwy"><option value="herbe">Herbe</option><option value="dure">Dure</option></select></td><td><select id="a_rwy"><option value="herbe">Herbe</option><option value="dure">Dure</option></select></td></tr>
+        <tr><td>État de surface</td><td><select id="d_surf"><option value="seche">Sèche</option><option value="humide">Humide / mouillée</option><option value="haute">Herbe haute / détrempée</option></select></td><td><select id="a_surf"><option value="seche">Sèche</option><option value="humide">Humide / mouillée</option><option value="haute">Herbe haute / détrempée</option></select></td></tr>
+        <tr><td>Vent de face (kt)<span class="hint">négatif si arrière</span></td><td><input type="number" inputmode="numeric" id="d_wind" placeholder="0"></td><td><input type="number" inputmode="numeric" id="a_wind" placeholder="0"></td></tr>
+        <tr><td>Pente de piste (%)<span class="hint">positive si montante</span></td><td><input type="number" inputmode="decimal" step="0.1" id="d_slope" placeholder="0"></td><td><input type="number" inputmode="decimal" step="0.1" id="a_slope" placeholder="0"></td></tr>
+        <tr><td>Piste disponible (m)<span class="hint">TODA / LDA</span></td><td><input type="number" inputmode="numeric" id="d_len" placeholder="m"></td><td><input type="number" inputmode="numeric" id="a_len" placeholder="m"></td></tr>
+      </tbody>
+    </table>
     <div id="perf-body"></div>
   </section>
 
@@ -202,14 +216,12 @@ const AIRCRAFT = {
     tanks: [ { id:'fuel', label:'Essence', hint:'Réservoir avant', arm:-0.21, max:null } ],
     envelopes: [ { name:'Enveloppe D113', check:true, color:'#1F4E8C', pts:[[0.29,100],[0.29,617],[0.58,617],[0.58,100]] } ],
     axes: { x:[0.25,0.62], y:[300,650] },
-    note: 'Le réservoir est situé devant le bord d\'attaque : la consommation de carburant fait reculer le centrage en vol.',
+    note: 'Le réservoir est situé devant le bord d\'attaque : la consommation de carburant fait reculer le centrage en vol. Le point réservoirs vides (ZFM) matérialise la limite arrière atteinte en fin de carburant.',
     perf: {
-      fixed: true,
-      source: 'Dossier CNRA de F-PJIL (n° DGAC 5348-2), section 3 « Distances de décollage et d\'atterrissage ».',
-      to: { kind: 'Distance de décollage, de la mise des gaz au passage des 15 m', value: 200 },
-      ld: { kind: 'Distance d\'atterrissage, du passage des 15 m à l\'arrêt', value: 230 },
-      warning: 'Valeurs déclarées du dossier CNRA : une seule valeur, sans correction d\'altitude, de température, de masse ni de type de piste. Prévoir une marge supplémentaire par forte chaleur, en altitude ou sur herbe mouillée.',
-      warnLevel: 'w'
+      source: 'Manuel d\'utilisation Jodel D113 F-PJIL (V1.2 du 15/11/2023, p. 14) : 250 m au décollage, 230 m à l\'atterrissage. Le dossier CNRA indique 200 m au décollage : la valeur la plus prudente est retenue.',
+      to: { base: 'fixed15', d15: 250, grass: 1.18, zd: { pct: 0.10, per: 500 }, roll: { dure: 0.58, herbe: 0.68 }, rollEstimated: true },
+      ld: { base: 'fixed15', d15: 230, grass: 1.20, roll: { dure: 0.52, herbe: 0.62 }, rollEstimated: true },
+      massRef: 617
     }
   },
   'F-POUF': {
@@ -232,15 +244,12 @@ const AIRCRAFT = {
     note: null,
     perf: {
       source: 'Manuel de vol DH 251PR F-POUF, section 5 (pages 5.1, 5.2 et 5.5).',
-      to: { kind: 'Distance de passage des 15 m au décollage', alts: [0, 500, 1000, 1500], temps: [0, 15, 30, 45],
+      to: { base: 'table15', alts: [0, 500, 1000, 1500], temps: [0, 15, 30, 45],
             tables: { dure: [[440,470,500,540],[490,540,580,630],[580,640,700,750],[680,740,800,880]],
                       herbe: [[520,560,600,660],[600,660,730,800],[720,800,870,960],[880,950,1020,1160]] },
-            tableMass: 840, refMass: 830,
-            cond: 'à 840 kg, 1er cran de volets, Vi décollage 100 km/h, Vi passage des 15 m 115 km/h ; tableaux distincts pour piste béton et piste en herbe' },
-      ld: { kind: 'Distance de roulement à l\'atterrissage', masses: [750, 840], dist: [210, 250],
-            cond: 'atterrissage trois points, volets 60°, freinage moyen' }
+            tableMass: 840, refMass: 830, roll: { dure: 0.60, herbe: 0.70 } },
+      ld: { base: 'rollMass', masses: [750, 840], dist: [210, 250], grass: 1.20 }
     }
-
   },
   'F-BNVA': {
     type: 'Robin DR 250/160', title: 'Robin DR 250/160 — F-BNVA',
@@ -264,12 +273,10 @@ const AIRCRAFT = {
     maintenance: true,
     mlw: 920,
     perf: {
-      source: 'Manuel de vol DR 250, pages 24 et 25.',
-      to: { kind: 'Distance de roulement au décollage', alts: [0, 500, 1000], temps: [0, 15, 30],
-            tables: { dure: [[280, 300, 325], [320, 350, 380], [365, 400, 440]] }, grass: 1.20, tableMass: 960, refMass: 960,
-            cond: 'à 960 kg, volets 1er cran, piste béton, vent nul, Vi de décollage 110 km/h ; majorée de 20 % sur herbe selon le manuel' },
-      ld: { kind: 'Distance de roulement à l\'atterrissage', masses: [700, 800, 920], dist: [260, 280, 300],
-            cond: 'volets braqués à fond, freinage modéré' }
+      source: 'Manuel de vol DR 250/160, pages 24 et 25.',
+      to: { base: 'tableRoll', alts: [0, 500, 1000], temps: [0, 15, 30],
+            tables: { dure: [[280, 300, 325], [320, 350, 380], [365, 400, 440]] }, grass: 1.20, tableMass: 960, refMass: 960 },
+      ld: { base: 'rollMass', masses: [700, 800, 920], dist: [260, 280, 300], grass: 1.20 }
     }
   }
 };
@@ -339,6 +346,7 @@ function select(reg){
       <td id="bm_${t.id}">—</td><td>${fmt(t.arm,3)}</td><td id="bmo_${t.id}">—</td></tr>`;
   });
   rows += `<tr class="total"><td>Total à l'atterrissage</td><td id="st_ld"></td><td id="m_ld">—</td><td id="cg_ld">—</td><td id="mo_ld">—</td></tr>`;
+  rows += `<tr class="total"><td>Réservoirs vides (ZFM)<span class="hint" style="font-weight:400">0 L de carburant</span></td><td id="st_zf"></td><td id="m_zf">—</td><td id="cg_zf">—</td><td id="mo_zf">—</td></tr>`;
   $('tbody').innerHTML = rows;
   $('tbody').querySelectorAll('input').forEach(i => i.addEventListener('input', compute));
   compute();
@@ -381,11 +389,17 @@ function compute(){
     ML += m; MOL += m*t.arm;
   });
   const cgLD = MOL/ML;
+  // Point réservoirs vides (ZFM) : chargement sans carburant
+  let MZ = a.bem.m, MOZ = bemMoment;
+  a.stations.forEach(st => { const m = num('in_'+st.id); MZ += m; MOZ += m*st.arm; });
+  const cgZF = MOZ/MZ;
 
   $('m_to').textContent=fmt(M,1); $('mo_to').textContent=fmt(MO,1); $('cg_to').textContent=fmt(cgTO,3);
   $('m_ld').textContent=fmt(ML,1); $('mo_ld').textContent=fmt(MOL,1); $('cg_ld').textContent=fmt(cgLD,3);
+  $('m_zf').textContent=fmt(MZ,1); $('mo_zf').textContent=fmt(MOZ,1); $('cg_zf').textContent=fmt(cgZF,3);
 
-  const sTO = status(M,cgTO,a,'to'), sLD = status(ML,cgLD,a,'ld');
+  const sTO = status(M,cgTO,a,'to'), sLD = status(ML,cgLD,a,'ld'), sZF = status(MZ,cgZF,a,'ld');
+  $('st_zf').innerHTML = filled?`<span class="status ${sZF.ok?'st-ok':'st-ko'}">${sZF.txt}</span>`:'';
   $('st_to').innerHTML = filled?`<span class="status ${sTO.ok?'st-ok':'st-ko'}">${sTO.txt}</span>`:'';
   $('st_ld').innerHTML = filled?`<span class="status ${sLD.ok?'st-ok':'st-ko'}">${sLD.txt}</span>`:'';
 
@@ -399,11 +413,11 @@ function compute(){
   const hardAlert = alerts.some(x=>x[0]==='e');
   const v = $('verdict');
   if(!filled){ v.className='verdict na'; v.textContent='Saisissez le chargement'; }
-  else if(sTO.ok && sLD.ok && !hardAlert){ v.className='verdict ok'; v.textContent='Chargement conforme au décollage et à l\'atterrissage'; }
+  else if(sTO.ok && sLD.ok && sZF.ok && !hardAlert){ v.className='verdict ok'; v.textContent='Chargement conforme du décollage aux réservoirs vides'; }
   else { v.className='verdict ko'; v.textContent='Chargement non conforme — vol à ne pas entreprendre'; }
 
   $('alerts').innerHTML = alerts.map(([k,t])=>`<div class="alert ${k==='w'?'w':''}">${t}</div>`).join('');
-  drawChart(a, filled ? [{cg:cgTO,m:M,label:'Décollage'},{cg:cgLD,m:ML,label:'Atterrissage'}] : []);
+  drawChart(a, filled ? [{cg:cgTO,m:M,label:'Décollage'},{cg:cgLD,m:ML,label:'Atterrissage'},{cg:cgZF,m:MZ,label:'ZFM'}] : []);
   computePerf(a, filled ? M : null, filled ? ML : null);
   save();
 }
@@ -417,69 +431,100 @@ function interp1(xs, ys, x){
   const t = (x - xs[i]) / (xs[i+1] - xs[i]);
   return ys[i] + t * (ys[i+1] - ys[i]);
 }
+const SURF = { to: { seche: 1, humide: 1.15, haute: 1.30 }, ld: { seche: 1, humide: 1.20, haute: 1.35 } };
+const MARGE = { to: 1.25, ld: 1.43 };
+const SURF_LBL = { seche: 'sèche', humide: 'humide', haute: 'herbe haute / détrempée' };
+
+function readCond(p){
+  const v = id => $(p+id).value;
+  return {
+    alt: v('_alt') === '' ? null : num(p+'_alt'),
+    qnh: v('_qnh') === '' ? 1013 : num(p+'_qnh'),
+    oat: v('_oat') === '' ? null : num(p+'_oat'),
+    herbe: v('_rwy') === 'herbe', surf: v('_surf'),
+    wind: num(p+'_wind'), slope: num(p+'_slope'),
+    len: v('_len') === '' ? null : num(p+'_len')
+  };
+}
+
+// Calcule une phase (décollage ou atterrissage). Renvoie roulement, passage 15 m, distance requise, alertes.
+function phasePerf(P, phase, M, c){
+  const out = { roll: null, d15: null, req: null, warns: [], zp: null, zd: null };
+  if (!M || c.alt === null || c.oat === null) return out;
+  const zp = c.alt + (1013 - c.qnh) * 28;
+  const zd = zp + 120 * (c.oat - (15 - 2 * zp / 1000));
+  out.zp = zp; out.zd = zd;
+  const cfg = P[phase], typ = c.herbe ? 'herbe' : 'dure';
+  let roll = null, d15 = null;
+
+  if (cfg.base === 'table15' || cfg.base === 'tableRoll'){
+    const altM = zp * 0.3048, alts = cfg.alts, temps = cfg.temps;
+    if (altM > alts[alts.length-1] || c.oat > temps[temps.length-1])
+      out.warns.push(['e', `${phase==='to'?'Décollage':'Atterrissage'} : altitude ou température au-delà du tableau du manuel (${alts[alts.length-1]} m, ${temps[temps.length-1]} °C) : valeur extrapolée, à confirmer.`]);
+    const table = cfg.tables[typ] || cfg.tables.dure;
+    let d = interp1(alts, table.map(r => interp1(temps, r, Math.max(temps[0], c.oat))), Math.max(alts[0], altM));
+    if (!cfg.tables[typ] && c.herbe) d *= cfg.grass;
+    if (M < cfg.tableMass) d *= Math.pow(M / cfg.refMass, 2);
+    if (cfg.base === 'table15'){ d15 = d; roll = d * cfg.roll[typ]; } else roll = d;
+  } else if (cfg.base === 'rollMass'){
+    const ms = cfg.masses, mx = ms[ms.length-1];
+    if (M > mx + 1e-9){ out.warns.push(['e', `Atterrissage : masse supérieure à la masse maximale du tableau (${mx} kg), pas de distance calculée.`]); return out; }
+    roll = interp1(ms, cfg.dist, Math.max(ms[0], M)) * (c.herbe ? cfg.grass : 1) * (1 + 0.03 * Math.max(0, zd) / 1000);
+  } else if (cfg.base === 'fixed15'){
+    d15 = cfg.d15 * (c.herbe ? cfg.grass : 1) * Math.min(1, Math.pow(M / P.massRef, 2));
+    d15 *= cfg.zd ? (1 + cfg.zd.pct * Math.max(0, zd) / cfg.zd.per) : (1 + 0.03 * Math.max(0, zd) / 1000);
+    roll = d15 * cfg.roll[typ];
+  }
+
+  const fSurf = SURF[phase][c.surf] || 1;
+  const fVent = Math.max(0.6, 1 - 0.01 * c.wind + (c.wind < 0 ? -0.03 * c.wind : 0) + (phase === 'to' ? 0.05 : -0.05) * c.slope);
+  out.roll = roll * fSurf * fVent;
+  out.d15 = d15 === null ? null : d15 * fSurf * fVent;
+  out.req = (out.d15 ?? out.roll) * MARGE[phase];
+  out.basedOnRoll = out.d15 === null;
+  if (c.wind < 0) out.warns.push(['w', `${phase==='to'?'Décollage':'Atterrissage'} vent arrière : distance majorée de 20 % par tranche de 5 kt. À éviter.`]);
+  return out;
+}
+
 function computePerf(a, M, ML){
   const body = $('perf-body');
-  $('p_mto').textContent = M ? fmt(M,1)+' kg' : '—';
-  if (!a.perf){
-    body.innerHTML = '<p class="perf-na">Les tableaux de performances du manuel de vol de ce modèle ne sont pas encore intégrés à cette page. Établissez les performances à partir du manuel de vol.</p>';
-    return;
-  }
-  const P = a.perf, warns = [];
-  const altFt = $('p_alt').value === '' ? null : num('p_alt');
-  const T = $('p_temp').value === '' ? null : num('p_temp');
-  const wind = num('p_wind');
-  const herbe = $('p_rwy').value === 'herbe';
-  let dd = null, da = null, needCond = false;
-
-  if (P.fixed){
-    if (M) dd = P.to.value;
-    if (ML) da = P.ld.value;
-    warns.push([P.warnLevel || 'e', P.warning]);
-  } else {
-    if (M && altFt !== null && T !== null){
-      const altM = altFt * 0.3048;
-      const alts = P.to.alts, temps = P.to.temps;
-      if (altM > alts[alts.length-1] || T > temps[temps.length-1])
-        warns.push(['e', `Altitude ou température au-delà du tableau du manuel (${alts[alts.length-1]} m, ${temps[temps.length-1]} °C) : valeur extrapolée, à confirmer.`]);
-      const altC = Math.max(alts[0], altM), tC = Math.max(temps[0], T); // sous le tableau : valeurs conservatives
-      const table = (herbe && P.to.tables.herbe) ? P.to.tables.herbe : P.to.tables.dure;
-      dd = interp1(alts, table.map(row => interp1(temps, row, tC)), altC);
-      if (M < P.to.tableMass) dd *= Math.pow(M / P.to.refMass, 2);
-      if (herbe && !P.to.tables.herbe) dd *= P.to.grass;
-    } else if (M) needCond = true;
-    if (ML){
-      const ms = P.ld.masses, mx = ms[ms.length-1];
-      if (ML > mx + 1e-9) warns.push(['e', `Masse à l'atterrissage supérieure à la masse maximale du tableau (${mx} kg) : pas de distance calculée.`]);
-      else da = interp1(ms, P.ld.dist, Math.max(ms[0], ML));
-    }
-  }
-  if (wind < 0){
-    warns.push(['e', 'Vent arrière : non couvert par le manuel de vol. Décollage et atterrissage vent arrière déconseillés.']);
-    dd = null; da = null;
-  }
-
-  const notes = [];
-  if (P.fixed){
-    notes.push(`Décollage : ${P.to.kind.toLowerCase()}. Atterrissage : ${P.ld.kind.toLowerCase()}.`);
-  } else {
-    notes.push(`Décollage : ${P.to.kind.toLowerCase()} (${P.to.cond}), corrigée de la masse selon (P/${P.to.refMass})² en dessous de ${P.to.tableMass} kg.`);
-    notes.push(`Atterrissage : ${P.ld.kind.toLowerCase()} (${P.ld.cond}). Le manuel ne donne pas de correction d'altitude, de température ni de type de piste à l'atterrissage.`);
-  }
-  notes.push(`Le vent de face n'est pas déduit, faute de correction dans le manuel : les valeurs restent du côté de la sécurité. Source : ${P.source}`);
-
-  const cell = v => v === null ? '—' : `<span class="big">${fmt(Math.round(v),0)} m</span>`;
-  const f = v => v === null ? null : v * 1.2;
+  $('p_mto').textContent = M ? fmt(M,1) : '—';
+  $('p_mld').textContent = ML ? fmt(ML,1) : '—';
+  if (!a.perf){ body.innerHTML = '<p class="perf-na">Les performances de ce modèle ne sont pas encore intégrées : utilisez le manuel de vol.</p>'; return; }
+  const P = a.perf, cd = readCond('d'), ca = readCond('a');
+  const to = phasePerf(P, 'to', M, cd), ld = phasePerf(P, 'ld', ML, ca);
+  const m = v => v === null || v === undefined ? '—' : `<span class="big">${fmt(Math.round(v),0)} m</span>`;
+  const ft = v => v === null ? '—' : fmt(Math.round(v),0) + ' ft';
+  const verdict = (r, len) => {
+    if (r.req === null) return '—';
+    if (len === null) return '<span class="status st-na">Saisir la piste</span>';
+    return len >= r.req ? '<span class="status st-ok">Piste suffisante</span>' : '<span class="status st-ko">Piste trop courte</span>';
+  };
+  const warns = [...to.warns, ...ld.warns];
+  if ((M && (cd.alt === null || cd.oat === null)) || (ML && (ca.alt === null || ca.oat === null)))
+    warns.push(['w', 'Saisissez l\'altitude terrain et la température (départ et arrivée) pour obtenir les distances.']);
+  const rollNote = (phase) => {
+    const r = phase === 'to' ? to : ld;
+    return r.req !== null && r.basedOnRoll ? `<br><span class="hint">marge appliquée au roulement : le manuel ne donne pas le passage des 15 m</span>` : '';
+  };
+  const est = cfg => cfg.rollEstimated ? ' <span class="hint">estimé</span>' : '';
   body.innerHTML = `
     <table class="perf-table">
-      <thead><tr><th></th><th>Perfo. brutes</th><th>Perfo. factorisées (+20 %)</th></tr></thead>
+      <thead><tr><th></th><th>Décollage</th><th>Atterrissage</th></tr></thead>
       <tbody>
-        <tr><td><span class="lbl">DD — décollage</span><span class="hint">${M ? 'à ' + fmt(M,1) + ' kg' : 'masse à saisir'}</span></td><td>${cell(dd)}</td><td>${cell(f(dd))}</td></tr>
-        <tr><td><span class="lbl">DATT — atterrissage</span><span class="hint">${ML ? 'à ' + fmt(ML,1) + ' kg' : 'masse à saisir'}</span></td><td>${cell(da)}</td><td>${cell(f(da))}</td></tr>
+        <tr><td><span class="lbl">Altitude pression / densité</span></td><td>${ft(to.zp)} / ${ft(to.zd)}</td><td>${ft(ld.zp)} / ${ft(ld.zd)}</td></tr>
+        <tr><td><span class="lbl">Roulement corrigé</span></td><td>${m(to.roll)}${to.roll!==null?est(P.to):''}</td><td>${m(ld.roll)}${ld.roll!==null?est(P.ld):''}</td></tr>
+        <tr><td><span class="lbl">Passage des 15 m corrigé</span></td><td>${m(to.d15)}</td><td>${m(ld.d15)}</td></tr>
+        <tr class="req"><td><span class="lbl">Distance requise avec marge</span><span class="hint">× 1,25 au décollage, × 1,43 à l'atterrissage</span></td><td>${m(to.req)}${rollNote('to')}</td><td>${m(ld.req)}${rollNote('ld')}</td></tr>
+        <tr><td><span class="lbl">Piste disponible</span></td><td>${cd.len===null?'—':fmt(cd.len,0)+' m'}</td><td>${ca.len===null?'—':fmt(ca.len,0)+' m'}</td></tr>
+        <tr><td><span class="lbl">Vérification</span></td><td>${verdict(to, cd.len)}</td><td>${verdict(ld, ca.len)}</td></tr>
       </tbody>
     </table>
     ${warns.map(([k,w]) => `<div class="alert ${k==='w'?'w':''}">${w}</div>`).join('')}
-    ${needCond ? '<div class="alert w">Saisissez l\'altitude pression et la température pour calculer la distance de décollage.</div>' : ''}
-    <div class="perf-notes">${notes.map(n => `<p>${n}</p>`).join('')}</div>`;
+    <div class="perf-notes">
+      <p>Données du manuel : ${P.source}</p>
+      <p>Corrections de la fiche du club : altitude pression = altitude terrain + (1013 − QNH) × 28 ft ; surface humide × 1,15 au décollage et × 1,20 à l'atterrissage, herbe haute ou détrempée × 1,30 et × 1,35 ; vent de face − 10 % par 10 kt, vent arrière + 20 % par 5 kt ; pente ± 5 % par %. À l'atterrissage, faute de données du manuel, + 3 % par 1 000 ft d'altitude-densité${P.ld.grass ? ' et + 20 % sur herbe' : ''}.</p>
+    </div>`;
 }
 
 function drawChart(a, points){
@@ -503,15 +548,17 @@ function drawChart(a, points){
   });
   s+=`<line x1="${L}" y1="${py(a.mtow)}" x2="${W-R}" y2="${py(a.mtow)}" stroke="#A3231B" stroke-dasharray="2 3"/><text x="${W-R-2}" y="${py(a.mtow)-4}" font-size="11" text-anchor="end" fill="#A3231B">Masse max ${a.mtow} kg</text>`;
   if(a.mlw) s+=`<line x1="${L}" y1="${py(a.mlw)}" x2="${W-R}" y2="${py(a.mlw)}" stroke="#8A5A00" stroke-dasharray="5 3"/><text x="${W-R-2}" y="${py(a.mlw)+13}" font-size="11" text-anchor="end" fill="#8A5A00">Max atterrissage ${a.mlw} kg</text>`;
-  if(points.length===2){
-    const [p,q]=points;
+  if(points.length===3){
+    const [p,q,z]=points;
+    s+=`<line x1="${px(q.cg)}" y1="${py(clampY(q.m))}" x2="${px(z.cg)}" y2="${py(clampY(z.m))}" stroke="#0E2240" stroke-width="1.2" stroke-dasharray="4 3"/>`;
+    s+=`<rect x="${px(z.cg)-5}" y="${py(clampY(z.m))-5}" width="10" height="10" fill="#B8913A" stroke="#0E2240" stroke-width="1.5"/>`;
     s+=`<line x1="${px(p.cg)}" y1="${py(clampY(p.m))}" x2="${px(q.cg)}" y2="${py(clampY(q.m))}" stroke="#0E2240" stroke-width="1.5"/>`;
     s+=`<circle cx="${px(p.cg)}" cy="${py(clampY(p.m))}" r="6" fill="#0E2240"/>`;
     s+=`<circle cx="${px(q.cg)}" cy="${py(clampY(q.m))}" r="6" fill="#fff" stroke="#0E2240" stroke-width="2"/>`;
   }
   $('chart').innerHTML = s;
   $('legend').innerHTML = a.envelopes.map(e=>`<span><i style="border:2px ${e.dash?'dashed':'solid'} ${e.color}"></i>${e.name}</span>`).join('')
-    + `<span><i style="background:#0E2240;border-radius:50%"></i>Décollage</span><span><i style="border:2px solid #0E2240;border-radius:50%"></i>Atterrissage</span>`;
+    + `<span><i style="background:#0E2240;border-radius:50%"></i>Décollage</span><span><i style="border:2px solid #0E2240;border-radius:50%"></i>Atterrissage</span><span><i style="background:#B8913A;border:1.5px solid #0E2240"></i>Réservoirs vides</span>`;
 }
 
 // Mémorise la saisie dans ce navigateur (pratique au hangar)
@@ -520,20 +567,22 @@ function save(){
     const data={trajet:$('trajet').value,pilote:$('pilote').value,date:$('date').value,vals:{}};
     document.querySelectorAll('#tbody input').forEach(i=>data.vals[i.id]=i.value);
     localStorage.setItem('arc-mc-'+current, JSON.stringify(data));
-    localStorage.setItem('arc-mc-meta', JSON.stringify({trajet:data.trajet,pilote:data.pilote,date:data.date,p_alt:$('p_alt').value,p_temp:$('p_temp').value,p_wind:$('p_wind').value,p_rwy:$('p_rwy').value}));
+    const cond={}; ['d_alt','a_alt','d_qnh','a_qnh','d_oat','a_oat','d_rwy','a_rwy','d_surf','a_surf','d_wind','a_wind','d_slope','a_slope','d_len','a_len'].forEach(k=>cond[k]=$(k).value);
+    localStorage.setItem('arc-mc-meta', JSON.stringify({trajet:data.trajet,pilote:data.pilote,date:data.date,cond}));
   }catch(e){}
 }
 function restore(){
   try{
     const meta=JSON.parse(localStorage.getItem('arc-mc-meta')||'{}');
-    ['trajet','pilote','p_alt','p_temp','p_wind','p_rwy'].forEach(k=>{ if(meta[k]) $(k).value=meta[k]; });
+    ['trajet','pilote'].forEach(k=>{ if(meta[k]) $(k).value=meta[k]; });
+    Object.entries(meta.cond||{}).forEach(([k,v])=>{ if($(k) && v!=='') $(k).value=v; });
     const d=JSON.parse(localStorage.getItem('arc-mc-'+current)||'null');
     if(d) Object.entries(d.vals||{}).forEach(([id,v])=>{ if($(id)) $(id).value=v; });
   }catch(e){}
 }
 
 ['trajet','pilote','date'].forEach(id=>$(id).addEventListener('input',save));
-['p_alt','p_temp','p_wind','p_rwy'].forEach(id=>{ $(id).addEventListener('input',compute); $(id).addEventListener('change',compute); });
+['d_alt','a_alt','d_qnh','a_qnh','d_oat','a_oat','d_rwy','a_rwy','d_surf','a_surf','d_wind','a_wind','d_slope','a_slope','d_len','a_len'].forEach(id=>{ $(id).addEventListener('input',compute); $(id).addEventListener('change',compute); });
 $('reset').addEventListener('click',()=>{
   document.querySelectorAll('#tbody input').forEach(i=>i.value='');
   try{ localStorage.removeItem('arc-mc-'+current); }catch(e){}
