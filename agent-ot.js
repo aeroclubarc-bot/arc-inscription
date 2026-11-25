@@ -13,6 +13,8 @@ const API_URL = "https://api.anthropic.com/v1/messages";
 async function callClaude({ system, messages, tool, maxTokens = 2000 }) {
   const key = process.env.ANTHROPIC_API_KEY;
   if (!key) throw new Error("ANTHROPIC_API_KEY manquante sur Railway");
+  // Certains modèles refusent tool_choice "tool" : on laisse "auto" et on
+  // exige l'appel de l'outil dans la consigne, avec une solution de repli texte.
   const r = await fetch(API_URL, {
     method: "POST",
     headers: {
@@ -23,17 +25,22 @@ async function callClaude({ system, messages, tool, maxTokens = 2000 }) {
     body: JSON.stringify({
       model: MODEL,
       max_tokens: maxTokens,
-      system,
+      system: system + `\n\nRéponds toujours et uniquement en appelant l'outil « ${tool.name} », sans texte autour.`,
       messages,
       tools: [tool],
-      tool_choice: { type: "tool", name: tool.name },
+      tool_choice: { type: "auto" },
     }),
   });
   const data = await r.json();
   if (!r.ok) throw new Error(data?.error?.message || `API Claude HTTP ${r.status}`);
-  const block = (data.content || []).find(b => b.type === "tool_use");
-  if (!block) throw new Error("Réponse Claude sans données structurées");
-  return block.input;
+  const block = (data.content || []).find(b => b.type === "tool_use" && b.name === tool.name);
+  if (block) return block.input;
+  // Repli : le modèle a répondu en texte
+  const text = (data.content || []).filter(b => b.type === "text").map(b => b.text).join("\n").trim();
+  const m = text.match(/\{[\s\S]*\}/);
+  if (m) { try { return JSON.parse(m[0]); } catch (e) { /* texte libre */ } }
+  if (!text) throw new Error("Réponse vide de l'API Claude");
+  return { _texte: text };
 }
 
 // ── Consignes de l'agent ─────────────────────────────────────────────
@@ -149,8 +156,11 @@ export function registerAgentOt(app, { maintAuth, Resend, getPg }) {
         if (merged.length && merged[merged.length - 1].role === m.role) merged[merged.length - 1].content += "\n\n" + m.content;
         else merged.push({ ...m });
       }
-      const out = await callClaude({ system: SYSTEM_OT, messages: merged, tool: TOOL_OT });
-      out.set = (out.set || []).filter(s => allowed.has(s.id));
+      const raw = await callClaude({ system: SYSTEM_OT, messages: merged, tool: TOOL_OT });
+      const out = raw._texte
+        ? { reply: raw._texte, set: [], flags: [], done: false }
+        : { reply: raw.reply || "", set: Array.isArray(raw.set) ? raw.set : [], flags: Array.isArray(raw.flags) ? raw.flags : [], done: !!raw.done };
+      out.set = out.set.filter(s => s && allowed.has(s.id) && typeof s.value === "string");
       res.json(out);
     } catch (e) {
       console.error("agent-ot/turn:", e.message);
@@ -176,6 +186,8 @@ export function registerAgentOt(app, { maintAuth, Resend, getPg }) {
           ],
         }],
       });
+      if (out._texte) return res.status(502).json({ error: "Lecture non structurée, saisissez les cases à la main" });
+      out.problemes = Array.isArray(out.problemes) ? out.problemes : [];
       res.json(out);
     } catch (e) {
       console.error("agent-ot/form1:", e.message);
@@ -221,3 +233,4 @@ export function registerAgentOt(app, { maintAuth, Resend, getPg }) {
     }
   });
 }
+
