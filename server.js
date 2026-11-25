@@ -3,6 +3,7 @@ import path from "path";
 import crypto from "crypto";
 import { fileURLToPath } from "url";
 import { Resend } from "resend";
+import { registerAgentOt } from "./agent-ot.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -136,7 +137,12 @@ if (process.env.DATABASE_URL) {
 }
 
 // ── MIDDLEWARE GLOBAL ──────────────────────────────────────────────────
-app.use(express.json());
+// JSON : 100 ko par défaut, 15 Mo pour l'agent OT (photos de Form 1, PDF signé)
+const jsonDefault = express.json();
+const jsonLarge = express.json({ limit: "15mb" });
+app.use((req, res, next) =>
+  (req.path.startsWith("/api/agent-ot/") ? jsonLarge : jsonDefault)(req, res, next)
+);
 app.use(express.urlencoded({ extended: true }));
 
 // CORS + OPTIONS preflight
@@ -212,6 +218,7 @@ const PROTECTED_HTML = new Set([
   "/entretien-dr250.html",
   "/entretien-dh251.html",
   "/signer-ot.html",
+  "/agent-ot.html",
   "/promo-admin.html",
   "/reinscriptions-admin.html",
   "/membres-admin.html",
@@ -1409,6 +1416,8 @@ app.get("/entretien-d113",  maintAuth, (req, res) => res.sendFile(path.join(__di
 app.get("/entretien-dr250", maintAuth, (req, res) => res.sendFile(path.join(__dirname, "entretien-dr250.html")));
 app.get("/entretien-dh251", maintAuth, (req, res) => res.sendFile(path.join(__dirname, "entretien-dh251.html")));
 app.get("/signer-ot",       maintAuth, (req, res) => res.sendFile(path.join(__dirname, "signer-ot.html")));
+app.get("/agent-ot",        maintAuth, (req, res) => res.sendFile(path.join(__dirname, "agent-ot.html")));
+registerAgentOt(app, { maintAuth, Resend, getPg: () => (pgReady ? pgPool : null) });
 app.get("/promo-admin",     maintAuth, (req, res) => res.sendFile(path.join(__dirname, "promo-admin.html")));
 app.get("/reinscriptions-admin", maintAuth, (req, res) => res.sendFile(path.join(__dirname, "reinscriptions-admin.html")));
 app.get("/membres-admin", maintAuth, (req, res) => res.sendFile(path.join(__dirname, "membres-admin.html")));
@@ -1431,6 +1440,7 @@ app.get("/robots.txt", (req, res) => {
     "Disallow: /entretien-dr250\n" +
     "Disallow: /entretien-dh251\n" +
     "Disallow: /signer-ot\n" +
+    "Disallow: /agent-ot\n" +
     "Disallow: /promo-admin\n" +
     "Disallow: /reinscriptions-admin\n" +
     "Disallow: /membres-admin\n" +
@@ -1447,5 +1457,5 @@ app.listen(PORT, () => {
   console.log(`▸ Maintenance password: ${MAINT_PASSWORD === "changeme-set-env-var" ? "⚠️  DEFAULT (set MAINTENANCE_PASSWORD env var!)" : "✓ from MAINTENANCE_PASSWORD env"}`);
   console.log(`▸ Notes sync (PostgreSQL): ${pgReady ? "✓ ENABLED" : "✗ disabled (DATABASE_URL not set or DB unreachable)"}`);
   console.log(`▸ Bureau (simulateur): ${BUREAU_TOKEN ? "✓ BUREAU_PASSWORD défini" : "✗ fermé (BUREAU_PASSWORD manquant)"}`);
-  console.log(`▸ Protected routes: /maintenance, /entretien-d113, /entretien-dr250, /entretien-dh251, /signer-ot, /promo-admin`);
+  console.log(`▸ Protected routes: /maintenance, /entretien-d113, /entretien-dr250, /entretien-dh251, /signer-ot, /agent-ot, /promo-admin`);
 });

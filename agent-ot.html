@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Agent OT — Atelier A.R.C.</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  :root{
+    --navy:#1a1a5e; --navy2:#2244aa; --ink:#14163a; --mute:#5b6178;
+    --bg:#eef1f7; --paper:#ffffff; --line:#c9cfdf;
+    --ok:#1e7a1e; --warn:#b54708; --stop:#b42318;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);
+       padding-bottom:env(safe-area-inset-bottom,0px)}
+  button,input,textarea,select{font:inherit;color:inherit}
+  :focus-visible{outline:3px solid var(--navy2);outline-offset:2px}
+
+  .hdr{background:var(--navy);color:#fff;padding:calc(10px + env(safe-area-inset-top,0px)) 16px 10px;
+       display:flex;gap:12px;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:20}
+  .hdr h1{font-size:16px;font-weight:700;letter-spacing:.2px}
+  .hdr .ot{font-size:13px;opacity:.85}
+  .hdr a{color:#fff;font-size:13px;opacity:.8;text-decoration:none}
+  .wrap{max-width:1180px;margin:0 auto;padding:14px}
+
+  .panel{background:var(--paper);border:1px solid var(--line);border-radius:10px}
+  .panel h2{font-size:15px;padding:12px 14px;border-bottom:1px solid var(--line)}
+  .pad{padding:14px}
+  .muted{color:var(--mute);font-size:13px;line-height:1.45}
+
+  .btn{border:0;border-radius:8px;padding:11px 16px;font-weight:700;font-size:14px;cursor:pointer;min-height:44px}
+  .btn-main{background:var(--navy);color:#fff}
+  .btn-main:hover{background:var(--navy2)}
+  .btn-ok{background:var(--ok);color:#fff}
+  .btn-ghost{background:#fff;border:1.5px solid var(--line);color:var(--ink)}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+
+  /* Import */
+  .drop{border:2px dashed #9aa5c7;border-radius:10px;padding:34px 16px;text-align:center;cursor:pointer;background:#f7f8fc}
+  .drop strong{display:block;font-size:16px;margin-bottom:6px}
+  .ident{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:14px}
+  .ident label{display:block;font-size:12px;color:var(--mute);margin-bottom:3px}
+  .ident input{width:100%;padding:9px 10px;border:1.5px solid var(--line);border-radius:7px;font-size:15px;background:#fff}
+
+  /* Saisie : chat + avancement */
+  .work{display:grid;grid-template-columns:1fr;gap:14px}
+  @media (min-width:900px){ .work{grid-template-columns:minmax(0,1fr) 340px} }
+
+  .chat{display:flex;flex-direction:column;height:calc(100dvh - 170px);min-height:420px}
+  .msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
+  .m{max-width:88%;padding:10px 12px;border-radius:10px;font-size:15px;line-height:1.45;white-space:pre-wrap}
+  .m.a{background:#f4f6fb;border-left:4px solid var(--navy);align-self:flex-start}
+  .m.u{background:var(--navy);color:#fff;align-self:flex-end}
+  .m.sys{background:transparent;color:var(--mute);font-size:13px;align-self:center;text-align:center}
+  .m .set{margin-top:6px;font-size:12px;color:var(--mute)}
+  .flag{align-self:stretch;border-radius:8px;padding:9px 12px;font-size:14px;line-height:1.4;border:1.5px solid}
+  .flag.info{border-color:#9aa5c7;background:#f4f6fb}
+  .flag.attention{border-color:var(--warn);background:#fff6ec;color:#6d2c03}
+  .flag.bloquant{border-color:var(--stop);background:#fff0ee;color:#7a1610;font-weight:600}
+  .typing{align-self:flex-start;color:var(--mute);font-size:13px}
+
+  .chips{display:flex;gap:8px;flex-wrap:wrap;padding:8px 14px 0}
+  .chip{border:1.5px solid var(--line);background:#fff;border-radius:18px;padding:8px 13px;font-size:14px;cursor:pointer;min-height:38px}
+  .chip.cam{border-color:var(--navy);color:var(--navy);font-weight:700}
+  .compose{display:flex;gap:8px;padding:10px 14px 14px;align-items:flex-end}
+  .compose textarea{flex:1;resize:none;border:1.5px solid var(--line);border-radius:9px;padding:10px 12px;font-size:16px;min-height:46px;max-height:140px;background:#fff}
+
+  .prog{position:sticky;top:64px;align-self:start}
+  .sec{padding:10px 14px;border-bottom:1px solid #e6e9f2}
+  .sec:last-child{border-bottom:0}
+  .sec-h{display:flex;justify-content:space-between;font-size:14px;font-weight:700}
+  .sec-h span{font-weight:600;color:var(--mute);font-size:13px}
+  .bar{height:5px;background:#e6e9f2;border-radius:3px;margin-top:6px;overflow:hidden}
+  .bar i{display:block;height:100%;background:var(--ok);width:0}
+  .items{margin-top:6px;display:flex;flex-direction:column;gap:3px}
+  .it{display:flex;gap:8px;font-size:13px;line-height:1.35}
+  .it b{flex:0 0 46px;text-align:center;font-size:11px;border:1.5px solid var(--line);border-radius:4px;padding:1px 0;color:var(--mute)}
+  .it b.f{border-color:var(--ok);color:var(--ok)}
+  .it b.nf{border-color:var(--warn);color:var(--warn)}
+  .prog-actions{padding:12px 14px}
+
+  /* Form 1 */
+  .f1{position:fixed;inset:0;background:rgba(20,22,58,.55);z-index:50;display:none;align-items:flex-end;justify-content:center}
+  .f1.open{display:flex}
+  .f1-box{background:#fff;width:100%;max-width:640px;max-height:92dvh;overflow-y:auto;border-radius:14px 14px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom,0px))}
+  @media (min-width:700px){ .f1{align-items:center} .f1-box{border-radius:14px} }
+  .f1-box h3{font-size:16px;margin-bottom:10px}
+  .f1-img{width:100%;max-height:260px;object-fit:contain;background:#f4f6fb;border-radius:8px;margin-bottom:10px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .grid2 label,.full label{font-size:12px;color:var(--mute);display:block;margin-bottom:2px}
+  .grid2 input,.full input,.full select{width:100%;padding:8px 9px;border:1.5px solid var(--line);border-radius:7px;font-size:15px}
+  .full{margin-bottom:8px}
+  .warnbox{border:1.5px solid var(--warn);background:#fff6ec;color:#6d2c03;border-radius:8px;padding:8px 10px;font-size:13px;margin-bottom:10px}
+  .f1-sub{font-size:13px;font-weight:700;margin:12px 0 6px}
+  .row-btn{display:flex;gap:8px;justify-content:flex-end;margin-top:14px;flex-wrap:wrap}
+
+  /* Vérification et signature */
+  .pages{background:#3d4157;border-radius:10px;padding:10px;max-height:78dvh;overflow-y:auto}
+  .pg{position:relative;margin:0 auto 12px;container-type:inline-size;max-width:860px}
+  .pg canvas{display:block;width:100%;height:auto;border-radius:2px}
+  .ov{position:absolute;color:#0b2a8a;line-height:1.15;cursor:grab;touch-action:none;
+      font-family:Helvetica,Arial,sans-serif;white-space:pre-wrap;word-break:break-word;border-radius:2px}
+  .ov:hover{outline:1px dashed #0b2a8a}
+  .ov.trig{font-weight:700;border:1.2px solid #0b2a8a;padding:0 .3em;background:rgba(235,240,255,.85)}
+  .ov.ghost{opacity:.35;border-style:dashed}
+  .ov.sig img{display:block;width:100%;height:auto}
+  .ov.sig small{display:block;font-size:.8em;white-space:nowrap}
+  .ov.chk{font-weight:700}
+  .sign{display:grid;gap:14px;grid-template-columns:1fr}
+  @media (min-width:900px){ .sign{grid-template-columns:minmax(0,1fr) 380px} }
+  .sigpad{width:100%;height:150px;border:2px dashed #8a8;border-radius:8px;background:#fafffa;touch-action:none;display:block}
+  .cert{font-size:13px;line-height:1.45;background:#f4f6fb;border-radius:8px;padding:10px;margin:10px 0}
+  .tick{display:flex;gap:10px;align-items:flex-start;font-size:14px;line-height:1.4;margin:8px 0}
+  .tick input{width:22px;height:22px;flex:0 0 22px;margin-top:1px}
+  .status{font-size:14px;margin-top:10px;line-height:1.4}
+  .hidden{display:none !important}
+  @media (prefers-reduced-motion:no-preference){ .m{animation:in .18s ease-out} @keyframes in{from{opacity:0;transform:translateY(4px)}} }
+</style>
+</head>
+<body>
+<header class="hdr">
+  <div>
+    <h1>Agent OT</h1>
+    <div class="ot" id="hdrOt">Atelier A.R.C. — aucun OT chargé</div>
+  </div>
+  <a href="/maintenance">Retour atelier</a>
+</header>
+
+<main class="wrap">
+
+  <!-- 1. Import -->
+  <section id="stepImport" class="panel">
+    <h2>Importer l'ordre de travail SEGA</h2>
+    <div class="pad">
+      <label class="drop" id="drop" for="pdfIn">
+        <strong>Choisir le PDF de l'OT</strong>
+        <span class="muted">L'agent lit les travaux programmés, les cases à remplir et les heures de l'OT.</span>
+      </label>
+      <input type="file" id="pdfIn" accept="application/pdf" class="hidden">
+      <div class="ident">
+        <div><label for="mecano">Mécanicien</label><input id="mecano" value="CAPUANO Romain" autocomplete="name"></div>
+        <div><label for="licence">N° de licence</label><input id="licence" value="FR.66.0097.16"></div>
+        <div><label for="trig">Trigramme VISA</label><input id="trig" value="RCA" maxlength="4" style="text-transform:uppercase;font-weight:700"></div>
+        <div><label for="lieu">Lieu</label><input id="lieu" value="Chavenay"></div>
+      </div>
+      <p class="muted" id="importMsg" style="margin-top:12px"></p>
+    </div>
+  </section>
+
+  <!-- 2. Saisie -->
+  <section id="stepWork" class="work hidden">
+    <div class="panel chat">
+      <div class="msgs" id="msgs" aria-live="polite"></div>
+      <div class="chips" id="chips">
+        <button class="chip" data-q="Fait, RAS.">Fait, RAS</button>
+        <button class="chip" data-q="Non fait.">Non fait</button>
+        <button class="chip" data-q="Reprenez la question précédente, je n'ai pas compris.">Je n'ai pas compris</button>
+        <button class="chip cam" id="camBtn" type="button">Photo d'un Form 1</button>
+      </div>
+      <form class="compose" id="compose">
+        <textarea id="txt" rows="1" placeholder="Votre réponse (la dictée du clavier fonctionne)" enterkeyhint="send"></textarea>
+        <button class="btn btn-main" id="sendBtn" type="submit">Envoyer</button>
+      </form>
+      <input type="file" id="camIn" accept="image/*" capture="environment" class="hidden">
+    </div>
+    <aside class="panel prog">
+      <h2>Avancement de l'OT</h2>
+      <div id="prog"></div>
+      <div class="prog-actions">
+        <button class="btn btn-main" style="width:100%" id="toReview">Vérifier et signer</button>
+        <p class="muted" style="margin-top:8px">La saisie est enregistrée sur ce téléphone. En cas de fermeture, réimportez le même PDF pour reprendre.</p>
+      </div>
+    </aside>
+  </section>
+
+  <!-- 3. Vérification + signature -->
+  <section id="stepSign" class="sign hidden">
+    <div>
+      <div class="pages" id="pages"></div>
+      <p class="muted" style="margin-top:8px">Faites glisser un texte pour l'ajuster dans sa case. Touchez deux fois un texte pour le corriger.</p>
+    </div>
+    <div class="panel">
+      <h2>Signature du mécanicien</h2>
+      <div class="pad">
+        <div id="openFlags"></div>
+        <div class="cert" id="certTxt"></div>
+        <label class="tick"><input type="checkbox" id="chkRead"> J'ai relu l'OT rempli page par page.</label>
+        <label class="tick hidden" id="ackWrap"><input type="checkbox" id="chkAck"> J'ai pris connaissance des alertes bloquantes et des actions qu'elles imposent.</label>
+        <label class="tick"><input type="checkbox" id="chkCert"> Je certifie les travaux et je signe l'APRS.</label>
+        <p class="muted" style="margin:8px 0 6px">Signez avec le doigt :</p>
+        <canvas class="sigpad" id="sigpad"></canvas>
+        <div class="row-btn" style="justify-content:space-between">
+          <button class="btn btn-ghost" id="sigClear" type="button">Effacer</button>
+          <button class="btn btn-ok" id="signBtn" type="button" disabled>Signer l'OT</button>
+        </div>
+        <hr style="border:0;border-top:1px solid var(--line);margin:16px 0">
+        <button class="btn btn-main" style="width:100%" id="sendOt" disabled>Envoyer l'OT signé au bureau</button>
+        <button class="btn btn-ghost" style="width:100%;margin-top:8px" id="dlOt" disabled>Télécharger le PDF</button>
+        <button class="btn btn-ghost" style="width:100%;margin-top:8px" id="backWork">Revenir à la saisie</button>
+        <p class="status" id="sendStatus"></p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- Fenêtre Form 1 -->
+<div class="f1" id="f1" role="dialog" aria-modal="true" aria-labelledby="f1t">
+  <div class="f1-box">
+    <h3 id="f1t">Form 1 : vérifiez la lecture</h3>
+    <img class="f1-img" id="f1img" alt="Photo du certificat">
+    <div id="f1warn"></div>
+    <div class="full"><label for="f1bloc">Ligne du tableau « Pièces remplacées »</label><select id="f1bloc"></select></div>
+    <div class="full"><label for="f1desig">Désignation</label><input id="f1desig"></div>
+    <div class="f1-sub">Élément installé (lu sur le certificat)</div>
+    <div class="grid2">
+      <div><label for="f1pn">P/N</label><input id="f1pn" autocapitalize="characters"></div>
+      <div><label for="f1sn">S/N ou quantité</label><input id="f1sn" autocapitalize="characters"></div>
+      <div><label for="f1fab">Fabricant / organisme</label><input id="f1fab"></div>
+      <div><label for="f1num">N° Form 1</label><input id="f1num"></div>
+      <div><label for="f1date">Date du certificat</label><input id="f1date"></div>
+      <div><label for="f1fabd">Fabriqué le (si connu)</label><input id="f1fabd"></div>
+      <div><label for="f1stat">Statut</label><input id="f1stat"></div>
+      <div><label for="f1h">Heures</label><input id="f1h" placeholder="0 si neuf"></div>
+      <div><label for="f1c">Cycles</label><input id="f1c"></div>
+    </div>
+    <div class="f1-sub">Élément déposé</div>
+    <div class="grid2">
+      <div><label for="d1fab">Fabricant</label><input id="d1fab"></div>
+      <div><label for="d1pn">P/N</label><input id="d1pn" autocapitalize="characters"></div>
+      <div><label for="d1sn">S/N ou quantité</label><input id="d1sn" autocapitalize="characters"></div>
+    </div>
+    <div class="row-btn">
+      <button class="btn btn-ghost" id="f1retake" type="button">Reprendre la photo</button>
+      <button class="btn btn-ghost" id="f1cancel" type="button">Annuler</button>
+      <button class="btn btn-ok" id="f1ok" type="button">Valider la pièce</button>
+    </div>
+  </div>
+</div>
+
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+// ═════════════════════════════════════════════════════════════════════
+// LECTURE DE L'OT — repère les cases à partir du texte du PDF SEGA
+// (coordonnées en points PDF, y = ligne de base mesurée depuis le haut)
+// ═════════════════════════════════════════════════════════════════════
+/* PARSE-START */
+function groupLines(items, H) {
+  var its = items.filter(function(i){ return i.str && i.str.trim(); }).map(function(i){
+    var t = i.transform; return { x: t[4], y: H - t[5], w: i.width, h: Math.hypot(t[2], t[3]) || 8, str: i.str };
+  }).sort(function(a, b){ return a.y - b.y || a.x - b.x; });
+  var lines = [];
+  its.forEach(function(it){
+    var L = lines.length ? lines[lines.length - 1] : null;
+    if (L && Math.abs(L.y - it.y) < 2.2) L.items.push(it);
+    else lines.push({ y: it.y, items: [it] });
+  });
+  lines.forEach(function(L){
+    L.items.sort(function(a, b){ return a.x - b.x; });
+    L.x = L.items[0].x;
+    L.text = L.items.map(function(i){ return i.str.trim(); }).join(' ').replace(/\s+/g, ' ').trim();
+  });
+  return lines;
+}
+
+function parseOT(pages) {
+  var F = [];            // champs ordonnés
+  var meta = { immat: '', numero: '', avion: '', heures: '', travaux: '', mecano: '', licence: '' };
+  function add(f){ f.value = f.value || ''; f.size = f.size || 7.5; F.push(f); return f; }
+  function itemIn(L, re){ for (var i = 0; i < L.items.length; i++) if (re.test(L.items[i].str)) return L.items[i]; return null; }
+  function find(lines, re){ for (var i = 0; i < lines.length; i++) if (re.test(lines[i].text)) return lines[i]; return null; }
+  function findAll(lines, re){ return lines.filter(function(l){ return re.test(l.text); }); }
+  function slug(s){ return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '').slice(0, 24); }
+  var itemN = 0, posteN = 0;
+
+  pages.forEach(function(P, pi){
+    var lines = P.lines, all = lines.map(function(l){ return l.text; }).join('\n'), pn = pi + 1;
+
+    // Méta (toutes pages)
+    if (!meta.immat) { var im = all.match(/\bF-[A-Z]{4}\b/); if (im) meta.immat = im[0]; }
+    if (!meta.numero) { var nu = all.match(/Ordre de travail N°\s*([A-Z0-9-]+)/); if (nu) meta.numero = nu[1]; }
+    if (!meta.avion) { var av = find(lines, /S\/N:.*/); if (av && /JODEL|ROBIN|PIPER|CESSNA|DH|DR/.test(av.text)) meta.avion = av.text; }
+
+    // ── Page 1 : en-tête, APRS ──
+    if (/Ordre de travail N°/.test(all)) {
+      var hs = lines.filter(function(l){ return /\d h\d\d|\dh\d\d/.test(l.text) && l.y < 260; }).map(function(l){ return l.text; });
+      meta.heures = hs.join(' ; ');
+      var start = lines.findIndex(function(l){ return /Ordre de travail comprenant/.test(l.text); });
+      var end = lines.findIndex(function(l){ return /Documents à fournir/.test(l.text); });
+      if (start >= 0 && end > start) meta.travaux = lines.slice(start, end).map(function(l){ return l.text; }).join('\n');
+      var nm = find(lines, /^NOM : /); if (nm) meta.mecano = nm.text.replace(/^NOM : /, '');
+      var lic = all.match(/LICENCE : ([A-Z0-9.]+)/); if (lic) meta.licence = lic[1];
+      var aprs = find(lines, /APRS SIGNEE LE/);
+      if (aprs) {
+        var a1 = itemIn(aprs, /APRS SIGNEE/), a2 = itemIn(aprs, /^A:$/);
+        add({ id: 'aprs_date', section: 'Visite et APRS', label: "Date de signature de l'APRS (page 1)", page: pn, x: a1.x + 78, y: aprs.y, w: 90 });
+        add({ id: 'aprs_heure', section: 'Visite et APRS', label: "Heure de remise en service", page: pn, x: (a2 ? a2.x : 410) + 22, y: aprs.y, w: 50 });
+      }
+      var visaL = lines.filter(function(l){ return /VISA :/.test(l.text) && itemIn(l, /VISA :/) && itemIn(l, /VISA :/).x > 200; })[0];
+      if (visaL) P.sigSpots = [{ x: itemIn(visaL, /VISA :/).x + 36, y: visaL.y - 20, w: 105, h: 30 }];
+    }
+
+    // ── Tableaux « Observations / Actions » (pages 2 et 3) ──
+    if (/Observations \/ Actions/.test(all) && /Travaux programmés|Actions de maintenance programmées/.test(all)) {
+      var obsX = 300, visaX = 505, inTable = false, cur = null, poste = false, nomX = 430, prevY = -99;
+      function closeItem(){
+        if (!cur) return;
+        itemN++;
+        var label = cur.title + (cur.details.length ? ' — ' + cur.details.join(' ; ') : '');
+        add({ id: 'stat_' + itemN, section: 'Travaux programmés', kind: 'stat', label: label + ' — statut (fait / non fait)', page: pn,
+              visa: { x: visaX - 6, y: cur.y + 10 } });
+        add({ id: 'obs_' + itemN, section: 'Travaux programmés', label: cur.title + ' — observations / actions', page: pn,
+              x: obsX, y: cur.y, w: visaX - 42 - obsX, size: 7 });
+        cur = null;
+      }
+      lines.forEach(function(L){
+        if (/^établi le/.test(L.text)) { closeItem(); inTable = false; return; }
+        var ho = itemIn(L, /Observations \/ Actions/);
+        if (ho) { closeItem(); inTable = true; poste = false; obsX = ho.x - 18; var hv = itemIn(L, /^VISA$/); if (hv) visaX = hv.x; prevY = L.y; return; }
+        if (/Vérifications de poste/.test(L.text)) { closeItem(); inTable = false; return; }
+        if (/Points à vérifier/.test(L.text)) { poste = true; var hn = itemIn(L, /NOM et VISA/); if (hn) nomX = hn.x; prevY = L.y; return; }
+        if (poste) {
+          if (L.x > 40 && L.x < 70 && L.y - prevY > 14) {
+            posteN++;
+            add({ id: 'poste_' + posteN, section: 'Vérifications de poste', kind: 'stat', label: L.text + ' — vérifié (fait / non fait)', page: pn,
+                  visa: { x: nomX + 40, y: L.y + 6 } });
+          }
+          prevY = L.y; return;
+        }
+        if (!inTable) return;
+        if (L.x > 140 && L.items.length === 1) { closeItem(); prevY = L.y; return; } // titre de section centré
+        if (L.x < 25) {
+          if (!cur || L.y - prevY > 14) { closeItem(); cur = { title: L.text, details: [], y: L.y }; }
+          else if (!cur.details.length) cur.title += ' ' + L.text;
+          else cur.details.push(L.text);
+        } else if (cur) cur.details.push(L.text);
+        prevY = L.y;
+      });
+      closeItem();
+    }
+
+    // ── Travaux reportés ──
+    if (/Travaux reportés lors de la visite/.test(all)) {
+      var nr = find(lines, /Aucun travail reporté/);
+      add({ id: 'rep_aucun', section: 'Travaux reportés', kind: 'none', label: 'Aucun travail reporté ? (oui / non)', page: pn,
+            visa: { x: 330, y: nr ? nr.y - 2 : 190 } });
+      var hd = find(lines, /^Désignation/) || { y: 261 };
+      for (var k = 1; k <= 3; k++) {
+        var top = hd.y + 22 + (k - 1) * 56;
+        add({ id: 'rep_' + k + '_desig', section: 'Travaux reportés', label: 'Travail reporté n°' + k + ' — désignation', page: pn, x: 22, y: top + 16, w: 240, size: 7,
+              visa: { x: 300, y: top + 30 } });
+        add({ id: 'rep_' + k + '_delai', section: 'Travaux reportés', label: 'Travail reporté n°' + k + ' — délai accordé', page: pn, x: 496, y: top + 16, w: 80, size: 7 });
+      }
+    }
+
+    // ── Travaux supplémentaires ──
+    if (/Travaux supplémentaires découverts/.test(all)) {
+      var ns = find(lines, /Aucun travail supplémentaire/);
+      add({ id: 'supp_aucun', section: 'Travaux supplémentaires', kind: 'none', label: 'Aucun travail supplémentaire découvert ? (oui / non)', page: pn,
+            visa: { x: 330, y: ns ? ns.y + 4 : 178 } });
+      var hs2 = find(lines, /Anomalie constatée/) || { y: 230 };
+      for (var s = 1; s <= 3; s++) {
+        var t2 = hs2.y + 14 + (s - 1) * 56;
+        add({ id: 'supp_' + s + '_desig', section: 'Travaux supplémentaires', label: 'Travail supplémentaire n°' + s + ' — désignation', page: pn, x: 20, y: t2 + 14, w: 95, size: 6.5,
+              visa: { x: 446, y: t2 + 30 } });
+        add({ id: 'supp_' + s + '_anomalie', section: 'Travaux supplémentaires', label: 'Travail supplémentaire n°' + s + ' — anomalie constatée', page: pn, x: 122, y: t2 + 14, w: 140, size: 6.5 });
+        add({ id: 'supp_' + s + '_action', section: 'Travaux supplémentaires', label: 'Travail supplémentaire n°' + s + ' — observations / actions', page: pn, x: 268, y: t2 + 14, w: 150, size: 6.5 });
+      }
+    }
+
+    // ── Pièces remplacées ──
+    if (/Pièces remplacées/.test(all)) {
+      var blocks = lines.filter(function(l){ return /^Désignation/.test(l.text) && l.x < 25; });
+      blocks.forEach(function(B, bi){
+        var k = bi + 1, next = blocks[bi + 1] ? blocks[bi + 1].y : 9999;
+        var inB = lines.filter(function(l){ return l.y > B.y && l.y < next; });
+        var fabs = inB.filter(function(l){ return itemIn(l, /^Fabricant/); });
+        var dat = inB.filter(function(l){ return itemIn(l, /^Fabriqué le/); })[0];
+        var sec = 'Pièces remplacées', lb = 'Pièce n°' + k + ' — ';
+        add({ id: 'p' + k + '_desig', section: sec, label: lb + 'désignation', page: pn, x: 88, y: B.y, w: 440 });
+        function trio(L, pre, txt){
+          if (!L) return;
+          var f = itemIn(L, /^Fabricant/), p = itemIn(L, /^P\/N/), s = itemIn(L, /^S\/N/);
+          add({ id: 'p' + k + pre + 'fab', section: sec, label: lb + txt + ' fabricant', page: pn, x: f.x + 46, y: L.y, w: 150, size: 7 });
+          add({ id: 'p' + k + pre + 'pn', section: sec, label: lb + txt + ' P/N', page: pn, x: (p ? p.x : 284) + 24, y: L.y, w: 110, size: 7 });
+          add({ id: 'p' + k + pre + 'sn', section: sec, label: lb + txt + ' S/N ou quantité', page: pn, x: (s ? s.x : 424) + 54, y: L.y, w: 100, size: 7 });
+        }
+        trio(fabs[0], '_dep_', 'déposé :');
+        trio(fabs[1], '_ins_', 'installé :');
+        if (dat) {
+          var a = itemIn(dat, /^Fabriqué/), h = itemIn(dat, /^Heures/), c = itemIn(dat, /^Cycles/), f1 = itemIn(dat, /^Form 1/);
+          add({ id: 'p' + k + '_ins_date', section: sec, label: lb + 'installé : fabriqué le', page: pn, x: a.x + 52, y: dat.y, w: 80, size: 7 });
+          add({ id: 'p' + k + '_ins_h', section: sec, label: lb + 'installé : heures', page: pn, x: (h ? h.x : 219) + 36, y: dat.y, w: 70, size: 7 });
+          add({ id: 'p' + k + '_ins_cyc', section: sec, label: lb + 'installé : cycles', page: pn, x: (c ? c.x : 331) + 36, y: dat.y, w: 70, size: 7 });
+          add({ id: 'p' + k + '_ins_f1', section: sec, label: lb + 'installé : n° Form 1', page: pn, x: (f1 ? f1.x : 443) + 36, y: dat.y, w: 105, size: 7 });
+        }
+      });
+    }
+
+    // ── Personnel et outillage ──
+    if (/Liste du personnel habilité/.test(all)) {
+      var hp = find(lines, /^Initiale/) || { y: 160 };
+      P.persRows = [0, 1, 2].map(function(r){ return { y: hp.y + 34 + r * 34 }; });
+      add({ id: 'pers2_nom', section: 'Personnel', label: "Second intervenant éventuel — nom et prénom", page: pn, x: 150, y: P.persRows[1].y, w: 200 });
+      add({ id: 'pers2_lic', section: 'Personnel', label: "Second intervenant — n° de licence", page: pn, x: 365, y: P.persRows[1].y, w: 90 });
+      var tStart = find(lines, /Liste de l'outillage/), tEnd = find(lines, /Merci de nous communiquer/);
+      var prev = -99, tn = 0;
+      lines.forEach(function(L){
+        if (!tStart || L.y <= tStart.y + 30 || (tEnd && L.y >= tEnd.y)) return;
+        if (L.x < 25 && L.y - prev > 14) {
+          tn++;
+          add({ id: 'outil_' + tn, section: 'Outillage', kind: 'check', label: 'Outillage utilisé ? ' + L.text + ' (oui / non)', page: pn, x: 553, y: L.y + 4, size: 9 });
+        }
+        if (L.x < 25) prev = L.y;
+      });
+    }
+
+    // ── Étiquettes de fin de visite ──
+    if (/Etiquettes de fin de visite/.test(all)) {
+      var dl = lines.filter(function(l){ return /^Date : du/.test(l.text); })[0];
+      if (dl) {
+        add({ id: 'visite_du', section: 'Visite et APRS', label: 'Visite : date de début', page: pn, x: 52, y: dl.y, w: 48, size: 6.5 });
+        add({ id: 'visite_au', section: 'Visite et APRS', label: 'Visite : date de fin', page: pn, x: 112, y: dl.y, w: 48, size: 6.5 });
+      }
+      var tr = lines.filter(function(l){ return /^Travaux reportés/.test(l.text); })[0];
+      if (tr) P.trRep = { non: { x: 79, y: tr.y }, oui: { x: 115, y: tr.y } };
+      var hr = lines.filter(function(l){ return /^Heure de remise en service/.test(l.text); })[0];
+      if (hr) P.heureSpot = { x: 128, y: hr.y };
+      var vl = lines.filter(function(l){ return /^VISA :/.test(l.text) && l.x < 30; });
+      P.sigSpots = vl.slice(-1).map(function(l){ return { x: 50, y: l.y - 10, w: 110, h: 30 }; });
+      var pr = find(lines, /^Pression différentielle/);
+      if (pr) {
+        var cols = pr.items.filter(function(i){ return /80psi/.test(i.str); });
+        for (var c2 = 0; c2 < 4 && c2 < cols.length; c2++)
+          add({ id: 'comp_' + (c2 + 1), section: 'Compressions', label: 'Compression cylindre ' + (c2 + 1) + ' (valeur sur 80 psi)', page: pn, x: cols[c2].x - 18, y: pr.y, w: 20, size: 8 });
+      }
+      P.livrets = lines.filter(function(l){ return /^A\b.*Visa :/.test(l.text); }).map(function(l){
+        var v = itemIn(l, /Visa :/); return { y: l.y, visaX: v ? v.x + 40 : 510 };
+      });
+    }
+
+    // ── Point fixe ──
+    if (/Rapport de point fixe/.test(all)) {
+      var dates = lines.filter(function(l){ return /Date :/.test(l.text); })[0];
+      if (dates) {
+        var di = dates.items.filter(function(i){ return /Date/.test(i.str); });
+        add({ id: 'pf_date_entree', section: 'Point fixe entrée', label: "Point fixe d'entrée — date", page: pn, x: (di[0] ? di[0].x : 270) + 28, y: dates.y, w: 80 });
+        add({ id: 'pf_date_sortie', section: 'Point fixe sortie', label: 'Point fixe de sortie — date', page: pn, x: (di[1] ? di[1].x : 424) + 28, y: dates.y, w: 80 });
+      }
+      var startY = dates ? dates.y : 200, co2 = find(lines, /^CO2/);
+      var rows = lines.filter(function(l){ return l.x < 25 && l.y > startY + 5 && (!co2 || l.y < co2.y) && /[A-Z]/.test(l.text); });
+      rows.forEach(function(L){
+        var name = L.items[0].str.replace(/\s+/g, ' ').trim(), id = slug(name);
+        add({ id: 'pfe_' + id, section: 'Point fixe entrée', label: "Point fixe d'entrée — " + name, page: pn, x: 300, y: L.y, w: 82 });
+        add({ id: 'pfs_' + id, section: 'Point fixe sortie', label: 'Point fixe de sortie — ' + name, page: pn, x: 455, y: L.y, w: 82 });
+      });
+      if (co2) add({ id: 'co2', section: 'Point fixe sortie', label: 'Détecteur CO2 — contrôle en montée et en palier', page: pn, x: 205, y: co2.y, w: 340 });
+      var dnv = find(lines, /^DATE \/ NOM \/ VISA/);
+      if (dnv) P.co2Visa = { x: 140, y: dnv.y };
+    }
+  });
+  return { fields: F, meta: meta };
+}
+/* PARSE-END */
+
+// ═════════════════════════════════════════════════════════════════════
+// ÉTAT
+// ═════════════════════════════════════════════════════════════════════
+var S = { pdf: null, pages: [], fields: [], byId: {}, meta: {}, history: [], flags: [], photos: {},
+          offsets: {}, edits: {}, signature: null, signedAt: null, done: false };
+var $ = function(id){ return document.getElementById(id); };
+function esc(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){ return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+function key(){ return 'agent-ot:' + (S.meta.numero || 'sans-numero'); }
+function ident(){ return { mecano: $('mecano').value.trim(), licence: $('licence').value.trim(), trig: $('trig').value.trim().toUpperCase() || 'VIS', lieu: $('lieu').value.trim() }; }
+
+function save(){
+  try {
+    var vals = {}; S.fields.forEach(function(f){ if (f.value) vals[f.id] = f.value; });
+    localStorage.setItem(key(), JSON.stringify({ vals: vals, history: S.history, flags: S.flags, offsets: S.offsets, done: S.done, ident: ident(), t: Date.now() }));
+    try { localStorage.setItem(key() + ':photos', JSON.stringify(S.photos)); } catch (e) { /* photos trop lourdes : gardées en mémoire */ }
+  } catch (e) {}
+}
+function restore(){
+  try {
+    var raw = localStorage.getItem(key()); if (!raw) return false;
+    var d = JSON.parse(raw);
+    if (!confirm('Une saisie en cours existe pour l\'OT ' + S.meta.numero + '. La reprendre ?')) return false;
+    Object.keys(d.vals || {}).forEach(function(id){ if (S.byId[id]) S.byId[id].value = d.vals[id]; });
+    S.history = d.history || []; S.flags = d.flags || []; S.offsets = d.offsets || {}; S.done = !!d.done;
+    if (d.ident) { $('mecano').value = d.ident.mecano; $('licence').value = d.ident.licence; $('trig').value = d.ident.trig; $('lieu').value = d.ident.lieu; }
+    try { S.photos = JSON.parse(localStorage.getItem(key() + ':photos') || '{}'); } catch (e) {}
+    return true;
+  } catch (e) { return false; }
+}
+
+// ═════════════════════════════════════════════════════════════════════
+// 1. IMPORT
+// ═════════════════════════════════════════════════════════════════════
+$('pdfIn').addEventListener('change', function(e){ if (e.target.files[0]) loadPDF(e.target.files[0]); });
+var drop = $('drop');
+drop.addEventListener('dragover', function(e){ e.preventDefault(); });
+drop.addEventListener('drop', function(e){ e.preventDefault(); var f = e.dataTransfer.files[0]; if (f) loadPDF(f); });
+
+async function loadPDF(file){
+  $('importMsg').textContent = 'Lecture de l\'OT…';
+  try {
+    var buf = new Uint8Array(await file.arrayBuffer());
+    S.pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+    S.pages = [];
+    for (var p = 1; p <= S.pdf.numPages; p++) {
+      var page = await S.pdf.getPage(p), vp = page.getViewport({ scale: 1 });
+      var tc = await page.getTextContent();
+      S.pages.push({ W: vp.width, H: vp.height, lines: groupLines(tc.items, vp.height) });
+    }
+    var r = parseOT(S.pages);
+    S.fields = r.fields; S.meta = r.meta; S.byId = {};
+    S.fields.forEach(function(f){ S.byId[f.id] = f; });
+    if (!S.meta.numero || !S.fields.some(function(f){ return f.kind === 'stat'; })) {
+      $('importMsg').textContent = 'Ce PDF ne ressemble pas à un OT SEGA : aucun travail programmé trouvé. Utilisez la page « Signer un OT SEGA » pour ce document.';
+      return;
+    }
+    if (S.meta.mecano && !$('mecano').dataset.touched) $('mecano').value = S.meta.mecano.replace(/\s+$/, '');
+    if (S.meta.licence) $('licence').value = S.meta.licence;
+    $('hdrOt').textContent = S.meta.immat + ' — OT ' + S.meta.numero;
+    var resumed = restore();
+    $('stepImport').classList.add('hidden');
+    $('stepWork').classList.remove('hidden');
+    renderMsgs(); renderProg();
+    if (!resumed || !S.history.length) send('__START__', true);
+  } catch (e) {
+    $('importMsg').textContent = 'Lecture impossible : ' + e.message;
+  }
+}
+$('mecano').addEventListener('input', function(){ this.dataset.touched = '1'; });
+
+// ═════════════════════════════════════════════════════════════════════
+// 2. CONVERSATION
+// ═════════════════════════════════════════════════════════════════════
+var busy = false;
+function renderMsgs(extra){
+  var h = '';
+  S.history.forEach(function(m){
+    if (m.content === '__START__') return;
+    if (m.role === 'flag') { h += '<div class="flag ' + esc(m.level) + '">' + esc(m.text) + '</div>'; return; }
+    if (m.role === 'user' && /^\[/.test(m.content)) { h += '<div class="m sys">' + esc(m.content) + '</div>'; return; }
+    h += '<div class="m ' + (m.role === 'user' ? 'u' : 'a') + '">' + esc(m.content) +
+         (m.setTxt ? '<div class="set">' + esc(m.setTxt) + '</div>' : '') + '</div>';
+  });
+  if (extra) h += extra;
+  $('msgs').innerHTML = h;
+  $('msgs').scrollTop = $('msgs').scrollHeight;
+}
+
+async function send(text, silent){
+  if (busy || !text.trim()) return;
+  busy = true; $('sendBtn').disabled = true;
+  if (!silent) S.history.push({ role: 'user', content: text });
+  else if (text === '__START__') S.history.push({ role: 'user', content: text });
+  renderMsgs('<div class="typing">L\'agent prépare la question suivante…</div>');
+  try {
+    var hist = S.history.filter(function(m){ return m.role === 'user' || m.role === 'assistant'; })
+                        .slice(0, -1).map(function(m){ return { role: m.role, content: m.content }; });
+    var r = await fetch('/api/agent-ot/turn', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin',
+      body: JSON.stringify({
+        ot: { numero: S.meta.numero, immat: S.meta.immat, avion: S.meta.avion, heures: S.meta.heures, travaux: S.meta.travaux,
+              mecano: ident().mecano + ' (' + ident().licence + ')' },
+        fields: S.fields.map(function(f){ return { id: f.id, section: f.section, label: f.label, value: f.value }; }),
+        history: hist, message: text
+      })
+    });
+    if (r.status === 401) { location.href = '/maintenance/login?next=/agent-ot'; return; }
+    var d = await r.json();
+    if (!r.ok) throw new Error(d.error || ('HTTP ' + r.status));
+    var setTxt = [];
+    (d.set || []).forEach(function(s){
+      var f = S.byId[s.id]; if (!f) return;
+      f.value = s.value; setTxt.push(shortLabel(f) + ' : ' + s.value);
+    });
+    S.history.push({ role: 'assistant', content: d.reply, setTxt: setTxt.length ? 'Noté — ' + setTxt.join(' ; ') : '' });
+    (d.flags || []).forEach(function(fl){ S.history.push({ role: 'flag', level: fl.level, text: fl.text }); S.flags.push(fl); });
+    if (d.done) S.done = true;
+    save();
+  } catch (e) {
+    S.history.push({ role: 'flag', level: 'attention', text: 'L\'agent n\'a pas répondu : ' + e.message + '. Votre message est conservé, renvoyez-le ou reformulez.' });
+  }
+  busy = false; $('sendBtn').disabled = false;
+  renderMsgs(); renderProg();
+}
+
+function shortLabel(f){ var a = f.label.split(' — '), t = a[0].length > 34 ? a[0].slice(0, 34) + '…' : a[0]; return f.kind || a.length < 3 ? t + (a[1] && !f.kind ? ' ' + a[1] : '') : t; }
+
+$('compose').addEventListener('submit', function(e){ e.preventDefault(); var t = $('txt').value; $('txt').value = ''; autoGrow(); send(t); });
+$('txt').addEventListener('keydown', function(e){ if (e.key === 'Enter' && !e.shiftKey && window.matchMedia('(min-width:900px)').matches) { e.preventDefault(); $('compose').requestSubmit(); } });
+function autoGrow(){ var t = $('txt'); t.style.height = 'auto'; t.style.height = Math.min(t.scrollHeight, 140) + 'px'; }
+$('txt').addEventListener('input', autoGrow);
+document.querySelectorAll('.chip[data-q]').forEach(function(b){ b.addEventListener('click', function(){ send(b.dataset.q); }); });
+
+// Avancement
+var OPTIONAL = ['Travaux reportés', 'Travaux supplémentaires', 'Pièces remplacées', 'Personnel', 'Outillage'];
+function renderProg(){
+  var secs = {}, order = [];
+  S.fields.forEach(function(f){
+    if (!secs[f.section]) { secs[f.section] = []; order.push(f.section); }
+    secs[f.section].push(f);
+  });
+  var h = '';
+  order.forEach(function(name){
+    var fs = secs[name], opt = OPTIONAL.indexOf(name) >= 0;
+    var req = fs.filter(function(f){ return name !== 'Travaux programmés' || f.kind === 'stat'; });
+    var n = req.filter(function(f){ return f.value; }).length;
+    h += '<div class="sec"><div class="sec-h">' + esc(name) + '<span>' + (opt ? (n ? n + ' renseigné' + (n > 1 ? 's' : '') : 'si besoin') : n + ' / ' + req.length) + '</span></div>' +
+         (opt ? '' : '<div class="bar"><i style="width:' + Math.round(n / req.length * 100) + '%"></i></div>');
+    if (name === 'Travaux programmés' || name === 'Vérifications de poste') {
+      h += '<div class="items">';
+      fs.filter(function(f){ return f.kind === 'stat'; }).forEach(function(f){
+        var v = (f.value || '').toLowerCase(), cls = /^fait/.test(v) ? 'f' : /non/.test(v) ? 'nf' : '';
+        h += '<div class="it"><b class="' + cls + '">' + (cls === 'f' ? 'Fait' : cls === 'nf' ? 'Non fait' : '—') + '</b><span>' + esc(shortLabel(f)) + '</span></div>';
+      });
+      h += '</div>';
+    }
+    h += '</div>';
+  });
+  $('prog').innerHTML = h;
+}
+
+// ═════════════════════════════════════════════════════════════════════
+// FORM 1 EN PHOTO
+// ═════════════════════════════════════════════════════════════════════
+var f1Photo = null;
+$('camBtn').addEventListener('click', function(){ $('camIn').value = ''; $('camIn').click(); });
+$('f1retake').addEventListener('click', function(){ $('camIn').value = ''; $('camIn').click(); });
+$('f1cancel').addEventListener('click', function(){ $('f1').classList.remove('open'); });
+$('camIn').addEventListener('change', async function(e){
+  var file = e.target.files[0]; if (!file) return;
+  f1Photo = await shrink(file, 1800, 0.82);
+  openF1({}, true);
+  try {
+    var r = await fetch('/api/agent-ot/form1', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin', body: JSON.stringify({ image: f1Photo }) });
+    var d = await r.json(); if (!r.ok) throw new Error(d.error || 'HTTP ' + r.status);
+    openF1(d, false);
+  } catch (err) {
+    $('f1warn').innerHTML = '<div class="warnbox">Lecture automatique impossible (' + esc(err.message) + '). Saisissez les cases à la main à partir de la photo.</div>';
+  }
+});
+
+function shrink(file, max, q){
+  return new Promise(function(res, rej){
+    var img = new Image(), url = URL.createObjectURL(file);
+    img.onload = function(){
+      var s = Math.min(1, max / Math.max(img.width, img.height)), c = document.createElement('canvas');
+      c.width = Math.round(img.width * s); c.height = Math.round(img.height * s);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url); res(c.toDataURL('image/jpeg', q));
+    };
+    img.onerror = function(){ rej(new Error('Image illisible')); };
+    img.src = url;
+  });
+}
+
+function freeBlock(){
+  for (var k = 1; k <= 5; k++) { var f = S.byId['p' + k + '_ins_pn']; if (f && !f.value) return k; }
+  return 1;
+}
+function openF1(d, loading){
+  $('f1img').src = f1Photo;
+  var nb = S.fields.filter(function(f){ return /^p\d+_desig$/.test(f.id); }).length || 5, opt = '', fb = freeBlock();
+  for (var k = 1; k <= nb; k++) {
+    var used = S.byId['p' + k + '_ins_pn'] && S.byId['p' + k + '_ins_pn'].value;
+    opt += '<option value="' + k + '"' + (k === fb ? ' selected' : '') + '>Pièce n°' + k + (used ? ' (déjà remplie : ' + esc(used) + ')' : '') + '</option>';
+  }
+  $('f1bloc').innerHTML = opt;
+  var probs = (d.problemes || []).slice();
+  if (d.signe === false) probs.unshift('Aucune signature visible sur le certificat.');
+  if (d.type_document === 'Illisible') probs.unshift('Certificat illisible : reprenez la photo à plat, sans reflet.');
+  $('f1warn').innerHTML = loading ? '<div class="muted" style="margin-bottom:10px">Lecture du certificat en cours…</div>'
+    : (probs.length ? '<div class="warnbox">' + probs.map(esc).join('<br>') + '</div>' : '');
+  $('f1desig').value = d.designation || '';
+  $('f1pn').value = d.part_number || ''; $('f1sn').value = d.serial_number || d.quantite || '';
+  $('f1fab').value = d.organisme || ''; $('f1num').value = d.numero_suivi || '';
+  $('f1date').value = d.date || ''; $('f1fabd').value = ''; $('f1stat').value = d.statut || '';
+  $('f1h').value = /NEW|NEUF/i.test(d.statut || '') ? '0' : ''; $('f1c').value = /NEW|NEUF/i.test(d.statut || '') ? '0' : '';
+  $('f1').dataset.type = d.type_document || ''; $('f1').dataset.agr = d.agrement || '';
+  $('f1').classList.add('open');
+}
+$('f1bloc').addEventListener('change', function(){
+  var k = this.value;
+  ['dep_fab', 'dep_pn', 'dep_sn'].forEach(function(s, i){ var f = S.byId['p' + k + '_' + s]; if (f && f.value) $(['d1fab', 'd1pn', 'd1sn'][i]).value = f.value; });
+});
+$('f1ok').addEventListener('click', function(){
+  var k = $('f1bloc').value;
+  if (!$('f1pn').value.trim()) { alert('Le P/N de la pièce installée est obligatoire.'); return; }
+  function put(id, v){ var f = S.byId['p' + k + '_' + id]; if (f && v !== '') f.value = v; }
+  put('desig', $('f1desig').value.trim());
+  put('ins_pn', $('f1pn').value.trim()); put('ins_sn', $('f1sn').value.trim()); put('ins_fab', $('f1fab').value.trim());
+  put('ins_f1', $('f1num').value.trim() + ($('f1date').value.trim() ? ' du ' + $('f1date').value.trim() : '')); put('ins_date', $('f1fabd').value.trim());
+  put('ins_h', $('f1h').value.trim()); put('ins_cyc', $('f1c').value.trim());
+  put('dep_fab', $('d1fab').value.trim()); put('dep_pn', $('d1pn').value.trim()); put('dep_sn', $('d1sn').value.trim());
+  S.photos[k] = { img: f1Photo, cap: ($('f1').dataset.type || 'Certificat') + ' — ' + $('f1desig').value + ' — P/N ' + $('f1pn').value + ' — S/N ' + $('f1sn').value +
+                  ' — N° ' + $('f1num').value + ($('f1').dataset.agr ? ' — ' + $('f1').dataset.agr : '') + ' — ' + $('f1stat').value };
+  $('f1').classList.remove('open');
+  ['d1fab', 'd1pn', 'd1sn'].forEach(function(i){ $(i).value = ''; });
+  save(); renderProg();
+  send('[Form 1 validé pour la pièce n°' + k + ' : ' + $('f1desig').value + ', P/N ' + $('f1pn').value + ', S/N ' + $('f1sn').value +
+       ', statut ' + $('f1stat').value + ', certificat ' + $('f1num').value + ', date ' + $('f1date').value +
+       '. Déposé : P/N ' + (S.byId['p' + k + '_dep_pn'] ? S.byId['p' + k + '_dep_pn'].value || 'non renseigné' : '') + ']');
+});
+
+// ═════════════════════════════════════════════════════════════════════
+// 3. VÉRIFICATION — calques posés sur les pages du PDF
+// ═════════════════════════════════════════════════════════════════════
+$('toReview').addEventListener('click', function(){
+  $('stepWork').classList.add('hidden'); $('stepSign').classList.remove('hidden');
+  window.scrollTo(0, 0); prepareSign(); renderPages();
+});
+$('backWork').addEventListener('click', function(){
+  $('stepSign').classList.add('hidden'); $('stepWork').classList.remove('hidden'); renderMsgs();
+});
+
+function overlays(){
+  var id = ident(), signed = !!S.signature, out = [];
+  function txt(k, page, x, y, text, size, w){ out.push({ k: k, type: 'txt', page: page, x: x, y: y, text: text, size: size || 7.5, w: w }); }
+  function trig(k, page, x, y){ out.push({ k: k, type: 'trig', page: page, x: x, y: y, text: id.trig, size: 7, ghost: !signed }); }
+  function chk(k, page, x, y){ out.push({ k: k, type: 'chk', page: page, x: x, y: y, text: 'X', size: 9 }); }
+  function sig(k, page, x, y, w, h){ var b = fit(w || 105, h || 28); out.push({ k: k, type: 'sig', page: page, x: x, y: y, w: b.w, h: b.h, ghost: !signed }); }
+
+  S.fields.forEach(function(f){
+    var v = (f.value || '').trim(), yes = /^(oui|fait|x|vrai)/i.test(v);
+    if (f.kind === 'stat') { if (/^fait/i.test(v) && f.visa) trig(f.id, f.page, f.visa.x, f.visa.y); return; }
+    if (f.kind === 'none') { if (yes && f.visa) trig(f.id, f.page, f.visa.x, f.visa.y); return; }
+    if (f.kind === 'check') { if (yes) chk(f.id, f.page, f.x, f.y); return; }
+    if (!v) return;
+    txt(f.id, f.page, f.x, f.y, v, f.size, f.w);
+    if (f.visa) trig(f.id + ':v', f.page, f.visa.x, f.visa.y);   // VISA resp. technique sur les lignes saisies
+  });
+
+  S.pages.forEach(function(P, i){
+    var pn = i + 1, today = new Date(), dd = ('0' + today.getDate()).slice(-2), mm = ('0' + (today.getMonth() + 1)).slice(-2), yy = String(today.getFullYear());
+    var aprsD = val('aprs_date') || (dd + '/' + mm + '/' + yy), h = val('aprs_heure');
+    var hm = (h.match(/(\d{1,2})\s*[h:]\s*(\d{2})?/) || []);
+    (P.sigSpots || []).forEach(function(s, j){ sig('sig_' + pn + '_' + j, pn, s.x, s.y, s.w, s.h); });
+    if (P.heureSpot && h) txt('heure8', pn, P.heureSpot.x, P.heureSpot.y, h, 6.5, 60);
+    if (P.trRep) {
+      var hasRep = S.fields.some(function(f){ return /^rep_\d_desig$/.test(f.id) && f.value; });
+      if (hasRep) chk('trrep', pn, P.trRep.oui.x, P.trRep.oui.y); else if (/^oui/i.test(val('rep_aucun'))) chk('trrep', pn, P.trRep.non.x, P.trRep.non.y);
+    }
+    (P.livrets || []).forEach(function(L, j){
+      var d = aprsD.split('/');
+      txt('liv_lieu_' + j, pn, 35, L.y, id.lieu, 7, 100);
+      if (d.length === 3) { txt('liv_j_' + j, pn, 156, L.y, d[0], 7); txt('liv_m_' + j, pn, 173, L.y, d[1], 7); txt('liv_a_' + j, pn, 191, L.y, d[2], 7); }
+      if (hm[1]) { txt('liv_h_' + j, pn, 236, L.y, hm[1], 7); if (hm[2]) txt('liv_mn_' + j, pn, 262, L.y, hm[2], 7); }
+      sig('liv_sig_' + j, pn, L.visaX - 8, L.y - 20, 70, 22);
+    });
+    if (P.persRows) {
+      var r1 = P.persRows[0];
+      txt('pers1_i', pn, 40, r1.y, id.trig, 7.5); txt('pers1_n', pn, 150, r1.y, id.mecano, 7.5, 200); txt('pers1_l', pn, 365, r1.y, id.licence, 7.5, 90);
+      trig('pers1_v', pn, 498, r1.y - 2);
+      if (val('pers2_nom')) {
+        var ini = val('pers2_nom').split(/\s+/).map(function(w){ return w[0]; }).join('').toUpperCase().slice(0, 3);
+        txt('pers2_i', pn, 40, P.persRows[1].y, ini, 7.5);
+      }
+    }
+    if (P.co2Visa && val('co2')) { txt('co2_dnv', pn, P.co2Visa.x, P.co2Visa.y, aprsD + '  ' + id.mecano, 7, 200); trig('co2_v', pn, P.co2Visa.x + 230, P.co2Visa.y); }
+  });
+  return out.map(function(o){ var off = S.offsets[o.k]; if (off) { o.x += off.dx; o.y += off.dy; } return o; });
+}
+function fit(w, h){ var r = S.sigRatio || 0.4; var ww = Math.min(w, h / r); return { w: ww, h: ww * r }; }
+function val(id){ return S.byId[id] ? (S.byId[id].value || '').trim() : ''; }
+
+async function renderPages(){
+  var box = $('pages'); box.innerHTML = '';
+  for (var p = 1; p <= S.pdf.numPages; p++) {
+    var P = S.pages[p - 1], page = await S.pdf.getPage(p), scale = 2;
+    var vp = page.getViewport({ scale: scale }), cv = document.createElement('canvas');
+    cv.width = vp.width; cv.height = vp.height;
+    await page.render({ canvasContext: cv.getContext('2d'), viewport: vp }).promise;
+    var wrap = document.createElement('div'); wrap.className = 'pg'; wrap.dataset.page = p;
+    wrap.appendChild(cv); box.appendChild(wrap);
+  }
+  drawOverlays();
+}
+
+function drawOverlays(){
+  document.querySelectorAll('.ov').forEach(function(e){ e.remove(); });
+  var list = overlays();
+  list.forEach(function(o){
+    var wrap = document.querySelector('.pg[data-page="' + o.page + '"]'); if (!wrap) return;
+    var P = S.pages[o.page - 1], W = P.W, H = P.H, el = document.createElement('div');
+    var u = 100 / W; // 1 pt en cqw
+    el.className = 'ov ' + o.type + (o.ghost ? ' ghost' : '');
+    el.style.left = (o.x / W * 100) + '%';
+    el.style.fontSize = (o.size || 7) * u + 'cqw';
+    if (o.type === 'sig') {
+      el.style.top = (o.y / H * 100) + '%'; el.style.width = (o.w / W * 100) + '%';
+      el.innerHTML = o.ghost ? '<small>Signature ' + esc(ident().mecano) + '</small>' :
+        '<img alt="Signature" src="' + S.signature + '"><small>' + esc(ident().mecano + ' ' + ident().licence) + '</small>';
+      if (o.ghost) { el.style.border = '1.2px dashed #0b2a8a'; el.style.fontSize = 6 * u + 'cqw'; el.style.height = (o.h / H * 100) + '%'; }
+    } else {
+      el.style.top = ((o.y - (o.size || 7)) / H * 100) + '%';
+      if (o.w) el.style.width = (o.w / W * 100) + '%';
+      el.textContent = o.text;
+    }
+    el.dataset.k = o.k;
+    drag(el, wrap, o);
+    if (o.type === 'txt' && S.byId[o.k]) el.addEventListener('dblclick', function(){
+      var nv = prompt(shortLabel(S.byId[o.k]), S.byId[o.k].value); if (nv === null) return;
+      S.byId[o.k].value = nv.trim(); save(); drawOverlays();
+    });
+    wrap.appendChild(el);
+  });
+}
+
+function drag(el, wrap, o){
+  var sx, sy, moved = false, P = S.pages[o.page - 1];
+  el.addEventListener('pointerdown', function(e){
+    sx = e.clientX; sy = e.clientY; moved = false; el.setPointerCapture(e.pointerId);
+  });
+  el.addEventListener('pointermove', function(e){
+    if (sx == null) return;
+    var r = wrap.getBoundingClientRect(), dx = (e.clientX - sx) / r.width * P.W, dy = (e.clientY - sy) / r.height * P.H;
+    if (Math.abs(dx) + Math.abs(dy) > 1) moved = true;
+    el.style.transform = 'translate(' + (e.clientX - sx) + 'px,' + (e.clientY - sy) + 'px)';
+    el._d = { dx: dx, dy: dy };
+  });
+  el.addEventListener('pointerup', function(){
+    sx = null;
+    if (moved && el._d) {
+      var off = S.offsets[o.k] || { dx: 0, dy: 0 };
+      S.offsets[o.k] = { dx: off.dx + el._d.dx, dy: off.dy + el._d.dy }; save(); drawOverlays();
+    }
+  });
+}
+
+// ═════════════════════════════════════════════════════════════════════
+// SIGNATURE
+// ═════════════════════════════════════════════════════════════════════
+var pad = $('sigpad'), pctx, inked = false;
+function setupPad(){
+  var r = pad.getBoundingClientRect(), d = window.devicePixelRatio || 1;
+  pad.width = r.width * d; pad.height = r.height * d;
+  pctx = pad.getContext('2d'); pctx.scale(d, d); pctx.lineWidth = 2.2; pctx.lineCap = 'round'; pctx.lineJoin = 'round'; pctx.strokeStyle = '#0b2a8a';
+  inked = false;
+}
+var drawing = false;
+pad.addEventListener('pointerdown', function(e){ drawing = true; pad.setPointerCapture(e.pointerId); var r = pad.getBoundingClientRect(); pctx.beginPath(); pctx.moveTo(e.clientX - r.left, e.clientY - r.top); });
+pad.addEventListener('pointermove', function(e){ if (!drawing) return; var r = pad.getBoundingClientRect(); pctx.lineTo(e.clientX - r.left, e.clientY - r.top); pctx.stroke(); inked = true; checkSign(); });
+pad.addEventListener('pointerup', function(){ drawing = false; });
+$('sigClear').addEventListener('click', function(){ setupPad(); checkSign(); });
+['chkRead', 'chkAck', 'chkCert'].forEach(function(i){ $(i).addEventListener('change', checkSign); });
+
+function trimPad(){
+  var w = pad.width, h = pad.height, d = pctx.getImageData(0, 0, w, h).data, x0 = w, y0 = h, x1 = 0, y1 = 0;
+  for (var y = 0; y < h; y++) for (var x = 0; x < w; x++) if (d[(y * w + x) * 4 + 3] > 20) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+  if (x1 <= x0) return { url: pad.toDataURL('image/png'), ratio: h / w };
+  var m = 6; x0 = Math.max(0, x0 - m); y0 = Math.max(0, y0 - m); x1 = Math.min(w - 1, x1 + m); y1 = Math.min(h - 1, y1 + m);
+  var c = document.createElement('canvas'); c.width = x1 - x0; c.height = y1 - y0;
+  c.getContext('2d').drawImage(pad, x0, y0, c.width, c.height, 0, 0, c.width, c.height);
+  return { url: c.toDataURL('image/png'), ratio: c.height / c.width };
+}
+function blocking(){ return S.flags.filter(function(f){ return f.level === 'bloquant'; }); }
+function prepareSign(){
+  setTimeout(setupPad, 50);
+  var b = blocking(), empt = S.fields.filter(function(f){ return f.kind === 'stat' && !f.value; });
+  var h = '';
+  if (empt.length) h += '<div class="warnbox">' + empt.length + ' travail(aux) sans statut : ' + empt.map(function(f){ return esc(shortLabel(f)); }).join(', ') + '. L\'OT exige de justifier les cases non renseignées.</div>';
+  b.forEach(function(f){ h += '<div class="flag bloquant" style="margin-bottom:8px">' + esc(f.text) + '</div>'; });
+  $('openFlags').innerHTML = h;
+  $('ackWrap').classList.toggle('hidden', !b.length);
+  var id = ident();
+  $('certTxt').textContent = '« Certifie que le travail réalisé, sauf indication contraire, a été effectué en conformité avec la PART-M / PART-ML et à l\'égard du travail réalisé, l\'aéronef est considéré comme prêt pour remise en service. » — ' +
+    id.mecano + ', licence ' + id.licence + ', ' + S.meta.immat + ', OT ' + S.meta.numero + '.';
+  checkSign();
+}
+function checkSign(){
+  var ok = inked && $('chkRead').checked && $('chkCert').checked && (!blocking().length || $('chkAck').checked);
+  $('signBtn').disabled = !ok || !!S.signature;
+}
+$('signBtn').addEventListener('click', function(){
+  if (!val('aprs_date')) { var t = new Date(); S.byId.aprs_date && (S.byId.aprs_date.value = ('0' + t.getDate()).slice(-2) + '/' + ('0' + (t.getMonth() + 1)).slice(-2) + '/' + t.getFullYear()); }
+  if (!val('aprs_heure')) { var hh = prompt('Heure de remise en service (ex. 16h30) :', ''); if (hh && S.byId.aprs_heure) S.byId.aprs_heure.value = hh.trim(); }
+  var t = trimPad(); S.signature = t.url; S.sigRatio = t.ratio; S.signedAt = new Date().toISOString();
+  $('signBtn').disabled = true; $('signBtn').textContent = 'OT signé';
+  $('sendOt').disabled = false; $('dlOt').disabled = false;
+  save(); drawOverlays();
+  $('sendStatus').textContent = 'Signature apposée sur l\'OT. Vérifiez les pages, puis envoyez-le au bureau.';
+});
+
+// ═════════════════════════════════════════════════════════════════════
+// EXPORT PDF (OT rempli et signé + Form 1 en annexe)
+// ═════════════════════════════════════════════════════════════════════
+function pdfText(s){ return String(s).replace(/[’‘]/g, "'").replace(/[“”«»]/g, '"').replace(/[–—]/g, '-').replace(/…/g, '...'); }
+async function buildPdf(){
+  var J = new window.jspdf.jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' }), PW = 210, PH = 297;
+  var list = overlays();
+  for (var p = 1; p <= S.pdf.numPages; p++) {
+    if (p > 1) J.addPage();
+    var P = S.pages[p - 1], page = await S.pdf.getPage(p), vp = page.getViewport({ scale: 2.4 }), cv = document.createElement('canvas');
+    cv.width = vp.width; cv.height = vp.height;
+    await page.render({ canvasContext: cv.getContext('2d'), viewport: vp }).promise;
+    J.addImage(cv.toDataURL('image/jpeg', 0.9), 'JPEG', 0, 0, PW, PH);
+    var k = PW / P.W;
+    list.filter(function(o){ return o.page === p; }).forEach(function(o){
+      var x = o.x * k, y = o.y * k;
+      J.setTextColor(11, 42, 138);
+      if (o.type === 'sig') {
+        var w = o.w * k, h = o.h * k;
+        J.addImage(S.signature, 'PNG', x, y, w, h);
+        J.setFont('helvetica', 'normal'); J.setFontSize(5);
+        J.text(pdfText(ident().mecano + ' ' + ident().licence), x, y + h + 1.6);
+      } else if (o.type === 'trig') {
+        J.setFont('helvetica', 'bold'); J.setFontSize(o.size);
+        var tw = J.getTextWidth(o.text); J.setDrawColor(11, 42, 138); J.setLineWidth(0.25);
+        J.rect(x - 0.6, y - o.size * 0.3528 - 0.4, tw + 1.2, o.size * 0.3528 + 1.2);
+        J.text(o.text, x, y);
+      } else {
+        J.setFont('helvetica', o.type === 'chk' ? 'bold' : 'normal'); J.setFontSize(o.size);
+        var lines = o.w ? J.splitTextToSize(pdfText(o.text), o.w * k) : [pdfText(o.text)];
+        J.text(lines, x, y, { lineHeightFactor: 1.15 });
+      }
+    });
+  }
+  // Annexes Form 1
+  Object.keys(S.photos).sort().forEach(function(n){
+    var ph = S.photos[n]; if (!ph || !ph.img) return;
+    J.addPage(); J.setTextColor(20, 22, 58); J.setFont('helvetica', 'bold'); J.setFontSize(11);
+    J.text(pdfText('Annexe — OT ' + S.meta.numero + ' ' + S.meta.immat + ' — certificat de la pièce n°' + n), 12, 14);
+    J.setFont('helvetica', 'normal'); J.setFontSize(8);
+    J.text(J.splitTextToSize(pdfText(ph.cap), 186), 12, 20);
+    var props = J.getImageProperties(ph.img), maxW = 186, maxH = 250, r = Math.min(maxW / props.width, maxH / props.height);
+    J.addImage(ph.img, 'JPEG', 12, 30, props.width * r, props.height * r);
+  });
+  // Journal de saisie
+  J.addPage(); J.setTextColor(20, 22, 58); J.setFont('helvetica', 'bold'); J.setFontSize(11);
+  J.text(pdfText('Journal de saisie — OT ' + S.meta.numero + ' ' + S.meta.immat), 12, 14);
+  J.setFont('helvetica', 'normal'); J.setFontSize(8.5);
+  var y = 22, lines = ['Saisie assistée par l\'agent atelier A.R.C. Signé par ' + ident().mecano + ' (' + ident().licence + ') le ' + new Date(S.signedAt).toLocaleString('fr-FR') + '.', '',
+    'Alertes relevées pendant la saisie :'].concat(S.flags.length ? S.flags.map(function(f){ return '- [' + f.level + '] ' + f.text; }) : ['- aucune']);
+  if (blocking().length) lines.push('', 'Le mécanicien a déclaré avoir pris connaissance des alertes bloquantes avant de signer.');
+  lines.forEach(function(l){ J.splitTextToSize(pdfText(l), 186).forEach(function(s){ if (y > 285) { J.addPage(); y = 14; } J.text(s, 12, y); y += 4.4; }); });
+  return J;
+}
+function fname(){ return 'OT_' + (S.meta.immat || '') + '_' + (S.meta.numero || '') + '_signe.pdf'; }
+
+$('dlOt').addEventListener('click', async function(){
+  var b = this; b.disabled = true; b.textContent = 'Préparation du PDF…';
+  try { (await buildPdf()).save(fname()); } catch (e) { alert('Export impossible : ' + e.message); }
+  b.disabled = false; b.textContent = 'Télécharger le PDF';
+});
+$('sendOt').addEventListener('click', async function(){
+  var b = this; b.disabled = true; b.textContent = 'Envoi en cours…'; $('sendStatus').textContent = '';
+  try {
+    var J = await buildPdf(), b64 = J.output('datauristring').split(',')[1];
+    if (b64.length > 14.5 * 1024 * 1024) throw new Error('PDF trop lourd pour l\'envoi : téléchargez-le et transmettez-le manuellement');
+    var vals = {}; S.fields.forEach(function(f){ if (f.value) vals[f.id] = f.value; });
+    var r = await fetch('/api/agent-ot/send', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin',
+      body: JSON.stringify({ pdf: b64, filename: fname(), immat: S.meta.immat, numero: S.meta.numero, mecano: ident().mecano, valeurs: vals, alertes: S.flags }) });
+    var d = await r.json(); if (!r.ok) throw new Error(d.error || 'HTTP ' + r.status);
+    $('sendStatus').textContent = 'OT envoyé à ' + d.dest + '. Pensez à reporter l\'APRS dans les livrets.';
+    $('sendStatus').style.color = 'var(--ok)';
+    b.textContent = 'OT envoyé';
+    try { localStorage.removeItem(key()); localStorage.removeItem(key() + ':photos'); } catch (e) {}
+  } catch (e) {
+    $('sendStatus').textContent = 'Envoi impossible : ' + e.message; $('sendStatus').style.color = 'var(--stop)';
+    b.disabled = false; b.textContent = 'Envoyer l\'OT signé au bureau';
+  }
+});
+</script>
+</body>
+</html>
